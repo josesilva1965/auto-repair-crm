@@ -1,0 +1,118 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://iygufdkbticpalescryr.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5Z3VmZGtidGljcGFsZXNjcnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NzEyNjAsImV4cCI6MjA4MDM0NzI2MH0.J45-nDuu6YUE-XsK6pz1t1wtgqPWAgkUg22GReNi3rw';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export type Customer = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type Technician = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  specialization: string | null;
+  hourly_rate: number;
+  status: string | null;
+  created_at: string;
+};
+
+export type Vehicle = {
+  id: string;
+  customer_id: string;
+  vin: string | null;
+  make: string;
+  model: string;
+  year: number | null;
+  license_plate: string | null;
+  mileage: number | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type InventoryPart = {
+  id: string;
+  part_number: string;
+  name: string;
+  category: string | null;
+  quantity: number;
+  unit_cost: number;
+  selling_price: number;
+  min_stock: number;
+  supplier: string | null;
+  created_at: string;
+};
+
+export type WorkOrder = {
+  id: string;
+  customer_id: string;
+  vehicle_id: string;
+  technician_id: string | null;
+  status: string;
+  priority: string;
+  description: string | null;
+  diagnosis: string | null;
+  estimated_cost: number;
+  actual_cost: number;
+  scheduled_date: string | null;
+  completed_date: string | null;
+  created_at: string;
+};
+
+export type Invoice = {
+  id: string;
+  invoice_number: string;
+  work_order_id: string;
+  customer_id: string;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  status: string;
+  due_date: string | null;
+  paid_date: string | null;
+  created_at: string;
+};
+
+export type ServiceHistory = {
+  id: string;
+  vehicle_id: string;
+  work_order_id: string | null;
+  service_type: string | null;
+  description: string | null;
+  mileage: number | null;
+  service_date: string | null;
+  next_service_date: string | null;
+  next_service_mileage: number | null;
+  created_at: string;
+};
+
+export type Message = {
+  id: string;
+  customer_id: string;
+  direction: 'inbound' | 'outbound';
+  content: string;
+  read: boolean;
+  created_at: string;
+};
+
+export type ServiceReminder = {
+  id: string;
+  vehicle_id: string;
+  customer_id: string;
+  service_type: string;
+  due_date: string;
+  status: 'pending' | 'sent' | 'completed' | 'cancelled';
+  created_at: string;
+};
+
+
