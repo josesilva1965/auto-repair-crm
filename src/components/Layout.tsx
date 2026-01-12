@@ -61,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed left-0 top-0 h-screen w-60 bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 flex flex-col z-50
+        fixed left-0 top-0 h-screen w-64 lg:w-60 bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 flex flex-col z-50
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0
@@ -129,7 +129,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 md:ml-60">
+      <main className="flex-1 md:ml-64 lg:ml-60">
         {/* Mobile header with hamburger */}
         <div className="md:hidden sticky top-0 z-30 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3 flex items-center gap-3">
           <button
@@ -152,7 +152,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <NotificationBell />
         </div>
 
-        <div className="p-4 md:p-8 md:pt-0 max-w-[1400px] mx-auto">{children}</div>
+        <div className="p-4 md:p-6 lg:p-8 lg:pt-0 max-w-[1600px] mx-auto">{children}</div>
       </main>
 
       {/* Keyboard shortcuts help modal */}

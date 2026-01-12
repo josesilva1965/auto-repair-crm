@@ -6,14 +6,15 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
-const sizeMap = {
-  sm: 'max-w-md',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl',
+const modalSizes = {
+  sm: 'max-w-sm',
+  md: 'max-w-md md:max-w-lg',
+  lg: 'max-w-lg md:max-w-2xl lg:max-w-4xl',
+  xl: 'max-w-xl md:max-w-3xl lg:max-w-6xl',
+  full: 'max-w-full',
 };
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
@@ -33,7 +34,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={`relative bg-white rounded-xl shadow-float w-full ${sizeMap[size]} mx-4 max-h-[90vh] overflow-hidden flex flex-col`}>
+      <div className={`relative bg-white rounded-xl shadow-float w-full ${modalSizes[size]} mx-4 max-h-[90vh] overflow-hidden flex flex-col`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
           <h2 className="text-lg font-semibold text-neutral-900">{title}</h2>
           <button
