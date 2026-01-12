@@ -18,10 +18,12 @@ const resources = {
             "reminders": "Service Reminders",
             "bookings": "Bookings",
             "new_booking": "New Booking",
+            "add_booking": "Add Booking",
+            "book_slot": "Book Slot",
             "time": "Time",
             "select_date": "Select a date to view bookings",
             "save_booking": "Save Booking",
-            "book_slot": "Book Slot",
+
             "total_bookings": "Total Bookings",
             // "stats": "Statistics", // Use existing key
 
@@ -90,6 +92,7 @@ const resources = {
             "medium": "Medium",
             "low": "Low",
             "in_progress": "In Progress",
+            "testing": "Testing",
             "waiting_parts": "Waiting for Parts",
             "scheduled": "Scheduled",
 
@@ -257,6 +260,48 @@ const resources = {
             "end_time": "End Time",
             "no_available_slots": "No available slots for this day",
 
+            // Estimates
+            "estimates": "Estimates",
+            "create_estimate": "Create Estimate",
+            "send_estimate": "Send Estimate to Customer",
+            "send_estimate_to_customer": "Send an estimate to the customer for approval",
+            "estimate_preview": "Estimate Preview",
+            "estimate_number": "Estimate #",
+            "estimate_details": "Estimate Details",
+            "notes_to_customer": "Notes to Customer",
+            "estimate_notes_placeholder": "Add any notes or context for the customer...",
+            "send_via": "Send via:",
+            "sms": "SMS",
+            "print": "Print",
+            "sending": "Sending...",
+            "manage_estimates": "Manage customer estimates",
+            "search_estimates": "Search estimates...",
+            "awaiting_response": "Awaiting Response",
+            "approved": "Approved",
+            "rejected": "Rejected",
+            "draft": "Draft",
+            "awaiting_approval": "Awaiting Approval",
+            "estimate_awaiting_approval": "Estimate sent - awaiting customer approval",
+            "estimate_approved": "Customer has approved the estimate",
+            "resend_email": "Resend Email",
+            "resend_sms": "Resend SMS",
+            "mark_approved": "Mark Approved",
+            "mark_rejected": "Mark Rejected",
+            "send_email": "Send Email",
+            "send_sms": "Send SMS",
+            "created": "Created",
+            "sent_via": "Sent Via",
+            "approved_at": "Approved At",
+            "itemized_breakdown": "Itemized Breakdown",
+            "no_items": "No line items found",
+            "work_order": "Work Order",
+
+            // Notifications
+            "notifications": "Notifications",
+            "no_notifications": "No notifications",
+            "mark_all_read": "Mark all read",
+            "just_now": "Just now",
+
             // Misc
             "general": "General",
             "dark_mode": "Dark Mode",
@@ -344,6 +389,7 @@ const resources = {
             "medium": "Média",
             "low": "Baixa",
             "in_progress": "Em Progresso",
+            "testing": "Em Testes",
             "waiting_parts": "À Espera de Peças",
             "scheduled": "Agendado",
 
@@ -463,6 +509,8 @@ const resources = {
 
             "bookings": "Agendamentos",
             "new_booking": "Novo Agendamento",
+            "add_booking": "Adicionar Agendamento",
+            "book_slot": "Reservar Horário",
             "time": "Hora",
             "select_date": "Selecione uma data para ver os agendamentos",
             "save_booking": "Guardar Agendamento",
@@ -604,6 +652,7 @@ const resources = {
             "medium": "Moyenne",
             "low": "Basse",
             "in_progress": "En Cours",
+            "testing": "En Test",
             "waiting_parts": "En Attente de Pièces",
             "scheduled": "Planifié",
 
@@ -697,6 +746,10 @@ const resources = {
             "type_message": "Tapez un message...",
             "send": "Envoyer",
             "search_conversations": "Rechercher conversations...",
+
+            // Service Reminders
+            "add_booking": "Ajouter Réservation",
+            "book_slot": "Réserver",
 
             // Service Reminders
             "automated_notifications": "Notifications de service automatiques",
@@ -797,6 +850,7 @@ const resources = {
             "medium": "Media",
             "low": "Baja",
             "in_progress": "En Progreso",
+            "testing": "En Pruebas",
             "waiting_parts": "Esperando Piezas",
             "scheduled": "Programado",
 
@@ -890,6 +944,10 @@ const resources = {
             "type_message": "Escribir mensaje...",
             "send": "Enviar",
             "search_conversations": "Buscar conversaciones...",
+
+            // Service Reminders
+            "add_booking": "Añadir Reserva",
+            "book_slot": "Reservar",
 
             // Service Reminders
             "automated_notifications": "Notificaciones automáticas de servicio",
@@ -990,6 +1048,7 @@ const resources = {
             "medium": "Mittel",
             "low": "Niedrig",
             "in_progress": "In Bearbeitung",
+            "testing": "Testphase",
             "waiting_parts": "Warte auf Teile",
             "scheduled": "Geplant",
 
@@ -1083,6 +1142,10 @@ const resources = {
             "type_message": "Nachricht eingeben...",
             "send": "Senden",
             "search_conversations": "Unterhaltungen suchen...",
+
+            // Service Reminders
+            "add_booking": "Buchung hinzufügen",
+            "book_slot": "Buchen",
 
             // Service Reminders
             "automated_notifications": "Automatische Servicebenachrichtigungen",

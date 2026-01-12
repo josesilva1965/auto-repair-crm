@@ -5,6 +5,7 @@ import { supabase, type Vehicle, type Customer, type ServiceHistory } from '../l
 import { DataTable } from '../components/DataTable';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
 import { Plus, Search, History, AlertCircle } from 'lucide-react';
+import { carMakes, getCarLogoUrl, getModelsForMake } from '../data/carMakes';
 
 export function Vehicles() {
   const { t } = useTranslation();
@@ -28,6 +29,8 @@ export function Vehicles() {
     mileage: '',
     notes: '',
   });
+  const [useCustomMake, setUseCustomMake] = useState(false);
+  const [useCustomModel, setUseCustomModel] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -48,24 +51,44 @@ export function Vehicles() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const payload = {
-      ...form,
-      year: parseInt(form.year) || null,
-      mileage: parseInt(form.mileage) || null,
-    };
-    if (editingVehicle) {
-      await supabase.from('vehicles').update(payload).eq('id', editingVehicle.id);
-    } else {
-      await supabase.from('vehicles').insert([payload]);
+    try {
+      const payload = {
+        ...form,
+        customer_id: form.customer_id || null, // Handle empty string for UUID
+        year: parseInt(form.year) || null,
+        mileage: parseInt(form.mileage) || null,
+      };
+
+      console.log('Submitting vehicle payload:', payload);
+
+      let error;
+      if (editingVehicle) {
+        const result = await supabase.from('vehicles').update(payload).eq('id', editingVehicle.id);
+        error = result.error;
+      } else {
+        const result = await supabase.from('vehicles').insert([payload]);
+        error = result.error;
+      }
+
+      if (error) {
+        throw error;
+      }
+
+      setIsModalOpen(false);
+      setEditingVehicle(null);
+      resetForm();
+      loadData();
+    } catch (err: any) {
+      console.error('Error saving vehicle:', err);
+      const errorMessage = err.message || err.hint || err.details || 'Unknown error';
+      alert(`Failed to save vehicle: ${errorMessage}`);
     }
-    setIsModalOpen(false);
-    setEditingVehicle(null);
-    resetForm();
-    loadData();
   }
 
   function resetForm() {
     setForm({ customer_id: '', vin: '', make: '', model: '', year: '', license_plate: '', color: '', mileage: '', notes: '' });
+    setUseCustomMake(false);
+    setUseCustomModel(false);
   }
 
   function openEdit(vehicle: Vehicle) {
@@ -81,6 +104,11 @@ export function Vehicles() {
       mileage: vehicle.mileage?.toString() || '',
       notes: vehicle.notes || '',
     });
+    // Check if make/model are custom (not in our list)
+    const makeExists = carMakes.some(m => m.name === vehicle.make);
+    const modelExists = vehicle.make && getModelsForMake(vehicle.make).includes(vehicle.model || '');
+    setUseCustomMake(!makeExists && !!vehicle.make);
+    setUseCustomModel(!modelExists && !!vehicle.model);
     setIsModalOpen(true);
   }
 
@@ -98,7 +126,7 @@ export function Vehicles() {
   const getPrediction = (vehicle: Vehicle) => {
     const lastService = serviceHistory.find((s) => s.vehicle_id === vehicle.id);
     if (!lastService || !vehicle.mileage) return null;
-    const milesSinceService = vehicle.mileage - (lastService.mileage || 0);
+    const milesSinceService = vehicle.mileage - (lastService.mileage_at_service || 0);
     if (milesSinceService > 3000) {
       return { type: 'Oil Change', urgency: 'high' };
     }
@@ -137,16 +165,43 @@ export function Vehicles() {
           <DataTable
             data={filteredVehicles}
             loading={loading}
-            onRowClick={(v: any) => setSelectedVehicle(v as Vehicle)}
+            onRowClick={setSelectedVehicle}
             columns={[
-              { key: 'vehicle', header: t('vehicle'), render: (v: any) => <span className="font-medium">{v.year} {v.make} {v.model}</span> },
-              { key: 'customer_id', header: t('owner'), render: (v: any) => getCustomerName(v.customer_id) },
+              {
+                key: 'vehicle',
+                header: t('vehicle'),
+                render: (v: Vehicle) => {
+                  const make = carMakes.find(m => m.name === v.make);
+                  const logoUrl = make ? getCarLogoUrl(make.logo) : null;
+                  return (
+                    <div className="flex items-center gap-3">
+                      {logoUrl && (
+                        <img
+                          src={logoUrl}
+                          alt={v.make}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      )}
+                      <div>
+                        <span className="font-medium">{v.year} {v.make} {v.model}</span>
+                      </div>
+                    </div>
+                  );
+                }
+              },
               { key: 'license_plate', header: t('license_plate') },
-              { key: 'mileage', header: t('mileage'), render: (v: any) => v.mileage?.toLocaleString() || '-' },
+              { key: 'vin', header: t('vin'), render: (v: Vehicle) => v.vin || '-' },
+              {
+                key: 'owner',
+                header: t('owner'),
+                render: (v: Vehicle) => customers.find((c) => c.id === v.customer_id)?.name || '-',
+              },
+              { key: 'mileage', header: t('mileage'), render: (v: Vehicle) => v.mileage?.toLocaleString() || '-' },
               {
                 key: 'prediction',
                 header: t('status'),
-                render: (v: any) => {
+                render: (v: Vehicle) => {
                   const pred = getPrediction(v as Vehicle);
                   if (!pred) return <span className="text-emerald-600 text-sm">{t('ok')}</span>;
                   return (
@@ -216,8 +271,8 @@ export function Vehicles() {
                         <p className="font-medium text-sm">{s.service_type}</p>
                         <p className="text-xs text-neutral-500">{s.service_date}</p>
                       </div>
-                      <p className="text-xs text-neutral-600 mt-1">{s.description}</p>
-                      {s.mileage && <p className="text-xs text-neutral-500 mt-1">{s.mileage.toLocaleString()} mi</p>}
+                      <p className="text-xs text-neutral-600 mt-1 whitespace-pre-wrap">{s.description}</p>
+                      {s.mileage_at_service && <p className="text-xs text-neutral-500 mt-1">{s.mileage_at_service.toLocaleString()} mi</p>}
                     </div>
                   ))}
                 </div>
@@ -243,8 +298,102 @@ export function Vehicles() {
           />
           <div className="grid grid-cols-3 gap-4">
             <Input label={t('year')} value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} placeholder="2020" />
-            <Input label={t('make')} value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} placeholder="Toyota" />
-            <Input label={t('model')} value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="Camry" />
+
+            {/* Make Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t('make') || 'Make'}</label>
+              {!useCustomMake ? (
+                <select
+                  value={form.make}
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') {
+                      setUseCustomMake(true);
+                      setForm({ ...form, make: '', model: '' });
+                    } else {
+                      setForm({ ...form, make: e.target.value, model: '' });
+                      setUseCustomModel(false);
+                    }
+                  }}
+                  className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white"
+                >
+                  <option value="">Select make...</option>
+                  {carMakes.map((make) => (
+                    <option key={make.name} value={make.name}>
+                      {make.name}
+                    </option>
+                  ))}
+                  <option value="custom">➕ Other (custom)</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={form.make}
+                    onChange={(e) => setForm({ ...form, make: e.target.value })}
+                    placeholder="Enter make..."
+                    className="flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUseCustomMake(false);
+                      setForm({ ...form, make: '', model: '' });
+                    }}
+                    className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Model Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t('model') || 'Model'}</label>
+              {!useCustomModel && form.make && !useCustomMake && getModelsForMake(form.make).length > 0 ? (
+                <select
+                  value={form.model}
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') {
+                      setUseCustomModel(true);
+                      setForm({ ...form, model: '' });
+                    } else {
+                      setForm({ ...form, model: e.target.value });
+                    }
+                  }}
+                  className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white"
+                >
+                  <option value="">Select model...</option>
+                  {getModelsForMake(form.make).map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                  <option value="custom">➕ Other (custom)</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={form.model}
+                    onChange={(e) => setForm({ ...form, model: e.target.value })}
+                    placeholder={form.make ? "Enter model..." : "Select make first"}
+                    className="flex-1"
+                    disabled={!form.make}
+                  />
+                  {useCustomModel && form.make && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseCustomModel(false);
+                        setForm({ ...form, model: '' });
+                      }}
+                      className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           <Input label={t('vin')} value={form.vin} onChange={(e) => setForm({ ...form, vin: e.target.value })} placeholder="17-character VIN" />
           <div className="grid grid-cols-3 gap-4">

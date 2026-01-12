@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { NotificationBell } from './NotificationBell';
 import {
   LayoutDashboard,
   Users,
@@ -26,6 +27,7 @@ const navItems = [
   { path: '/', label: 'dashboard', icon: LayoutDashboard },
   { path: '/bookings', label: 'bookings', icon: Calendar },
   { path: '/work-orders', label: 'work_orders', icon: ClipboardList },
+  { path: '/estimates', label: 'estimates', icon: Receipt },
   { path: '/customers', label: 'customers', icon: Users },
   { path: '/vehicles', label: 'vehicles', icon: Car },
   { path: '/inventory', label: 'inventory', icon: Package },
@@ -136,14 +138,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             <Menu className="w-6 h-6 text-neutral-600 dark:text-neutral-300" />
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
               <Wrench className="w-4 h-4 text-white" />
             </div>
             <span className="font-semibold text-neutral-900 dark:text-white">AutoShop CRM</span>
           </div>
+          <NotificationBell />
         </div>
-        <div className="p-4 md:p-8 max-w-[1400px] mx-auto">{children}</div>
+
+        {/* Desktop Header */}
+        <div className="hidden md:flex justify-end px-8 py-4">
+          <NotificationBell />
+        </div>
+
+        <div className="p-4 md:p-8 md:pt-0 max-w-[1400px] mx-auto">{children}</div>
       </main>
 
       {/* Keyboard shortcuts help modal */}

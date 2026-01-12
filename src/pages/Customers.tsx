@@ -25,6 +25,8 @@ export function Customers() {
     phone: '',
     address: '',
     notes: '',
+    vat_rate: '20',
+    default_discount: '0',
   });
 
   useEffect(() => {
@@ -46,10 +48,15 @@ export function Customers() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const payload = {
+      ...form,
+      vat_rate: parseFloat(form.vat_rate) || 20,
+      default_discount: parseFloat(form.default_discount) || 0,
+    };
     if (editingCustomer) {
-      await supabase.from('customers').update(form).eq('id', editingCustomer.id);
+      await supabase.from('customers').update(payload).eq('id', editingCustomer.id);
     } else {
-      await supabase.from('customers').insert([form]);
+      await supabase.from('customers').insert([payload]);
     }
     setIsModalOpen(false);
     setEditingCustomer(null);
@@ -66,7 +73,7 @@ export function Customers() {
   }
 
   function resetForm() {
-    setForm({ name: '', email: '', phone: '', address: '', notes: '' });
+    setForm({ name: '', email: '', phone: '', address: '', notes: '', vat_rate: '20', default_discount: '0' });
   }
 
   function openEdit(customer: Customer) {
@@ -77,6 +84,8 @@ export function Customers() {
       phone: customer.phone || '',
       address: customer.address || '',
       notes: customer.notes || '',
+      vat_rate: (customer.vat_rate || 20).toString(),
+      default_discount: (customer.default_discount || 0).toString(),
     });
     setIsModalOpen(true);
   }
@@ -225,6 +234,34 @@ export function Customers() {
             <Input label={t('email')} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           </div>
           <Input label={t('address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">VAT Rate (%)</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={form.vat_rate}
+                onChange={(e) => setForm({ ...form, vat_rate: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                placeholder="20.00"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Default Discount (%)</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={form.default_discount}
+                onChange={(e) => setForm({ ...form, default_discount: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
           <Textarea label={t('notes')} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} />
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>{t('cancel')}</Button>

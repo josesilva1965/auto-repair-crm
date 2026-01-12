@@ -12,6 +12,8 @@ export type Customer = {
   phone: string | null;
   address: string | null;
   notes: string | null;
+  vat_rate: number | null;
+  default_discount: number | null;
   created_at: string;
 };
 
@@ -34,6 +36,7 @@ export type Vehicle = {
   model: string;
   year: number | null;
   license_plate: string | null;
+  color: string | null;
   mileage: number | null;
   notes: string | null;
   created_at: string;
@@ -89,10 +92,9 @@ export type ServiceHistory = {
   work_order_id: string | null;
   service_type: string | null;
   description: string | null;
-  mileage: number | null;
+  mileage_at_service: number | null;
+  cost: number | null;
   service_date: string | null;
-  next_service_date: string | null;
-  next_service_mileage: number | null;
   created_at: string;
 };
 
@@ -112,6 +114,46 @@ export type ServiceReminder = {
   service_type: string;
   due_date: string;
   status: 'pending' | 'sent' | 'completed' | 'cancelled';
+  created_at: string;
+};
+
+export type WorkOrderItem = {
+  id: string;
+  work_order_id: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  item_type: 'part' | 'labor' | 'other';
+  created_at: string;
+};
+
+export type Estimate = {
+  id: string;
+  estimate_number: string;
+  work_order_id: string;
+  customer_id: string;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired';
+  sent_via: 'email' | 'sms' | 'print' | 'none';
+  sent_at: string | null;
+  approved_at: string | null;
+  expires_at: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type Notification = {
+  id: string;
+  type: 'estimate_approved' | 'estimate_rejected' | 'invoice_paid' | 'message_received' | 'estimate_sent';
+  work_order_id: string | null;
+  customer_id: string | null;
+  title: string;
+  message: string | null;
+  read: boolean;
   created_at: string;
 };
 
