@@ -62,6 +62,8 @@ export function NotificationBell() {
             navigate('/billing');
         } else if (notification.type === 'message_received') {
             navigate('/messages');
+        } else if (notification.type === 'job_completed') {
+            navigate('/work-orders');
         }
     }
 
@@ -74,6 +76,8 @@ export function NotificationBell() {
             case 'estimate_rejected':
                 return <X className="w-4 h-4 text-red-500" />;
             case 'invoice_paid':
+                return <Check className="w-4 h-4 text-emerald-500" />;
+            case 'job_completed':
                 return <Check className="w-4 h-4 text-emerald-500" />;
             default:
                 return <Bell className="w-4 h-4 text-primary-500" />;

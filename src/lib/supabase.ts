@@ -142,13 +142,14 @@ export type Estimate = {
   sent_at: string | null;
   approved_at: string | null;
   expires_at: string | null;
+  approval_token?: string;
   notes: string | null;
   created_at: string;
 };
 
 export type Notification = {
   id: string;
-  type: 'estimate_approved' | 'estimate_rejected' | 'invoice_paid' | 'message_received' | 'estimate_sent';
+  type: 'estimate_approved' | 'estimate_rejected' | 'invoice_paid' | 'message_received' | 'estimate_sent' | 'job_completed';
   work_order_id: string | null;
   customer_id: string | null;
   title: string;

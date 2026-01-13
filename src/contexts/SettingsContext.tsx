@@ -10,6 +10,36 @@ export interface BusinessHour {
     enabled: boolean;
 }
 
+export interface EmailSettings {
+    id: string;
+    sender_name: string;
+    sender_email: string;
+    smtp_host: string;
+    smtp_port: number;
+    smtp_user: string;
+    smtp_password: string;
+    use_tls: boolean;
+    resend_api_key: string;
+    emailjs_service_id: string;
+    emailjs_template_id: string;
+    emailjs_public_key: string;
+}
+
+const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
+    id: '00000000-0000-0000-0000-000000000001',
+    sender_name: 'Auto Repair Shop',
+    sender_email: '',
+    smtp_host: '',
+    smtp_port: 587,
+    smtp_user: '',
+    smtp_password: '',
+    use_tls: true,
+    resend_api_key: '',
+    emailjs_service_id: '',
+    emailjs_template_id: '',
+    emailjs_public_key: '',
+};
+
 interface SettingsContextType {
     language: string;
     setLanguage: (lang: string) => void;
@@ -21,6 +51,10 @@ interface SettingsContextType {
     setBusinessHours: (hours: BusinessHour[]) => void;
     loadBusinessHours: () => Promise<void>;
     saveBusinessHours: (hours: BusinessHour[]) => Promise<boolean>;
+    emailSettings: EmailSettings;
+    setEmailSettings: (settings: EmailSettings) => void;
+    loadEmailSettings: () => Promise<void>;
+    saveEmailSettings: (settings: EmailSettings) => Promise<boolean>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -55,6 +89,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     const [currency, setCurrency] = useState(defaults.currency);
     const [taxRate, setTaxRate] = useState(defaults.taxRate);
     const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+    const [emailSettings, setEmailSettings] = useState<EmailSettings>(DEFAULT_EMAIL_SETTINGS);
 
     // Load business hours from database
     const loadBusinessHours = async () => {
@@ -99,9 +134,58 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         }
     };
 
-    // Load business hours on mount
+    // Load email settings from database
+    const loadEmailSettings = async () => {
+        const { data, error } = await supabase
+            .from('email_settings')
+            .select('*')
+            .single();
+
+        if (error) {
+            console.error('Error loading email settings:', error);
+        } else if (data) {
+            setEmailSettings(data);
+        }
+    };
+
+    // Save email settings to database
+    const saveEmailSettings = async (settings: EmailSettings): Promise<boolean> => {
+        try {
+            const { error } = await supabase
+                .from('email_settings')
+                .upsert({
+                    id: settings.id,
+                    sender_name: settings.sender_name,
+                    sender_email: settings.sender_email,
+                    smtp_host: settings.smtp_host,
+                    smtp_port: settings.smtp_port,
+                    smtp_user: settings.smtp_user,
+                    smtp_password: settings.smtp_password,
+                    use_tls: settings.use_tls,
+                    resend_api_key: settings.resend_api_key,
+                    emailjs_service_id: settings.emailjs_service_id,
+                    emailjs_template_id: settings.emailjs_template_id,
+                    emailjs_public_key: settings.emailjs_public_key,
+                    updated_at: new Date().toISOString()
+                });
+
+            if (error) {
+                console.error('Error saving email settings:', error);
+                return false;
+            }
+
+            await loadEmailSettings();
+            return true;
+        } catch (err) {
+            console.error('Error in saveEmailSettings:', err);
+            return false;
+        }
+    };
+
+    // Load settings on mount
     useEffect(() => {
         loadBusinessHours();
+        loadEmailSettings();
     }, []);
 
     // Sync state when i18n language changes externally (e.g. detection)
@@ -138,6 +222,10 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         setBusinessHours,
         loadBusinessHours,
         saveBusinessHours,
+        emailSettings,
+        setEmailSettings,
+        loadEmailSettings,
+        saveEmailSettings,
     };
 
     return (
@@ -146,3 +234,4 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         </SettingsContext.Provider>
     );
 };
+

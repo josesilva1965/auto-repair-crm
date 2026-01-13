@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSettings, BusinessHour } from '../contexts/SettingsContext';
-import { Clock, Loader2 } from 'lucide-react';
+import { useSettings, BusinessHour, EmailSettings } from '../contexts/SettingsContext';
+import { Clock, Loader2, Mail } from 'lucide-react';
 
 export function Settings() {
     const { t } = useTranslation();
@@ -11,16 +11,25 @@ export function Settings() {
         currency,
         taxRate,
         businessHours,
-        saveBusinessHours
+        saveBusinessHours,
+        emailSettings,
+        saveEmailSettings
     } = useSettings();
 
     const [localHours, setLocalHours] = useState<BusinessHour[]>([]);
+    const [localEmail, setLocalEmail] = useState<EmailSettings>(emailSettings);
     const [saving, setSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState('');
+    const [savingEmail, setSavingEmail] = useState(false);
+    const [emailSaveMessage, setEmailSaveMessage] = useState('');
 
     useEffect(() => {
         setLocalHours(businessHours);
     }, [businessHours]);
+
+    useEffect(() => {
+        setLocalEmail(emailSettings);
+    }, [emailSettings]);
 
     const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setLanguage(e.target.value);
@@ -41,6 +50,19 @@ export function Settings() {
         setSaving(false);
         setSaveMessage(success ? t('success') : t('error'));
         setTimeout(() => setSaveMessage(''), 3000);
+    };
+
+    const handleEmailChange = (field: keyof EmailSettings, value: string | number | boolean) => {
+        setLocalEmail(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSaveEmail = async () => {
+        setSavingEmail(true);
+        setEmailSaveMessage('');
+        const success = await saveEmailSettings(localEmail);
+        setSavingEmail(false);
+        setEmailSaveMessage(success ? t('success') : t('error'));
+        setTimeout(() => setEmailSaveMessage(''), 3000);
     };
 
     const dayNames = [
@@ -111,6 +133,116 @@ export function Settings() {
                     <p className="text-sm text-blue-700 dark:text-blue-300">
                         Changing the language will automatically update the default currency and tax rate.
                     </p>
+                </div>
+            </div>
+
+            {/* Email Configuration Section */}
+            <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div className="flex items-center gap-2 mb-4">
+                    <Mail className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        {t('email_configuration') || 'Email Configuration'}
+                    </h2>
+                </div>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                    {t('email_config_description') || 'Configure email settings for customer notifications'}
+                </p>
+
+                <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                {t('sender_name') || 'Sender Name'}
+                            </label>
+                            <input
+                                type="text"
+                                value={localEmail.sender_name}
+                                onChange={(e) => handleEmailChange('sender_name', e.target.value)}
+                                placeholder="Auto Repair Shop"
+                                className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                {t('sender_email') || 'Sender Email'}
+                            </label>
+                            <input
+                                type="email"
+                                value={localEmail.sender_email}
+                                onChange={(e) => handleEmailChange('sender_email', e.target.value)}
+                                placeholder="noreply@yourshop.com"
+                                className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
+                            />
+                        </div>
+                    </div>
+
+                    {/* EmailJS Configuration */}
+                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
+                        <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-3">
+                            {t('email_service') || 'Email Service'} <span className="text-emerald-600 font-normal">(EmailJS - Free & Easy)</span>
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                            Sign up at <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">emailjs.com</a> (free tier: 200 emails/month)
+                        </p>
+
+                        <div className="grid gap-4 md:grid-cols-1">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Service ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={localEmail.emailjs_service_id || ''}
+                                    onChange={(e) => handleEmailChange('emailjs_service_id', e.target.value)}
+                                    placeholder="service_xxxxxxx"
+                                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Template ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={localEmail.emailjs_template_id || ''}
+                                    onChange={(e) => handleEmailChange('emailjs_template_id', e.target.value)}
+                                    placeholder="template_xxxxxxx"
+                                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    Public Key
+                                </label>
+                                <input
+                                    type="text"
+                                    value={localEmail.emailjs_public_key || ''}
+                                    onChange={(e) => handleEmailChange('emailjs_public_key', e.target.value)}
+                                    placeholder="xxxxxxxxxxxx"
+                                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 mt-6">
+                    <button
+                        onClick={handleSaveEmail}
+                        disabled={savingEmail}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        {savingEmail && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {t('save')}
+                    </button>
+                    {emailSaveMessage && (
+                        <span className={`text-sm font-medium ${emailSaveMessage === t('success') ? 'text-green-600' : 'text-red-600'}`}>
+                            {emailSaveMessage}
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -197,3 +329,4 @@ export function Settings() {
         </div>
     );
 }
+

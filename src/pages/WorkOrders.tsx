@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../contexts/SettingsContext';
-import { supabase, type WorkOrder, type Customer, type Vehicle, type Technician, type Estimate } from '../lib/supabase';
+import { supabase, type WorkOrder, type Customer, type Vehicle, type Technician, type Estimate, type InventoryPart } from '../lib/supabase';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
 import { Plus, Search, Filter, DollarSign, Trash2, Clock, FileText, Send, Mail, MessageSquare, Printer, Check, AlertCircle } from 'lucide-react';
@@ -14,6 +14,7 @@ import { communicationService } from '../lib/communicationService';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'pending' },
+  { value: 'approved', label: 'approved' },
   { value: 'testing', label: 'testing' },
   { value: 'in-progress', label: 'in_progress' },
   { value: 'completed', label: 'completed' },
@@ -37,6 +38,7 @@ export function WorkOrders() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [estimates, setEstimates] = useState<Estimate[]>([]);
+  const [inventoryParts, setInventoryParts] = useState<InventoryPart[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null);
@@ -74,18 +76,20 @@ export function WorkOrders() {
 
   async function loadData() {
     setLoading(true);
-    const [ordersRes, customersRes, vehiclesRes, techniciansRes, estimatesRes] = await Promise.all([
+    const [ordersRes, customersRes, vehiclesRes, techniciansRes, estimatesRes, partsRes] = await Promise.all([
       supabase.from('work_orders').select('*').order('created_at', { ascending: false }),
       supabase.from('customers').select('*'),
       supabase.from('vehicles').select('*'),
       supabase.from('technicians').select('*'),
       supabase.from('estimates').select('*'),
+      supabase.from('inventory_parts').select('*').order('category', { ascending: true }),
     ]);
     setWorkOrders(ordersRes.data || []);
     setCustomers(customersRes.data || []);
     setVehicles(vehiclesRes.data || []);
     setTechnicians(techniciansRes.data || []);
     setEstimates(estimatesRes.data || []);
+    setInventoryParts(partsRes.data || []);
     setLoading(false);
   }
 
@@ -404,10 +408,39 @@ export function WorkOrders() {
       return;
     }
 
+    // Sync Estimate Status if Work Order is Approved or In Progress
+    if ((newStatus === 'approved' || newStatus === 'in-progress') && order) {
+      const estimate = estimates.find(e => e.work_order_id === orderId);
+      if (estimate && (estimate.status === 'draft' || estimate.status === 'sent')) {
+        // Optimistically update estimate state
+        setEstimates(prev => prev.map(e => e.id === estimate.id ? { ...e, status: 'approved', approved_at: new Date().toISOString() } : e));
+
+        // Update in DB
+        await supabase.from('estimates').update({
+          status: 'approved',
+          approved_at: new Date().toISOString()
+        }).eq('id', estimate.id);
+      }
+    }
+
     // Auto-create invoice and service history when completed
     if (newStatus === 'completed' && order) {
-      // Create service history record
+      // Send customer notification
+      const customer = customers.find(c => c.id === order.customer_id);
       const vehicle = vehicles.find(v => v.id === order.vehicle_id);
+      const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Vehicle';
+
+      if (customer) {
+        const result = await communicationService.sendJobCompletionNotification(
+          customer,
+          vehicleInfo,
+          order.id,
+          order.description || order.diagnosis
+        );
+        console.log('Job completion notification result:', result);
+      }
+
+      // Create service history record
       console.log('Creating service history for order:', order.id);
       console.log('Vehicle found:', vehicle);
 
@@ -693,12 +726,44 @@ export function WorkOrders() {
 
             <div className="grid grid-cols-12 gap-2 items-end bg-neutral-50 p-3 rounded-lg border border-neutral-200">
               <div className="col-span-5">
-                <Input
-                  label="Description"
-                  value={newItem.description}
-                  onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                  placeholder="Item name..."
-                />
+                {newItem.item_type === 'part' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Select Part</label>
+                    <select
+                      value={newItem.description}
+                      onChange={(e) => {
+                        const selectedPart = inventoryParts.find(p => p.name === e.target.value);
+                        setNewItem({
+                          ...newItem,
+                          description: e.target.value,
+                          unit_price: selectedPart?.selling_price || 0
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                    >
+                      <option value="">Select a part...</option>
+                      {/* Group parts by category */}
+                      {Array.from(new Set(inventoryParts.map(p => p.category || 'Uncategorized'))).map(category => (
+                        <optgroup key={category} label={category}>
+                          {inventoryParts
+                            .filter(p => (p.category || 'Uncategorized') === category)
+                            .map(part => (
+                              <option key={part.id} value={part.name}>
+                                {part.name} - {currency}{part.selling_price?.toFixed(2)} ({part.quantity} in stock)
+                              </option>
+                            ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <Input
+                    label="Description"
+                    value={newItem.description}
+                    onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                    placeholder="Item name..."
+                  />
+                )}
               </div>
               <div className="col-span-2">
                 <Select
@@ -906,7 +971,7 @@ function KanbanBoard({ orders, onEdit, getTechName, onStatusChange, estimates }:
   const columns = [
     { status: 'pending', titleKey: 'pending', color: 'bg-amber-500' },
     { status: 'testing', titleKey: 'testing', color: 'bg-purple-500' },
-    { status: 'in-progress', titleKey: 'in_progress', color: 'bg-blue-500' },
+    { status: 'in-progress', titleKey: 'in_progress', color: 'bg-blue-600' },
     { status: 'completed', titleKey: 'completed', color: 'bg-emerald-500' },
     { status: 'cancelled', titleKey: 'cancelled', color: 'bg-red-500' },
   ];
@@ -1033,6 +1098,16 @@ function DraggableCard({ order, onEdit, getTechName, estimate }: { order: WorkOr
 
   // Get estimate status badge
   function getEstimateBadge() {
+    // Override: If Work Order is Approved or In-Progress, show Approved badge even if estimate is technically 'sent'
+    if (order.status === 'approved' || order.status === 'in-progress') {
+      return (
+        <div className="flex items-center gap-1 text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+          <Check className="w-3 h-3" />
+          <span>{t('approved') || 'Approved'}</span>
+        </div>
+      );
+    }
+
     if (!estimate) return null;
 
     switch (estimate.status) {

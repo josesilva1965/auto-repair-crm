@@ -40,7 +40,7 @@ export function Dashboard() {
     setLoading(false);
   }
 
-  const activeJobs = workOrders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled');
+  const activeJobs = workOrders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled' && o.status !== 'archived');
   const todayRevenue = workOrders
     .filter((o) => o.status === 'completed' && o.completed_date === new Date().toISOString().split('T')[0])
     .reduce((sum, o) => sum + (o.actual_cost || o.estimated_cost || 0), 0);
