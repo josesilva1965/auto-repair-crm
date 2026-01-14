@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Check, X, AlertCircle, FileText, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface EstimateDetails {
     id: string;
@@ -23,6 +24,7 @@ interface EstimateDetails {
 }
 
 export function ApproveEstimate() {
+    const { t } = useTranslation();
     const { token } = useParams<{ token: string }>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -47,13 +49,13 @@ export function ApproveEstimate() {
             if (error) throw error;
 
             if (!data) {
-                setError('Estimate not found or link expired.');
+                setError(t('expired_link'));
             } else {
                 setEstimate(data);
             }
         } catch (err) {
             console.error('Error loading estimate:', err);
-            setError('Failed to load estimate details.');
+            setError(t('load_error'));
         } finally {
             setLoading(false);
         }
@@ -124,12 +126,11 @@ export function ApproveEstimate() {
                     <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Check className="h-8 w-8 text-green-600" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('thank_you')}</h2>
                     <p className="text-gray-600">
-                        The estimate for your <strong>{estimate.vehicle_info}</strong> has been
-                        {estimate.status === 'approved' ? ' approved' : ' rejected'}.
+                        {t('approval_message', { vehicle: estimate.vehicle_info, status: estimate.status === 'approved' ? t('approved') : t('rejected') })}
                     </p>
-                    <p className="text-gray-500 mt-4 text-sm">You can close this window now.</p>
+                    <p className="text-gray-500 mt-4 text-sm">{t('close_window')}</p>
                 </div>
             </div>
         );
@@ -142,9 +143,9 @@ export function ApproveEstimate() {
             <div className="max-w-3xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="text-center">
-                    <h1 className="text-3xl font-extrabold text-gray-900">Estimate Approval</h1>
+                    <h1 className="text-3xl font-extrabold text-gray-900">{t('approval_page_title')}</h1>
                     <p className="mt-2 text-lg text-gray-600">
-                        Please review the estimate details for your vehicle below.
+                        {t('approval_subtitle')}
                     </p>
                 </div>
 
@@ -153,18 +154,18 @@ export function ApproveEstimate() {
                     {/* Status Banner (if not 'sent') */}
                     {!isSent && (
                         <div className={`px-6 py-3 border-b ${estimate.status === 'approved' ? 'bg-green-50 border-green-200' :
-                                estimate.status === 'rejected' ? 'bg-red-50 border-red-200' :
-                                    'bg-gray-50 border-gray-200'
+                            estimate.status === 'rejected' ? 'bg-red-50 border-red-200' :
+                                'bg-gray-50 border-gray-200'
                             }`}>
                             <div className="flex items-center">
                                 {estimate.status === 'approved' ? <Check className="h-5 w-5 text-green-500 mr-2" /> :
                                     estimate.status === 'rejected' ? <X className="h-5 w-5 text-red-500 mr-2" /> :
                                         <AlertCircle className="h-5 w-5 text-gray-500 mr-2" />}
                                 <span className={`font-medium ${estimate.status === 'approved' ? 'text-green-800' :
-                                        estimate.status === 'rejected' ? 'text-red-800' :
-                                            'text-gray-800'
+                                    estimate.status === 'rejected' ? 'text-red-800' :
+                                        'text-gray-800'
                                     }`}>
-                                    Status: {estimate.status.charAt(0).toUpperCase() + estimate.status.slice(1)}
+                                    {t('status')}: {t(estimate.status)}
                                 </span>
                             </div>
                         </div>
@@ -173,11 +174,11 @@ export function ApproveEstimate() {
                     <div className="px-6 py-6 border-b border-gray-200 bg-gray-50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <h3 className="text-sm font-medium text-gray-500">Customer</h3>
+                                <h3 className="text-sm font-medium text-gray-500">{t('customer')}</h3>
                                 <p className="mt-1 text-lg font-semibold text-gray-900">{estimate.customer_name}</p>
                             </div>
                             <div>
-                                <h3 className="text-sm font-medium text-gray-500">Vehicle</h3>
+                                <h3 className="text-sm font-medium text-gray-500">{t('vehicle')}</h3>
                                 <p className="mt-1 text-lg font-semibold text-gray-900">{estimate.vehicle_info}</p>
                             </div>
                         </div>
@@ -197,16 +198,16 @@ export function ApproveEstimate() {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Description
+                                        {t('description')}
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Qty
+                                        {t('quantity')}
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Price
+                                        {t('unit_cost')}
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Total
+                                        {t('total')}
                                     </th>
                                 </tr>
                             </thead>
@@ -230,15 +231,15 @@ export function ApproveEstimate() {
                             </tbody>
                             <tfoot className="bg-gray-50">
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-3 text-right text-sm font-medium text-gray-500">Subtotal</td>
+                                    <td colSpan={3} className="px-6 py-3 text-right text-sm font-medium text-gray-500">{t('subtotal')}</td>
                                     <td className="px-6 py-3 text-right text-sm font-bold text-gray-900">{estimate.subtotal.toFixed(2)}</td>
                                 </tr>
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-3 text-right text-sm font-medium text-gray-500">Tax</td>
+                                    <td colSpan={3} className="px-6 py-3 text-right text-sm font-medium text-gray-500">{t('tax')}</td>
                                     <td className="px-6 py-3 text-right text-sm font-bold text-gray-900">{estimate.tax.toFixed(2)}</td>
                                 </tr>
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-3 text-right text-base font-bold text-gray-900">Total</td>
+                                    <td colSpan={3} className="px-6 py-3 text-right text-base font-bold text-gray-900">{t('total')}</td>
                                     <td className="px-6 py-3 text-right text-base font-bold text-blue-600">{estimate.total.toFixed(2)}</td>
                                 </tr>
                             </tfoot>
@@ -248,7 +249,7 @@ export function ApproveEstimate() {
                     {/* Actions */}
                     {isSent && (
                         <div className="px-6 py-6 bg-gray-50 border-t border-gray-200">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Your Decision</h3>
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">{t('your_decision')}</h3>
 
                             {!showRejectInput ? (
                                 <div className="flex flex-col sm:flex-row gap-4">
@@ -257,10 +258,10 @@ export function ApproveEstimate() {
                                         disabled={actionStatus !== 'idle'}
                                         className="flex-1 flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                                     >
-                                        {actionStatus === 'approving' ? 'Processing...' : (
+                                        {actionStatus === 'approving' ? t('processing') : (
                                             <>
                                                 <Check className="h-5 w-5 mr-2" />
-                                                Approve Estimate
+                                                {t('approve_estimate')}
                                             </>
                                         )}
                                     </button>
@@ -270,13 +271,13 @@ export function ApproveEstimate() {
                                         className="flex-1 flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
                                     >
                                         <X className="h-5 w-5 mr-2" />
-                                        Decline
+                                        {t('decline')}
                                     </button>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
                                     <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
-                                        Please provide a reason for declining (optional):
+                                        {t('decline_reason')}
                                     </label>
                                     <textarea
                                         id="reason"
@@ -284,7 +285,7 @@ export function ApproveEstimate() {
                                         className="shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-gray-300 rounded-md"
                                         value={rejectReason}
                                         onChange={(e) => setRejectReason(e.target.value)}
-                                        placeholder="e.g., Too expensive, prefer different parts..."
+                                        placeholder={t('decline_placeholder')}
                                     />
                                     <div className="flex gap-4">
                                         <button
@@ -292,13 +293,13 @@ export function ApproveEstimate() {
                                             disabled={actionStatus !== 'idle'}
                                             className="flex-1 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                         >
-                                            {actionStatus === 'rejecting' ? 'Processing...' : 'Confirm Decline'}
+                                            {actionStatus === 'rejecting' ? t('processing') : t('confirm_decline')}
                                         </button>
                                         <button
                                             onClick={() => setShowRejectInput(false)}
                                             className="flex-1 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                         >
-                                            Cancel
+                                            {t('cancel')}
                                         </button>
                                     </div>
                                 </div>

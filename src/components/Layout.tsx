@@ -20,17 +20,18 @@ import {
   Keyboard,
   Bell,
   Settings,
-  Calendar
+  Calendar,
+  ShoppingCart
 } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: 'dashboard', icon: LayoutDashboard },
   { path: '/bookings', label: 'bookings', icon: Calendar },
   { path: '/work-orders', label: 'work_orders', icon: ClipboardList },
-  { path: '/estimates', label: 'estimates', icon: Receipt },
   { path: '/customers', label: 'customers', icon: Users },
   { path: '/vehicles', label: 'vehicles', icon: Car },
   { path: '/inventory', label: 'inventory', icon: Package },
+  { path: '/purchasing', label: 'purchasing', icon: ShoppingCart },
   { path: '/billing', label: 'billing', icon: Receipt },
   { path: '/reports', label: 'reports', icon: BarChart3 },
   { path: '/technicians', label: 'technicians', icon: Wrench },

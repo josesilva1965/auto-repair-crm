@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../contexts/SettingsContext';
-import { supabase, type Invoice, type WorkOrder, type Customer } from '../lib/supabase';
+import { supabase, type Invoice, type WorkOrder, type Customer, type Estimate } from '../lib/supabase';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input, Select } from '../components/Modal';
 import { Plus, Search, FileText, DollarSign, Clock, CheckCircle, Printer, Mail, MessageSquare, Trash2 } from 'lucide-react';
@@ -13,11 +13,14 @@ export function Billing() {
   const { t } = useTranslation();
   const { currency } = useSettings();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedEstimate, setSelectedEstimate] = useState<Estimate | null>(null);
+  const [activeTab, setActiveTab] = useState<'invoices' | 'estimates'>('invoices');
   const [invoiceItems, setInvoiceItems] = useState<any[]>([]); // Added state for existing invoice items
   const [previewItems, setPreviewItems] = useState<any[]>([]); // Items being edited for new invoice
   const [search, setSearch] = useState('');
@@ -30,8 +33,6 @@ export function Billing() {
     discountType: 'fixed' as 'fixed' | 'percentage',
     discountValue: '',
   });
-
-  // const [previewItems, setPreviewItems] = useState<any[]>([]); // Moved up
 
   const pricingEngine = new PricingEngine();
   const [searchParams] = useSearchParams();
@@ -56,19 +57,39 @@ export function Billing() {
     loadItems();
   }, [selectedInvoice]);
 
+  // Fetch estimate items when an estimate is selected (reusing existing invoice items logic effectively)
+  useEffect(() => {
+    async function loadEstimateItems() {
+      if (!selectedEstimate) {
+        // We can reuse invoiceItems state for viewing active selection details to avoid duplication? 
+        // Or keep separate? Let's assume we can reuse invoiceItems for the Modal view if we are careful.
+        // Actually, safer to just use the same logic if we open a modal.
+        return;
+      }
+      const { data } = await supabase
+        .from('work_order_items')
+        .select('*')
+        .eq('work_order_id', selectedEstimate.work_order_id);
+      setInvoiceItems(data || []);
+    }
+    loadEstimateItems();
+  }, [selectedEstimate]);
+
+
   async function loadData() {
     setLoading(true);
-    const [invoicesRes, ordersRes, customersRes] = await Promise.all([
+    const [invoicesRes, estimatesRes, ordersRes, customersRes] = await Promise.all([
       supabase.from('invoices').select('*').order('created_at', { ascending: false }),
-      supabase.from('work_orders').select('*').in('status', ['completed', 'archived']),
+      supabase.from('estimates').select('*').order('created_at', { ascending: false }),
+      supabase.from('work_orders').select('*'), // Removed filter to allow creating estimates for in-progress ones too
       supabase.from('customers').select('*'),
     ]);
     const invoicesData = invoicesRes.data || [];
     setInvoices(invoicesData);
+    setEstimates(estimatesRes.data || []);
     setWorkOrders(ordersRes.data || []);
     setCustomers(customersRes.data || []);
     setLoading(false);
-
   }
 
   // Auto-open invoice if in query params - separate effect to ensure it runs when invoices are loaded
@@ -219,34 +240,83 @@ export function Billing() {
         </Button>
       </div>
 
+      <div className="flex border-b border-neutral-200 mb-6">
+        <button
+          className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${activeTab === 'invoices' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
+          onClick={() => setActiveTab('invoices')}
+        >
+          {t('invoices')}
+        </button>
+        <button
+          className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${activeTab === 'estimates' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
+          onClick={() => setActiveTab('estimates')}
+        >
+          {t('estimates')}
+        </button>
+      </div>
+
       <div className="grid grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
-          <div className="flex items-center gap-3">
-            <Clock className="w-8 h-8 text-amber-500" />
-            <div>
-              <p className="text-sm text-neutral-500">{t('pending')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{currency}{totalPending.toFixed(2)}</p>
+        {activeTab === 'invoices' ? (
+          <>
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+              <div className="flex items-center gap-3">
+                <Clock className="w-8 h-8 text-amber-500" />
+                <div>
+                  <p className="text-sm text-neutral-500">{t('pending')}</p>
+                  <p className="text-2xl font-bold text-neutral-900">{currency}{totalPending.toFixed(2)}</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
-          <div className="flex items-center gap-3">
-            <CheckCircle className="w-8 h-8 text-emerald-500" />
-            <div>
-              <p className="text-sm text-neutral-500">{t('paid')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{currency}{totalPaid.toFixed(2)}</p>
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-8 h-8 text-emerald-500" />
+                <div>
+                  <p className="text-sm text-neutral-500">{t('paid')}</p>
+                  <p className="text-2xl font-bold text-neutral-900">{currency}{totalPaid.toFixed(2)}</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
-          <div className="flex items-center gap-3">
-            <FileText className={`w-8 h-8 ${overdueCount > 0 ? 'text-red-500' : 'text-neutral-400'}`} />
-            <div>
-              <p className="text-sm text-neutral-500">{t('overdue')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{overdueCount}</p>
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+              <div className="flex items-center gap-3">
+                <FileText className={`w-8 h-8 ${overdueCount > 0 ? 'text-red-500' : 'text-neutral-400'}`} />
+                <div>
+                  <p className="text-sm text-neutral-500">{t('overdue')}</p>
+                  <p className="text-2xl font-bold text-neutral-900">{overdueCount}</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+              <div className="flex items-center gap-3">
+                <FileText className="w-8 h-8 text-neutral-500" />
+                <div>
+                  <p className="text-sm text-neutral-500">{t('draft')}</p>
+                  <p className="text-2xl font-bold text-neutral-900">{estimates.filter(e => e.status === 'draft').length}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+              <div className="flex items-center gap-3">
+                <Clock className="w-8 h-8 text-amber-500" />
+                <div>
+                  <p className="text-sm text-neutral-500">{t('sent')}</p>
+                  <p className="text-2xl font-bold text-neutral-900">{estimates.filter(e => e.status === 'sent').length}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-8 h-8 text-emerald-500" />
+                <div>
+                  <p className="text-sm text-neutral-500">{t('approved')}</p>
+                  <p className="text-2xl font-bold text-neutral-900">{estimates.filter(e => e.status === 'approved').length}</p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-4 mb-4">
@@ -273,22 +343,26 @@ export function Billing() {
       </div>
 
       <DataTable
-        data={filteredInvoices}
+        data={activeTab === 'invoices' ? filteredInvoices : estimates.filter(e => {
+          const matchSearch = e.estimate_number?.toLowerCase().includes(search.toLowerCase());
+          const matchStatus = statusFilter === 'all' || e.status === statusFilter;
+          return matchSearch && matchStatus;
+        })}
         loading={loading}
-        onRowClick={setSelectedInvoice}
-        columns={[
-          { key: 'invoice_number', header: t('invoice_number'), render: (i) => <span className="font-mono font-medium">{i.invoice_number}</span> },
-          { key: 'customer_id', header: t('customer'), render: (i) => getCustomerName(i.customer_id) },
-          { key: 'work_order_id', header: t('work_orders'), render: (i) => getWorkOrderNumber(i.work_order_id) },
-          { key: 'subtotal', header: t('subtotal'), render: (i) => `${currency}${(i.subtotal ?? 0).toFixed(2)}` },
-          { key: 'tax', header: t('tax'), render: (i) => `${currency}${(i.tax ?? 0).toFixed(2)}` },
-          { key: 'total', header: t('total'), render: (i) => <span className="font-semibold">{currency}{(i.total ?? 0).toFixed(2)}</span> },
-          { key: 'status', header: t('status'), render: (i) => <StatusBadge status={i.status} /> },
-          { key: 'due_date', header: t('due_date'), render: (i) => i.due_date || '-' },
+        onRowClick={activeTab === 'invoices' ? setSelectedInvoice : setSelectedEstimate}
+        columns={activeTab === 'invoices' ? [
+          { key: 'invoice_number', header: t('invoice_number'), render: (i: Invoice) => <span className="font-mono font-medium">{i.invoice_number}</span> },
+          { key: 'customer_id', header: t('customer'), render: (i: Invoice) => getCustomerName(i.customer_id) },
+          { key: 'work_order_id', header: t('work_orders'), render: (i: Invoice) => getWorkOrderNumber(i.work_order_id) },
+          { key: 'subtotal', header: t('subtotal'), render: (i: Invoice) => `${currency}${(i.subtotal ?? 0).toFixed(2)}` },
+          { key: 'tax', header: t('tax'), render: (i: Invoice) => `${currency}${(i.tax ?? 0).toFixed(2)}` },
+          { key: 'total', header: t('total'), render: (i: Invoice) => <span className="font-semibold">{currency}{(i.total ?? 0).toFixed(2)}</span> },
+          { key: 'status', header: t('status'), render: (i: Invoice) => <StatusBadge status={i.status} /> },
+          { key: 'due_date', header: t('due_date'), render: (i: Invoice) => i.due_date || '-' },
           {
             key: 'actions',
             header: '',
-            render: (i) => (
+            render: (i: Invoice) => (
               <div className="flex items-center justify-end gap-2">
                 {i.status === 'pending' && (
                   <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); markAsPaid(i); }}>
@@ -301,17 +375,41 @@ export function Billing() {
               </div>
             ),
           },
+        ] : [
+          { key: 'estimate_number', header: t('estimate_number'), render: (e: Estimate) => <span className="font-mono font-medium">{e.estimate_number}</span> },
+          { key: 'customer_id', header: t('customer'), render: (e: Estimate) => getCustomerName(e.customer_id) },
+          { key: 'work_order_id', header: t('work_orders'), render: (e: Estimate) => getWorkOrderNumber(e.work_order_id) },
+          { key: 'total', header: t('total'), render: (e: Estimate) => <span className="font-semibold">{currency}{(e.total ?? 0).toFixed(2)}</span> },
+          { key: 'status', header: t('status'), render: (e: Estimate) => <StatusBadge status={e.status} /> },
+          { key: 'created_at', header: t('date'), render: (e: Estimate) => new Date(e.created_at).toLocaleDateString() },
+          {
+            key: 'actions',
+            header: '',
+            render: (e: Estimate) => (
+              <div className="flex items-center justify-end gap-2">
+                <Button size="sm" variant="secondary" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={async (ev) => {
+                  ev.stopPropagation();
+                  if (confirm(t('confirm_delete'))) {
+                    await supabase.from('estimates').delete().eq('id', e.id);
+                    loadData();
+                  }
+                }}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            )
+          }
         ]}
       />
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Invoice">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('create_invoice')}>
         <form onSubmit={handleCreateInvoice} className="space-y-4">
           <Select
-            label="Work Order"
+            label={t('work_order')}
             value={form.work_order_id}
             onChange={(e) => setForm({ ...form, work_order_id: e.target.value })}
             options={[
-              { value: '', label: 'Select completed work order...' },
+              { value: '', label: t('select_work_order') || 'Select completed work order...' },
               ...availableOrders.map((o) => ({
                 value: o.id,
                 label: `${o.order_number} - ${currency}${(o.actual_cost || o.estimated_cost || 0).toFixed(2)}`,
@@ -322,16 +420,16 @@ export function Billing() {
 
           <div className="grid grid-cols-2 gap-4">
             <Select
-              label="Discount Type"
+              label={t('discount_type')}
               value={form.discountType}
               onChange={(e) => setForm({ ...form, discountType: e.target.value as 'fixed' | 'percentage' })}
               options={[
-                { value: 'fixed', label: 'Fixed Amount ($)' },
-                { value: 'percentage', label: 'Percentage (%)' },
+                { value: 'fixed', label: t('fixed_amount') },
+                { value: 'percentage', label: t('percentage') },
               ]}
             />
             <Input
-              label="Discount Value"
+              label={t('discount_value')}
               type="number"
               min="0"
               step={form.discountType === 'fixed' ? '0.01' : '1'}
@@ -343,7 +441,7 @@ export function Billing() {
 
           {form.work_order_id && (
             <div className="p-4 bg-neutral-50 rounded-lg">
-              <p className="text-sm text-neutral-500 font-medium mb-2">Invoice Preview</p>
+              <p className="text-sm text-neutral-500 font-medium mb-2">{t('invoice_preview')}</p>
               {/* Fetch items for preview logic */}
               <PreviewSection
                 items={previewItems} // Pass state
@@ -371,33 +469,146 @@ export function Billing() {
       </Modal>
 
       {selectedInvoice && (
-        <Modal isOpen={!!selectedInvoice} onClose={() => setSelectedInvoice(null)} title="Invoice Details" size="lg">
+        <Modal isOpen={!!selectedInvoice} onClose={() => setSelectedInvoice(null)} title={t('invoice_details')} size="lg">
           <div className="space-y-6">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-2xl font-bold">{selectedInvoice.invoice_number}</h3>
-                <p className="text-neutral-500">Created {new Date(selectedInvoice.created_at).toLocaleDateString()}</p>
+                <p className="text-neutral-500">{t('created')} {new Date(selectedInvoice.created_at).toLocaleDateString()}</p>
               </div>
               <StatusBadge status={selectedInvoice.status} />
             </div>
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <p className="text-sm text-neutral-500">Customer</p>
+                <p className="text-sm text-neutral-500">{t('customer')}</p>
                 <p className="font-medium">{getCustomerName(selectedInvoice.customer_id)}</p>
               </div>
               <div>
-                <p className="text-sm text-neutral-500">Work Order</p>
+                <p className="text-sm text-neutral-500">{t('work_order')}</p>
                 <p className="font-medium">{getWorkOrderNumber(selectedInvoice.work_order_id)}</p>
               </div>
               <div>
-                <p className="text-sm text-neutral-500">Due Date</p>
-                <p className="font-medium">{selectedInvoice.due_date || 'Not set'}</p>
+                <p className="text-sm text-neutral-500">{t('due_date')}</p>
+                <p className="font-medium">{selectedInvoice.due_date || t('not_set') || 'Not set'}</p>
               </div>
               <div>
-                <p className="text-sm text-neutral-500">Paid Date</p>
+                <p className="text-sm text-neutral-500">{t('paid_date')}</p>
                 <p className="font-medium">{selectedInvoice.paid_date || '-'}</p>
               </div>
             </div>
+            <div className="bg-neutral-50 rounded-lg p-4">
+              <h4 className="font-semibold mb-3 text-sm text-neutral-900 border-b pb-2">{t('itemized_breakdown')}</h4>
+              {invoiceItems.length > 0 ? (
+                <div className="mb-4 space-y-2">
+                  {invoiceItems.map((item, i) => (
+                    <div key={i} className="flex text-sm">
+                      <div className="flex-1">
+                        <span className="font-medium text-neutral-900">{item.description}</span>
+                        <span className="ml-2 text-xs text-neutral-500 bg-neutral-200 px-1.5 py-0.5 rounded capitalize">{item.item_type}</span>
+                      </div>
+                      <div className="w-16 text-right text-neutral-600">{item.quantity} x</div>
+                      <div className="w-20 text-right text-neutral-600">{currency}{item.unit_price.toFixed(2)}</div>
+                      <div className="w-20 text-right font-medium text-neutral-900">{currency}{(item.quantity * item.unit_price).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-neutral-500 mb-4 italic">{t('no_items_legacy')}</p>
+              )}
+
+              <div className="space-y-2 border-t pt-3">
+                <div className="flex justify-between">
+                  <span className="text-neutral-600">{t('subtotal')}</span>
+                  <span>{currency}{(selectedInvoice.subtotal ?? 0).toFixed(2)}</span>
+                </div>
+                {(selectedInvoice.discount ?? 0) > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span>{t('discount')}</span>
+                    <span>-{currency}{(selectedInvoice.discount ?? 0).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-neutral-600">{t('tax')}</span>
+                  <span>{currency}{(selectedInvoice.tax ?? 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg border-t pt-2">
+                  <span>{t('total')}</span>
+                  <span>{currency}{(selectedInvoice.total ?? 0).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+            {selectedInvoice.status === 'pending' && (
+              <div className="flex justify-between items-center border-t pt-4">
+                <div className="flex gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => window.print()}>
+                    <Printer className="w-4 h-4 mr-2" />
+                    {t('print')}
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={async () => {
+                    // Send email via communication service
+                    if (!selectedInvoice) return;
+
+                    const { communicationService } = await import('../lib/communicationService');
+                    if (confirm('Send invoice via email to customer?')) {
+                      try {
+                        const result = await communicationService.sendDocument({
+                          type: 'invoice',
+                          documentId: selectedInvoice.id,
+                          customerId: selectedInvoice.customer_id,
+                          channel: 'email'
+                        });
+
+                        if (result.success) {
+                          alert(result.message);
+                        } else {
+                          alert('Error: ' + result.message);
+                        }
+                      } catch (err) {
+                        console.error('Error sending email:', err);
+                        alert('Failed to send email');
+                      }
+                    }
+                  }}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    {t('email')}
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={() => alert('Text message sent! (Simulation)')}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    {t('text_message')}
+                  </Button>
+                </div>
+                <Button onClick={() => { markAsPaid(selectedInvoice); setSelectedInvoice(null); }}>
+                  <DollarSign className="w-4 h-4 mr-2 inline" />
+                  {t('mark_paid')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {selectedEstimate && (
+        <Modal isOpen={!!selectedEstimate} onClose={() => setSelectedEstimate(null)} title={t('estimate_details')} size="lg">
+          <div className="space-y-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-2xl font-bold">{selectedEstimate.estimate_number}</h3>
+                <p className="text-neutral-500">Created {new Date(selectedEstimate.created_at).toLocaleDateString()}</p>
+              </div>
+              <StatusBadge status={selectedEstimate.status} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-neutral-500">{t('customer')}</p>
+                <p className="font-medium">{getCustomerName(selectedEstimate.customer_id)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-neutral-500">{t('work_order')}</p>
+                <p className="font-medium">{getWorkOrderNumber(selectedEstimate.work_order_id)}</p>
+              </div>
+            </div>
+
             <div className="bg-neutral-50 rounded-lg p-4">
               <h4 className="font-semibold mb-3 text-sm text-neutral-900 border-b pb-2">Itemized Breakdown</h4>
               {invoiceItems.length > 0 ? (
@@ -415,52 +626,66 @@ export function Billing() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-neutral-500 mb-4 italic">No line items found (legacy invoice)</p>
+                <p className="text-sm text-neutral-500 mb-4 italic">No line items found</p>
               )}
 
               <div className="space-y-2 border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="text-neutral-600">Subtotal</span>
-                  <span>{currency}{(selectedInvoice.subtotal ?? 0).toFixed(2)}</span>
+                  <span className="text-neutral-600">{t('subtotal')}</span>
+                  <span>{currency}{(selectedEstimate.subtotal ?? 0).toFixed(2)}</span>
                 </div>
-                {(selectedInvoice.discount ?? 0) > 0 && (
-                  <div className="flex justify-between text-emerald-600">
-                    <span>Discount</span>
-                    <span>-{currency}{(selectedInvoice.discount ?? 0).toFixed(2)}</span>
-                  </div>
-                )}
+                {/* Discount could be calculated from work order settings if not stored directly in estimate. For now assuming stored or simple calculation */}
                 <div className="flex justify-between">
-                  <span className="text-neutral-600">Tax</span>
-                  <span>{currency}{(selectedInvoice.tax ?? 0).toFixed(2)}</span>
+                  <span className="text-neutral-600">{t('tax')}</span>
+                  <span>{currency}{(selectedEstimate.tax ?? 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
-                  <span>Total</span>
-                  <span>{currency}{(selectedInvoice.total ?? 0).toFixed(2)}</span>
+                  <span>{t('total')}</span>
+                  <span>{currency}{(selectedEstimate.total ?? 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
-            {selectedInvoice.status === 'pending' && (
-              <div className="flex justify-between items-center border-t pt-4">
-                <div className="flex gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => window.print()}>
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => alert('Email sent! (Simulation)')}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => alert('Text message sent! (Simulation)')}>
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Text
-                  </Button>
-                </div>
-                <Button onClick={() => { markAsPaid(selectedInvoice); setSelectedInvoice(null); }}>
-                  <DollarSign className="w-4 h-4 mr-2 inline" />
-                  Mark as Paid
+
+            <div className="text-sm bg-blue-50 p-3 rounded-lg border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800">
+              <p className="font-medium text-blue-800 dark:text-blue-300 mb-1">Customer Approval Link</p>
+              <a
+                href={`/approve-estimate/${selectedEstimate.approval_token}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 hover:underline dark:text-blue-400 break-all"
+              >
+                {window.location.origin}/approve-estimate/{selectedEstimate.approval_token}
+              </a>
+            </div>
+
+            <div className="flex justify-between items-center border-t pt-4">
+              <div className="flex gap-2">
+                <Button variant="secondary" size="sm" onClick={() => window.print()}>
+                  <Printer className="w-4 h-4 mr-2" />
+                  {t('print')}
+                </Button>
+                <Button variant="secondary" size="sm" onClick={async () => {
+                  // Email logic
+                  const { communicationService } = await import('../lib/communicationService');
+                  if (confirm('Send estimate to customer?')) {
+                    const result = await communicationService.sendDocument({
+                      type: 'estimate',
+                      documentId: selectedEstimate.id,
+                      customerId: selectedEstimate.customer_id,
+                      channel: 'email'
+                    });
+                    alert(result.message);
+                    if (result.success) loadData();
+                  }
+                }}>
+                  <Mail className="w-4 h-4 mr-2" />
+                  {t('email')}
                 </Button>
               </div>
-            )}
+              <Button variant="secondary" onClick={() => setSelectedEstimate(null)}>
+                {t('close')}
+              </Button>
+            </div>
           </div>
         </Modal>
       )}
@@ -507,7 +732,7 @@ function PreviewSection({ items, setItems, workOrderId, discountType, discountVa
   return (
     <div className="space-y-3 text-sm">
       <div className="space-y-1 mb-2 max-h-48 overflow-y-auto border-b pb-2">
-        {items.length === 0 && <p className="text-neutral-400 italic text-xs">No items yet</p>}
+        {items.length === 0 && <p className="text-neutral-400 italic text-xs">{t('no_items_yet')}</p>}
         {items.map((item: any, i: number) => ( // Fix type
           <div key={i} className="flex gap-2 items-center bg-white p-1.5 rounded border border-neutral-100">
             <div className="flex-1">
@@ -524,13 +749,13 @@ function PreviewSection({ items, setItems, workOrderId, discountType, discountVa
 
       <div className="grid grid-cols-12 gap-1 items-end mb-2 pt-1 border-t border-dashed border-neutral-200">
         <div className="col-span-6">
-          <input className="w-full text-xs border rounded px-1 py-1" placeholder="Add item..." value={newItem.description} onChange={e => setNewItem({ ...newItem, description: e.target.value })} />
+          <input className="w-full text-xs border rounded px-1 py-1" placeholder={t('add_item_placeholder')} value={newItem.description} onChange={e => setNewItem({ ...newItem, description: e.target.value })} />
         </div>
         <div className="col-span-2">
-          <input type="number" className="w-full text-xs border rounded px-1 py-1" placeholder="Qty" value={newItem.quantity} onChange={e => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) || 0 })} />
+          <input type="number" className="w-full text-xs border rounded px-1 py-1" placeholder={t('qty')} value={newItem.quantity} onChange={e => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) || 0 })} />
         </div>
         <div className="col-span-3">
-          <input type="number" className="w-full text-xs border rounded px-1 py-1" placeholder="Price" value={newItem.unit_price} onChange={e => setNewItem({ ...newItem, unit_price: parseFloat(e.target.value) || 0 })} />
+          <input type="number" className="w-full text-xs border rounded px-1 py-1" placeholder={t('price')} value={newItem.unit_price} onChange={e => setNewItem({ ...newItem, unit_price: parseFloat(e.target.value) || 0 })} />
         </div>
         <div className="col-span-1">
           <Button type="button" size="sm" variant="secondary" className="px-1 h-7 w-full" onClick={addItem}>+</Button>
@@ -539,21 +764,21 @@ function PreviewSection({ items, setItems, workOrderId, discountType, discountVa
 
       <div className="space-y-1 bg-neutral-100 p-2 rounded">
         <div className="flex justify-between">
-          <span>Subtotal:</span>
+          <span>{t('subtotal')}:</span>
           <span>{currency}{details.subtotal.toFixed(2)}</span>
         </div>
         {details.discountAmount > 0 && (
           <div className="flex justify-between text-emerald-600">
-            <span>Discount:</span>
+            <span>{t('discount')}:</span>
             <span>-{currency}{details.discountAmount.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between text-neutral-600">
-          <span>Tax ({(details.taxRate * 100).toFixed(0)}%):</span>
+          <span>{t('tax')} ({(details.taxRate * 100).toFixed(0)}%):</span>
           <span>{currency}{details.taxAmount.toFixed(2)}</span>
         </div>
         <div className="flex justify-between font-bold border-t border-neutral-200 pt-2 mt-2">
-          <span>Total:</span>
+          <span>{t('total')}:</span>
           <span>{currency}{details.total.toFixed(2)}</span>
         </div>
       </div>

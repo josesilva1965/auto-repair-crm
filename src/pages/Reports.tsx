@@ -43,12 +43,12 @@ export function Reports() {
   const filteredOrders = workOrders.filter((o) => filterByDate(o.created_at));
   const filteredInvoices = invoices.filter((i) => filterByDate(i.created_at));
 
-  // Revenue by day
-  const revenueByDay = filteredOrders
-    .filter((o) => o.status === 'completed')
-    .reduce((acc: Record<string, number>, order) => {
-      const date = order.completed_date || order.created_at.split('T')[0];
-      acc[date] = (acc[date] || 0) + (order.actual_cost || order.estimated_cost || 0);
+  // Revenue by day (based on Paid Invoices)
+  const revenueByDay = filteredInvoices
+    .filter((i) => i.status === 'paid')
+    .reduce((acc: Record<string, number>, invoice) => {
+      const date = (invoice.paid_date || invoice.created_at).split('T')[0];
+      acc[date] = (acc[date] || 0) + (invoice.total || 0);
       return acc;
     }, {});
 
@@ -87,9 +87,11 @@ export function Reports() {
   });
 
   // Summary stats
-  const totalRevenue = filteredOrders.filter((o) => o.status === 'completed').reduce((sum, o) => sum + (o.actual_cost || o.estimated_cost || 0), 0);
+  // Summary stats
+  const totalRevenue = filteredInvoices.filter((i) => i.status === 'paid').reduce((sum, i) => sum + (i.total || 0), 0);
   const completedJobsCount = filteredOrders.filter((o) => o.status === 'completed').length;
-  const avgJobValue = completedJobsCount > 0 ? totalRevenue / completedJobsCount : 0;
+  const paidInvoicesCount = filteredInvoices.filter((i) => i.status === 'paid').length;
+  const avgJobValue = paidInvoicesCount > 0 ? totalRevenue / paidInvoicesCount : 0;
   const completedJobs = completedJobsCount;
   const avgCompletionTime = 2.5; // Placeholder
 

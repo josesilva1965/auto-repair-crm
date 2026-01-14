@@ -16,6 +16,8 @@ import { Bookings } from './pages/Bookings';
 import { Settings } from './pages/Settings';
 import { Estimates } from './pages/Estimates';
 import { ApproveEstimate } from './pages/ApproveEstimate';
+import { Purchasing } from './pages/Purchasing';
+import { PublicInspection } from './pages/PublicInspection';
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/estimate-approval/:token" element={<ApproveEstimate />} />
+            <Route path="/inspection/:token" element={<PublicInspection />} />
             <Route
               path="/*"
               element={
@@ -34,6 +37,7 @@ function App() {
                     <Route path="/customers" element={<Customers />} />
                     <Route path="/vehicles" element={<Vehicles />} />
                     <Route path="/inventory" element={<Inventory />} />
+                    <Route path="/purchasing" element={<Purchasing />} />
                     <Route path="/billing" element={<Billing />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/technicians" element={<Technicians />} />

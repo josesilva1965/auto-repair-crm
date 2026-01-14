@@ -4,13 +4,16 @@ import { useSettings } from '../contexts/SettingsContext';
 import { supabase, type WorkOrder, type Customer, type Vehicle, type Technician, type Estimate, type InventoryPart } from '../lib/supabase';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
-import { Plus, Search, Filter, DollarSign, Trash2, Clock, FileText, Send, Mail, MessageSquare, Printer, Check, AlertCircle } from 'lucide-react';
+import { Plus, Search, Filter, DollarSign, Trash2, Clock, FileText, Send, Mail, MessageSquare, Printer, Check, AlertCircle, Brain, Loader } from 'lucide-react';
 import { maximizeTechAssignment } from '../lib/assignmentOptimizer';
 import { DndContext, DragEndEvent, useDraggable, useDroppable, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useNavigate } from 'react-router-dom';
 import { PricingEngine } from '../lib/pricingEngine';
 import { communicationService } from '../lib/communicationService';
+import { partsService, type PartLookupResult } from '../lib/partsService';
+import { TimeTracker } from '../components/TimeTracker';
+import { InspectionModal } from '../components/InspectionModal';
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'pending' },
@@ -39,17 +42,20 @@ export function WorkOrders() {
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [inventoryParts, setInventoryParts] = useState<InventoryPart[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]); // Use appropriate type if available, e.g. Invoice[]
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
+  const [activeTab, setActiveTab] = useState<'details' | 'time'>('details');
 
   // Estimate modal state
   const [isEstimateModalOpen, setIsEstimateModalOpen] = useState(false);
   const [estimateNotes, setEstimateNotes] = useState('');
   const [sendingEstimate, setSendingEstimate] = useState(false);
+  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 
   const [form, setForm] = useState({
     customer_id: '',
@@ -76,13 +82,14 @@ export function WorkOrders() {
 
   async function loadData() {
     setLoading(true);
-    const [ordersRes, customersRes, vehiclesRes, techniciansRes, estimatesRes, partsRes] = await Promise.all([
+    const [ordersRes, customersRes, vehiclesRes, techniciansRes, estimatesRes, partsRes, invoicesRes] = await Promise.all([
       supabase.from('work_orders').select('*').order('created_at', { ascending: false }),
       supabase.from('customers').select('*'),
       supabase.from('vehicles').select('*'),
       supabase.from('technicians').select('*'),
       supabase.from('estimates').select('*'),
       supabase.from('inventory_parts').select('*').order('category', { ascending: true }),
+      supabase.from('invoices').select('*'),
     ]);
     setWorkOrders(ordersRes.data || []);
     setCustomers(customersRes.data || []);
@@ -90,6 +97,7 @@ export function WorkOrders() {
     setTechnicians(techniciansRes.data || []);
     setEstimates(estimatesRes.data || []);
     setInventoryParts(partsRes.data || []);
+    setInvoices(invoicesRes.data || []);
     setLoading(false);
   }
 
@@ -163,7 +171,11 @@ export function WorkOrders() {
   }
 
   // Log Hours Helper
-  const [logHoursAmount, setLogHoursAmount] = useState(1); // State for input
+  const [logHoursAmount, setLogHoursAmount] = useState(1);
+  const [isLookingUpPart, setIsLookingUpPart] = useState(false);
+  const [partLookupResults, setPartLookupResults] = useState<PartLookupResult[]>([]);
+  const [lookupQuery, setLookupQuery] = useState(''); // State for input
+  const [filterByVehicle, setFilterByVehicle] = useState(true); // Default to showing vehicle-specific parts
 
   function logHours(hours: number) {
     const techId = form.technician_id;
@@ -241,12 +253,56 @@ export function WorkOrders() {
     setIsModalOpen(true);
   }
 
+  async function handleSmartLookup(e: React.FormEvent | React.MouseEvent) {
+    e.preventDefault();
+    if (!lookupQuery.trim()) return;
+
+    setIsLookingUpPart(true);
+    try {
+      // Pass vehicle info if available
+      const currentOrder = workOrders.find(o => o.id === form.id);
+      const vehicle = vehicles.find(v => v.id === currentOrder?.vehicle_id || v.id === form.vehicle_id);
+      const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : undefined;
+
+      const results = await partsService.searchParts(lookupQuery, vehicleInfo);
+      setPartLookupResults(results);
+    } catch (error) {
+      console.error('Error looking up parts:', error);
+    } finally {
+      setIsLookingUpPart(false);
+    }
+  }
+
+  function handleSelectLookupResult(part: PartLookupResult) {
+    const newItemToAdd = {
+      description: part.name,
+      unit_price: part.estimated_price * 1.5, // 50% markup
+      quantity: 1,
+      item_type: 'part' as const
+    };
+
+    setLineItems([...lineItems, newItemToAdd]);
+    setPartLookupResults([]); // Clear results/close modal
+    setLookupQuery('');
+  }
+
   const filteredOrders = workOrders.filter((o) => {
     const matchSearch = o.id.toLowerCase().includes(search.toLowerCase()) ||
-      o.description?.toLowerCase().includes(search.toLowerCase());
+      o.description?.toLowerCase().includes(search.toLowerCase()) ||
+      getCustomerName(o.customer_id).toLowerCase().includes(search.toLowerCase()); // Added customer name search
     const matchStatus = statusFilter === 'all' || o.status === statusFilter;
     const notArchived = o.status !== 'archived';
-    return matchSearch && matchStatus && notArchived;
+
+    // Filter out paid orders (they are considered closed/archived)
+    const activeInvoice = invoices.find(inv => inv.work_order_id === o.id);
+    const isPaid = activeInvoice?.status === 'paid';
+
+    // Debug log for completed orders
+    if (o.status === 'completed' || o.status === 'in-progress') {
+      // console.log(`[Debug] Order ${o.id} (${o.status}). Paid? ${isPaid} (${activeInvoice?.status})`);
+    }
+
+    return matchSearch && matchStatus && notArchived && !isPaid;
   });
 
   const customerVehicles = vehicles.filter((v) => v.customer_id === form.customer_id);
@@ -502,6 +558,22 @@ export function WorkOrders() {
     loadData();
   }
 
+  async function handleArchiveOrder(id: string) {
+    console.log('handleArchiveOrder called for ID:', id);
+    if (confirm(t('confirm_delete') || 'Are you sure you want to delete this order?')) {
+      const { error } = await supabase.from('work_orders').update({ status: 'archived' }).eq('id', id);
+      if (error) {
+        console.error('Error archiving order:', error);
+        alert('Failed to delete order: ' + error.message);
+      } else {
+        console.log('Order archived successfully');
+        loadData();
+      }
+    } else {
+      console.log('Archive cancelled by user');
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -568,297 +640,432 @@ export function WorkOrders() {
           ]}
         />
       ) : (
-        <KanbanBoard orders={filteredOrders} onEdit={openEdit} getTechName={getTechName} onStatusChange={handleStatusChange} estimates={estimates} />
+        <KanbanBoard
+          orders={filteredOrders}
+          onEdit={openEdit}
+          getTechName={getTechName}
+          onStatusChange={handleStatusChange}
+          estimates={estimates}
+          onArchive={handleArchiveOrder}
+        />
       )}
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setEditingOrder(null); }}
-        title={editingOrder ? 'Edit Work Order' : 'New Work Order'}
+        title={editingOrder ? t('edit_work_order') : t('new_work_order')}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Customer"
-              value={form.customer_id}
-              onChange={(e) => setForm({ ...form, customer_id: e.target.value, vehicle_id: '' })}
-              options={[{ value: '', label: 'Select customer...' }, ...customers.map((c) => ({ value: c.id, label: c.name }))]}
-              required
-            />
-            <Select
-              label="Vehicle"
-              value={form.vehicle_id}
-              onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })}
-              options={[{ value: '', label: 'Select vehicle...' }, ...customerVehicles.map((v) => ({ value: v.id, label: `${v.year} ${v.make} ${v.model}` }))]}
-              required
-            />
+          <div className="flex border-b border-neutral-200 mb-4">
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
+              onClick={() => setActiveTab('details')}
+            >
+              {t('details')}
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'time' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
+              onClick={() => setActiveTab('time')}
+            >
+              {t('time_tracking') || 'Time Tracking'}
+            </button>
           </div>
 
-          <div className="space-y-2">
-            <Select
-              label="Technician"
-              value={form.technician_id}
-              onChange={(e) => setForm({ ...form, technician_id: e.target.value })}
-              options={[
-                { value: '', label: 'Unassigned' },
-                ...technicians.map((t) => ({ value: t.id, label: t.name }))
-              ]}
-            />
-
-            {/* AI Suggestion Area */}
-            {form.description && (
-              <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded-lg border border-primary-100 dark:border-primary-800">
-                <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-2 uppercase tracking-wide">
-                  AI Suggested Assignment
-                </p>
-                <div className="space-y-2">
-                  {suggestedTechs.slice(0, 2).map(tech => (
-                    <div
-                      key={tech.id}
-                      onClick={() => setForm({ ...form, technician_id: tech.id })}
-                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${form.technician_id === tech.id
-                        ? 'bg-primary-100 dark:bg-primary-800 border border-primary-300 dark:border-primary-600'
-                        : 'bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700'
-                        }`}
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm text-neutral-900 dark:text-white">{tech.name}</span>
-                          <span className="px-1.5 py-0.5 text-[10px] bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded-full">
-                            {tech.score} match
-                          </span>
-                        </div>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{tech.matchReason}</p>
-                      </div>
-                      {form.technician_id === tech.id && (
-                        <span className="text-primary-600 dark:text-primary-400 text-xs font-medium">Selected</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Scheduled Date"
-              type="date"
-              value={form.scheduled_date}
-              onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <Select label="Status" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} options={STATUS_OPTIONS} />
-              <Select label="Priority" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} options={PRIORITY_OPTIONS} />
-            </div>
-          </div>
-          <Textarea
-            label="Technician Notes / Diagnosis"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            rows={3}
-            placeholder="Describe the issue, work done, or diagnosis (e.g., 'Brake noise fixed, road test passed')"
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Estimated Cost ($)"
-              type="number"
-              step="0.01"
-              value={lineItems.length > 0 ? calculatedTotal.toFixed(2) : form.estimated_cost}
-              onChange={(e) => setForm({ ...form, estimated_cost: e.target.value })}
-              readOnly={lineItems.length > 0}
-              className={lineItems.length > 0 ? "bg-neutral-100" : ""}
-            />
-            <Input
-              label="Actual Cost ($)"
-              type="number"
-              step="0.01"
-              value={lineItems.length > 0 ? calculatedTotal.toFixed(2) : form.actual_cost}
-              onChange={(e) => setForm({ ...form, actual_cost: e.target.value })}
-              readOnly={lineItems.length > 0}
-              className={lineItems.length > 0 ? "bg-neutral-100" : ""}
-            />
-          </div>
-
-          {/* Line Items Section */}
-          <div className="border-t border-neutral-200 pt-4">
-            <h3 className="font-semibold text-sm text-neutral-900 mb-3">Line Items (Parts & Labor)</h3>
-
-            <div className="space-y-2 mb-4">
-              {lineItems.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-center bg-neutral-50 p-2 rounded text-sm">
-                  <div className="flex-1 font-medium">{item.description}</div>
-                  <div className="w-20 text-neutral-500 capitalize">{item.item_type}</div>
-                  <div className="w-16 text-right">{item.quantity} x</div>
-                  <div className="w-24 text-right">{currency}{item.unit_price.toFixed(2)}</div>
-                  <div className="w-24 text-right font-semibold">{currency}{(item.quantity * item.unit_price).toFixed(2)}</div>
-                  <Button type="button" size="sm" variant="secondary" onClick={() => removeItem(idx)} className="ml-2 text-red-600 hover:text-red-700">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-              {lineItems.length > 0 && (
-                <div className="flex justify-end gap-4 text-sm font-bold pt-2 border-t border-neutral-200">
-                  <span>Total:</span>
-                  <span>{currency}{calculatedTotal.toFixed(2)}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Actions for Tech */}
-            <div className="flex gap-2 mb-4 bg-primary-50 p-2 rounded-lg items-center border border-primary-100">
-              <Clock className="w-4 h-4 text-primary-600" />
-              <span className="text-sm font-medium text-primary-800">Log Hours:</span>
-              <div className="flex items-center gap-1">
-                <input
-                  type="number"
-                  className="w-16 h-8 text-sm border rounded px-1"
-                  value={logHoursAmount}
-                  onChange={e => setLogHoursAmount(parseFloat(e.target.value) || 0)}
-                />
-                <Button type="button" size="sm" variant="secondary" onClick={() => logHours(logHoursAmount)}>Add</Button>
-              </div>
-              <span className="text-neutral-300 mx-1">|</span>
-              <Button type="button" size="sm" variant="secondary" onClick={() => logHours(1)}>+1h</Button>
-              <Button type="button" size="sm" variant="secondary" onClick={() => logHours(0.5)}>+0.5h</Button>
-            </div>
-
-            <div className="grid grid-cols-12 gap-2 items-end bg-neutral-50 p-3 rounded-lg border border-neutral-200">
-              <div className="col-span-5">
-                {newItem.item_type === 'part' ? (
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Select Part</label>
-                    <select
-                      value={newItem.description}
-                      onChange={(e) => {
-                        const selectedPart = inventoryParts.find(p => p.name === e.target.value);
-                        setNewItem({
-                          ...newItem,
-                          description: e.target.value,
-                          unit_price: selectedPart?.selling_price || 0
-                        });
-                      }}
-                      className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
-                    >
-                      <option value="">Select a part...</option>
-                      {/* Group parts by category */}
-                      {Array.from(new Set(inventoryParts.map(p => p.category || 'Uncategorized'))).map(category => (
-                        <optgroup key={category} label={category}>
-                          {inventoryParts
-                            .filter(p => (p.category || 'Uncategorized') === category)
-                            .map(part => (
-                              <option key={part.id} value={part.name}>
-                                {part.name} - {currency}{part.selling_price?.toFixed(2)} ({part.quantity} in stock)
-                              </option>
-                            ))}
-                        </optgroup>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <Input
-                    label="Description"
-                    value={newItem.description}
-                    onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                    placeholder="Item name..."
-                  />
-                )}
-              </div>
-              <div className="col-span-2">
+          {activeTab === 'time' ? (
+            <TimeTracker workOrderId={editingOrder?.id || ''} />
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <Select
-                  label="Type"
-                  value={newItem.item_type}
-                  onChange={(e) => setNewItem({ ...newItem, item_type: e.target.value as any })}
+                  label="Customer"
+                  value={form.customer_id}
+                  onChange={(e) => setForm({ ...form, customer_id: e.target.value, vehicle_id: '' })}
+                  options={[{ value: '', label: t('select_customer') }, ...customers.map((c) => ({ value: c.id, label: c.name }))]}
+                  required
+                />
+                <Select
+                  label={t('vehicle')}
+                  value={form.vehicle_id}
+                  onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })}
+                  options={[{ value: '', label: t('select_vehicle') }, ...customerVehicles.map((v) => ({ value: v.id, label: `${v.year} ${v.make} ${v.model}` }))]}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Select
+                  label={t('technician')}
+                  value={form.technician_id}
+                  onChange={(e) => setForm({ ...form, technician_id: e.target.value })}
                   options={[
-                    { value: 'part', label: 'Part' },
-                    { value: 'labor', label: 'Labor' },
-                    { value: 'other', label: 'Other' },
+                    { value: '', label: t('unassigned') },
+                    ...technicians.map((t) => ({ value: t.id, label: t.name }))
                   ]}
                 />
-              </div>
-              <div className="col-span-2">
-                <Input
-                  label="Qty"
-                  type="number"
-                  min="0.1"
-                  step="0.1"
-                  value={newItem.quantity.toString()}
-                  onChange={(e) => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-              <div className="col-span-2">
-                <Input
-                  label="Price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={newItem.unit_price.toString()}
-                  onChange={(e) => setNewItem({ ...newItem, unit_price: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-              <div className="col-span-1">
-                <Button type="button" onClick={addItem} disabled={!newItem.description}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
 
-          {/* Create Estimate Section - Show when status is testing and there are line items */}
-          {editingOrder && (form.status === 'testing' || form.status === 'in-progress') && lineItems.length > 0 && (
-            <div className="border-t border-neutral-200 pt-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-amber-600" />
-                    <div>
-                      <p className="font-medium text-amber-900">{t('create_estimate') || 'Create Estimate'}</p>
-                      <p className="text-sm text-amber-700">{t('send_estimate_to_customer') || 'Send an estimate to the customer for approval'}</p>
+                {/* AI Suggestion Area */}
+                {form.description && (
+                  <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded-lg border border-primary-100 dark:border-primary-800">
+                    <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-2 uppercase tracking-wide">
+                      {t('ai_suggestion')}
+                    </p>
+                    <div className="space-y-2">
+                      {suggestedTechs.slice(0, 2).map(tech => (
+                        <div
+                          key={tech.id}
+                          onClick={() => setForm({ ...form, technician_id: tech.id })}
+                          className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${form.technician_id === tech.id
+                            ? 'bg-primary-100 dark:bg-primary-800 border border-primary-300 dark:border-primary-600'
+                            : 'bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700'
+                            }`}
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm text-neutral-900 dark:text-white">{tech.name}</span>
+                              <span className="px-1.5 py-0.5 text-[10px] bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded-full">
+                                {tech.score} {t('match')}
+                              </span>
+                            </div>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{tech.matchReason}</p>
+                          </div>
+                          {form.technician_id === tech.id && (
+                            <span className="text-primary-600 dark:text-primary-400 text-xs font-medium">{t('selected')}</span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label={t('scheduled_date')}
+                  type="date"
+                  value={form.scheduled_date}
+                  onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Select label={t('status')} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} options={STATUS_OPTIONS} />
+                  <Select label={t('priority')} value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} options={PRIORITY_OPTIONS} />
+                </div>
+              </div>
+              <Textarea
+                label={t('technician_notes')}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={3}
+                placeholder={t('notes_placeholder')}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label={`${t('estimated_cost')} ($)`}
+                  type="number"
+                  step="0.01"
+                  value={lineItems.length > 0 ? calculatedTotal.toFixed(2) : form.estimated_cost}
+                  onChange={(e) => setForm({ ...form, estimated_cost: e.target.value })}
+                  readOnly={lineItems.length > 0}
+                  className={lineItems.length > 0 ? "bg-neutral-100" : ""}
+                />
+                <Input
+                  label={`${t('actual_cost')} ($)`}
+                  type="number"
+                  step="0.01"
+                  value={lineItems.length > 0 ? calculatedTotal.toFixed(2) : form.actual_cost}
+                  onChange={(e) => setForm({ ...form, actual_cost: e.target.value })}
+                  readOnly={lineItems.length > 0}
+                  className={lineItems.length > 0 ? "bg-neutral-100" : ""}
+                />
+              </div>
+
+              {/* Line Items Section */}
+              <div className="border-t border-neutral-200 pt-4">
+                <h3 className="font-semibold text-sm text-neutral-900 mb-3">{t('line_items_section')}</h3>
+
+                <div className="space-y-2 mb-4">
+                  {lineItems.map((item, idx) => (
+                    <div key={idx} className="flex gap-2 items-center bg-neutral-50 p-2 rounded text-sm">
+                      <div className="flex-1 font-medium">{item.description}</div>
+                      <div className="w-20 text-neutral-500 capitalize">{item.item_type}</div>
+                      <div className="w-16 text-right">{item.quantity} x</div>
+                      <div className="w-24 text-right">{currency}{item.unit_price.toFixed(2)}</div>
+                      <div className="w-24 text-right font-semibold">{currency}{(item.quantity * item.unit_price).toFixed(2)}</div>
+                      <Button type="button" size="sm" variant="secondary" onClick={() => removeItem(idx)} className="ml-2 text-red-600 hover:text-red-700">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {lineItems.length > 0 && (
+                    <div className="flex justify-end gap-4 text-sm font-bold pt-2 border-t border-neutral-200">
+                      <span>{t('total')}:</span>
+                      <span>{currency}{calculatedTotal.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Actions for Tech */}
+                <div className="flex gap-2 mb-4 bg-primary-50 p-2 rounded-lg items-center border border-primary-100">
+                  <Clock className="w-4 h-4 text-primary-600" />
+                  <span className="text-sm font-medium text-primary-800">{t('log_hours')}:</span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      className="w-16 h-8 text-sm border rounded px-1"
+                      value={logHoursAmount}
+                      onChange={e => setLogHoursAmount(parseFloat(e.target.value) || 0)}
+                    />
+                    <Button type="button" size="sm" variant="secondary" onClick={() => logHours(logHoursAmount)}>{t('add')}</Button>
+                  </div>
+                  <span className="text-neutral-300 mx-1">|</span>
+                  <Button type="button" size="sm" variant="secondary" onClick={() => logHours(1)}>+1h</Button>
+                  <Button type="button" size="sm" variant="secondary" onClick={() => logHours(0.5)}>+0.5h</Button>
+                  <span className="text-neutral-300 mx-1">|</span>
                   <Button
                     type="button"
-                    onClick={() => setIsEstimateModalOpen(true)}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={() => setIsInspectionModalOpen(true)}
                   >
-                    <Send className="w-4 h-4 mr-2" />
-                    {t('create_estimate') || 'Create Estimate'}
+                    <Check className="w-3 h-3 mr-1" />
+                    {t('inspection') || 'Inspection'}
                   </Button>
                 </div>
 
-                {/* Show existing estimate status if any */}
-                {(() => {
-                  const existingEstimate = getEstimateForOrder(editingOrder.id);
-                  if (existingEstimate) {
-                    return (
-                      <div className="mt-3 pt-3 border-t border-amber-200">
-                        <div className="flex items-center gap-2 text-sm">
-                          {existingEstimate.status === 'sent' && (
-                            <>
-                              <AlertCircle className="w-4 h-4 text-amber-600" />
-                              <span className="text-amber-800">{t('estimate_awaiting_approval') || 'Estimate sent - awaiting customer approval'}</span>
-                            </>
-                          )}
-                          {existingEstimate.status === 'approved' && (
-                            <>
-                              <Check className="w-4 h-4 text-emerald-600" />
-                              <span className="text-emerald-800">{t('estimate_approved') || 'Customer has approved the estimate'}</span>
-                            </>
-                          )}
+                <div className="grid grid-cols-12 gap-2 items-end bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+                  <div className="col-span-12 mb-2">
+                    <div className="flex gap-2 items-center">
+                      <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Brain className={`w-4 h-4 ${isLookingUpPart ? 'text-purple-500 animate-pulse' : 'text-neutral-400'}`} />
+                        </div>
+                        <input
+                          type="text"
+                          placeholder={(() => {
+                            const currentOrder = workOrders.find(o => o.id === form.id);
+                            const vehicle = vehicles.find(v => v.id === currentOrder?.vehicle_id || v.id === form.vehicle_id);
+                            return vehicle
+                              ? `Search parts for ${vehicle.year} ${vehicle.make} ${vehicle.model}...`
+                              : t('ask_ai_placeholder');
+                          })()}
+                          className="pl-9 w-full h-9 text-sm border border-purple-200 rounded-md bg-purple-50 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                          value={lookupQuery}
+                          onChange={(e) => setLookupQuery(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSmartLookup(e)}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        disabled={isLookingUpPart || !lookupQuery}
+                        onClick={handleSmartLookup}
+                      >
+                        {isLookingUpPart ? <Loader className="w-3 h-3 animate-spin" /> : t('magic_lookup')}
+                      </Button>
+                    </div>
+
+                    {/* Lookup Results */}
+                    {partLookupResults.length > 0 && (
+                      <div className="mt-2 p-2 bg-white border border-purple-100 rounded-lg shadow-sm z-10">
+                        <h4 className="text-xs font-semibold text-purple-800 mb-2">{t('ai_suggestion')}:</h4>
+                        <div className="space-y-1">
+                          {partLookupResults.map((part, idx) => (
+                            <div key={idx}
+                              onClick={() => handleSelectLookupResult(part)}
+                              className="flex justify-between items-center p-2 hover:bg-purple-50 rounded cursor-pointer text-sm border border-transparent hover:border-purple-100"
+                            >
+                              <div>
+                                <div className="font-medium text-neutral-800">{part.name}</div>
+                                <div className="text-xs text-neutral-500">{part.part_number} • {part.supplier}</div>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-semibold text-emerald-600">${(part.estimated_price * 1.5).toFixed(2)}</div>
+                                <div className="text-[10px] text-neutral-400">{t('estimated_cost')}: ${part.estimated_price}</div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    );
-                  }
-                  return null;
-                })()}
+                    )}
+                  </div>
+
+                  <div className="col-span-12 mb-2 flex items-center gap-2">
+                    <div className="flex-1"></div>
+                    <label className="flex items-center text-xs text-neutral-500 cursor-pointer select-none gap-1">
+                      <input
+                        type="checkbox"
+                        className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                        checked={filterByVehicle}
+                        onChange={(e) => setFilterByVehicle(e.target.checked)}
+                      />
+                      <span>{t('show_vehicle_parts')}</span>
+                    </label>
+                  </div>
+
+                  <div className="col-span-5">
+                    {newItem.item_type === 'part' ? (
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">{t('select_part')}</label>
+                        <select
+                          value={newItem.description}
+                          onChange={(e) => {
+                            const selectedPart = inventoryParts.find(p => p.name === e.target.value);
+                            setNewItem({
+                              ...newItem,
+                              description: e.target.value,
+                              unit_price: selectedPart?.selling_price || 0
+                            });
+                          }}
+                          className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                        >
+                          <option value="">{t('select_part_placeholder')}</option>
+                          {/* Group parts by category */}
+                          {Array.from(new Set(inventoryParts.map(p => p.category || 'Uncategorized'))).map(category => {
+                            // Filter logic
+                            const partsInCategory = inventoryParts
+                              .filter(p => (p.category || 'Uncategorized') === category)
+                              .filter(p => {
+                                if (!filterByVehicle) return true;
+                                // Simple Context Filter
+                                const currentOrder = workOrders.find(o => o.id === form.id);
+                                const vehicle = vehicles.find(v => v.id === currentOrder?.vehicle_id || v.id === form.vehicle_id);
+                                if (!vehicle) return true; // Show all if no vehicle context
+
+                                // Always show Universal/Fluids/Shop Supplies
+                                const lowerCat = (p.category || '').toLowerCase();
+                                if (lowerCat.includes('fluid') || lowerCat.includes('shop') || lowerCat.includes('universal') || lowerCat.includes('consumable')) return true;
+
+                                // Check for Make/Model Match
+                                const partName = p.name.toLowerCase();
+                                const make = vehicle.make.toLowerCase();
+                                const model = vehicle.model.toLowerCase();
+
+                                return partName.includes(make) || partName.includes(model);
+                              });
+
+                            if (partsInCategory.length === 0) return null;
+
+                            return (
+                              <optgroup key={category} label={category}>
+                                {partsInCategory.map(part => (
+                                  <option key={part.id} value={part.name}>
+                                    {part.name} - {currency}{part.selling_price?.toFixed(2)} ({part.quantity} in stock)
+                                  </option>
+                                ))}
+                              </optgroup>
+                            );
+                          })}
+                        </select>
+                      </div>
+                    ) : (
+                      <Input
+                        label="Description"
+                        value={newItem.description}
+                        onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                        placeholder="Item name..."
+                      />
+                    )}
+                  </div>
+                  <div className="col-span-2">
+                    <Select
+                      label="Type"
+                      value={newItem.item_type}
+                      onChange={(e) => setNewItem({ ...newItem, item_type: e.target.value as any })}
+                      options={[
+                        { value: 'part', label: 'Part' },
+                        { value: 'labor', label: 'Labor' },
+                        { value: 'other', label: 'Other' },
+                      ]}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Input
+                      label="Qty"
+                      type="number"
+                      min="0.1"
+                      step="0.1"
+                      value={newItem.quantity.toString()}
+                      onChange={(e) => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Input
+                      label="Price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={newItem.unit_price.toString()}
+                      onChange={(e) => setNewItem({ ...newItem, unit_price: parseFloat(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <Button type="button" onClick={addItem} disabled={!newItem.description}>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
+
+              {/* Create Estimate Section - Show when status is testing and there are line items */}
+              {editingOrder && (form.status === 'testing' || form.status === 'in-progress') && lineItems.length > 0 && (
+                <div className="border-t border-neutral-200 pt-4">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-amber-600" />
+                        <div>
+                          <p className="font-medium text-amber-900">{t('create_estimate') || 'Create Estimate'}</p>
+                          <p className="text-sm text-amber-700">{t('send_estimate_to_customer') || 'Send an estimate to the customer for approval'}</p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => setIsEstimateModalOpen(true)}
+                        className="bg-amber-600 hover:bg-amber-700"
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        {t('create_estimate') || 'Create Estimate'}
+                      </Button>
+                    </div>
+
+                    {/* Show existing estimate status if any */}
+                    {(() => {
+                      const existingEstimate = getEstimateForOrder(editingOrder.id);
+                      if (existingEstimate) {
+                        return (
+                          <div className="mt-3 pt-3 border-t border-amber-200">
+                            <div className="flex items-center gap-2 text-sm">
+                              {existingEstimate.status === 'sent' && (
+                                <>
+                                  <AlertCircle className="w-4 h-4 text-amber-600" />
+                                  <span className="text-amber-800">{t('estimate_awaiting_approval') || 'Estimate sent - awaiting customer approval'}</span>
+                                </>
+                              )}
+                              {existingEstimate.status === 'approved' && (
+                                <>
+                                  <Check className="w-4 h-4 text-emerald-600" />
+                                  <span className="text-emerald-800">{t('estimate_approved') || 'Customer has approved the estimate'}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200 mt-4">
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>{t('cancel')}</Button>
-            <Button type="submit">{editingOrder ? t('edit') : t('add')} {t('work_orders')}</Button>
+            {activeTab === 'details' && <Button type="submit">{editingOrder ? t('edit') : t('add')} {t('work_orders')}</Button>}
           </div>
         </form>
       </Modal>
@@ -962,11 +1169,19 @@ export function WorkOrders() {
           )}
         </div>
       </Modal>
+      {editingOrder && (
+        <InspectionModal
+          key={editingOrder.id}
+          isOpen={isInspectionModalOpen}
+          onClose={() => setIsInspectionModalOpen(false)}
+          workOrderId={editingOrder.id}
+        />
+      )}
     </div>
   );
 }
 
-function KanbanBoard({ orders, onEdit, getTechName, onStatusChange, estimates }: { orders: WorkOrder[]; onEdit: (o: WorkOrder) => void; getTechName: (id: string | null) => string, onStatusChange: (id: string, status: string) => void, estimates: Estimate[] }) {
+function KanbanBoard({ orders, onEdit, getTechName, onStatusChange, estimates, onArchive }: { orders: WorkOrder[]; onEdit: (o: WorkOrder) => void; getTechName: (id: string | null) => string, onStatusChange: (id: string, status: string) => void, estimates: Estimate[], onArchive: (id: string) => void }) {
   const { t } = useTranslation();
   const columns = [
     { status: 'pending', titleKey: 'pending', color: 'bg-amber-500' },
@@ -1014,6 +1229,7 @@ function KanbanBoard({ orders, onEdit, getTechName, onStatusChange, estimates }:
                   onEdit={onEdit}
                   getTechName={getTechName}
                   estimate={getEstimate(order.id)}
+                  onArchive={onArchive}
                 />
               ))}
             </div>
@@ -1039,11 +1255,12 @@ function KanbanColumn({ status, title, color, count, children }: any) {
       <div className="flex-1 overflow-y-auto px-2">
         {children}
       </div>
+
     </div>
   );
 }
 
-function DraggableCard({ order, onEdit, getTechName, estimate }: { order: WorkOrder; onEdit: (o: WorkOrder) => void; getTechName: (id: string | null) => string; estimate?: Estimate }) {
+function DraggableCard({ order, onEdit, getTechName, estimate, onArchive }: { order: WorkOrder; onEdit: (o: WorkOrder) => void; getTechName: (id: string | null) => string; estimate?: Estimate; onArchive: (id: string) => void }) {
   const { t } = useTranslation();
   const { currency } = useSettings();
   const navigate = useNavigate();
@@ -1165,16 +1382,32 @@ function DraggableCard({ order, onEdit, getTechName, estimate }: { order: WorkOr
         </div>
       )}
 
-      {order.status === 'completed' && (
-        <Button
-          size="sm"
-          className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-          onClick={handleCreateInvoice}
-        >
-          <DollarSign className="w-3 h-3 mr-1.5" />
-          {t('create_invoice')}
-        </Button>
+      {(order.status === 'completed' || order.status === 'cancelled') && (
+        <div className="flex gap-2">
+          {order.status === 'completed' && (
+            <Button
+              size="sm"
+              className="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white"
+              onClick={handleCreateInvoice}
+            >
+              <DollarSign className="w-3 h-3 mr-1" />
+              {t('create_invoice')}
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="secondary"
+            className="mt-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              onArchive(order.id);
+            }}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
       )}
-    </div>
+
+    </div >
   );
 }

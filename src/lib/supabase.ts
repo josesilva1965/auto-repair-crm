@@ -159,3 +159,75 @@ export type Notification = {
 };
 
 
+export type PurchaseOrder = {
+  id: string;
+  part_number: string;
+  part_name: string;
+  quantity: number;
+  status: 'pending' | 'ordered' | 'received' | 'cancelled';
+  work_order_id: string | null;
+  supplier: string | null;
+  estimated_cost: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TimeLog = {
+  id: string;
+  work_order_id: string;
+  technician_id: string | null;
+  technician_name: string | null;
+  start_time: string;
+  end_time: string | null;
+  duration_minutes: number;
+  description: string | null;
+  created_at: string;
+};
+
+export type InspectionTemplate = {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+};
+
+export type TemplateItem = {
+  id: string;
+  template_id: string;
+  label: string;
+  category: string;
+  display_order: number;
+  created_at: string;
+};
+
+export type Inspection = {
+  id: string;
+  work_order_id: string;
+  template_id: string | null;
+  status: 'draft' | 'in_progress' | 'completed' | 'sent';
+  token: string | null;
+  created_at: string;
+  completed_at: string | null;
+};
+
+export type InspectionItem = {
+  id: string;
+  inspection_id: string;
+  template_item_id: string | null;
+  label: string;
+  category: string | null;
+  status: 'green' | 'yellow' | 'red' | null;
+  notes: string | null;
+  recommendation: string | null;
+  customer_decision: 'approved' | 'declined' | null;
+  estimated_cost: number | null;
+  created_at: string;
+};
+
+export type InspectionPhoto = {
+  id: string;
+  inspection_item_id: string;
+  url: string;
+  caption: string | null;
+  created_at: string;
+};
