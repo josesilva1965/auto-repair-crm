@@ -19,7 +19,7 @@ const Bookings = lazy(() => import('./pages/Bookings').then(module => ({ default
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 const Estimates = lazy(() => import('./pages/Estimates').then(module => ({ default: module.Estimates })));
 const ApproveEstimate = lazy(() => import('./pages/ApproveEstimate').then(module => ({ default: module.ApproveEstimate })));
-const Purchasing = lazy(() => import('./pages/Purchasing').then(module => ({ default: module.Purchasing })));
+
 const PublicInspection = lazy(() => import('./pages/PublicInspection').then(module => ({ default: module.PublicInspection })));
 
 function App() {
@@ -47,7 +47,7 @@ function App() {
                       <Route path="/customers" element={<Customers />} />
                       <Route path="/vehicles" element={<Vehicles />} />
                       <Route path="/inventory" element={<Inventory />} />
-                      <Route path="/purchasing" element={<Purchasing />} />
+
                       <Route path="/billing" element={<Billing />} />
                       <Route path="/reports" element={<Reports />} />
                       <Route path="/technicians" element={<Technicians />} />

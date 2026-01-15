@@ -31,7 +31,7 @@ const navItems = [
   { path: '/customers', label: 'customers', icon: Users },
   { path: '/vehicles', label: 'vehicles', icon: Car },
   { path: '/inventory', label: 'inventory', icon: Package },
-  { path: '/purchasing', label: 'purchasing', icon: ShoppingCart },
+
   { path: '/billing', label: 'billing', icon: Receipt },
   { path: '/reports', label: 'reports', icon: BarChart3 },
   { path: '/technicians', label: 'technicians', icon: Wrench },

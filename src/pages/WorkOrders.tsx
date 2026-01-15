@@ -71,7 +71,7 @@ export function WorkOrders() {
 
   // Calculate suggested technicians when form changes or modal opens
   const suggestedTechs = maximizeTechAssignment(
-    technicians,
+    technicians.filter(t => t.status === 'available'),
     { description: form.description },
     workOrders
   );
@@ -702,7 +702,9 @@ export function WorkOrders() {
                   onChange={(e) => setForm({ ...form, technician_id: e.target.value })}
                   options={[
                     { value: '', label: t('unassigned') },
-                    ...technicians.map((t) => ({ value: t.id, label: t.name }))
+                    ...technicians
+                      .filter(t => t.status === 'available' || t.id === form.technician_id)
+                      .map((t) => ({ value: t.id, label: t.name }))
                   ]}
                 />
 
