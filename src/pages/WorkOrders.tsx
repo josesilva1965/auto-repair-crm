@@ -260,7 +260,7 @@ export function WorkOrders() {
     setIsLookingUpPart(true);
     try {
       // Pass vehicle info if available
-      const currentOrder = workOrders.find(o => o.id === form.id);
+      const currentOrder = workOrders.find(o => o.id === editingOrder?.id);
       const vehicle = vehicles.find(v => v.id === currentOrder?.vehicle_id || v.id === form.vehicle_id);
       const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : undefined;
 
@@ -844,7 +844,7 @@ export function WorkOrders() {
                         <input
                           type="text"
                           placeholder={(() => {
-                            const currentOrder = workOrders.find(o => o.id === form.id);
+                            const currentOrder = workOrders.find(o => o.id === editingOrder?.id);
                             const vehicle = vehicles.find(v => v.id === currentOrder?.vehicle_id || v.id === form.vehicle_id);
                             return vehicle
                               ? `Search parts for ${vehicle.year} ${vehicle.make} ${vehicle.model}...`
@@ -930,7 +930,7 @@ export function WorkOrders() {
                               .filter(p => {
                                 if (!filterByVehicle) return true;
                                 // Simple Context Filter
-                                const currentOrder = workOrders.find(o => o.id === form.id);
+                                const currentOrder = workOrders.find(o => o.id === editingOrder?.id);
                                 const vehicle = vehicles.find(v => v.id === currentOrder?.vehicle_id || v.id === form.vehicle_id);
                                 if (!vehicle) return true; // Show all if no vehicle context
 

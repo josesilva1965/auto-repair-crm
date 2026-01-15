@@ -322,7 +322,7 @@ const resources = {
             "template": "Template",
             "condition": "Condition",
             "confirm_complete_inspection": "Complete inspection and generate report link?",
-            "ok": "OK",
+            // "ok": "OK", // Duplicate
             "monitor": "Monitor",
             "action_required": "Action Required",
             "notes_observations": "Notes / Observations...",
@@ -334,7 +334,7 @@ const resources = {
             "complete_and_share": "Complete & Share",
             "copy_link": "Copy Link",
             "link_copied": "Link copied to clipboard!",
-            "completed": "Completed",
+            // "completed": "Completed", // Duplicate
             "uploading": "Uploading...",
             "inspection_report": "Inspection Report",
             "public_report_title": "Vehicle Health Report",
@@ -413,7 +413,7 @@ const resources = {
             // Approval Page
             "approval_page_title": "Estimate Approval",
             "approval_subtitle": "Please review the estimate details for your vehicle below.",
-            "invalid_link": "Invalid approval link.",
+            // "invalid_link": "Invalid approval link.", // Duplicate, using general invalid_link
             "expired_link": "Estimate not found or link expired.",
             "load_error": "Failed to load estimate details.",
             "thank_you": "Thank You!",
@@ -578,7 +578,7 @@ const resources = {
             "parts_supplies": "Gestão de Peças e Materiais",
             "add_part": "Adicionar Peça",
             "edit_part": "Editar Peça",
-            "part_number": "Nº da Peça",
+            // "part_number": "Nº da Peça", // Duplicate
             "quantity": "Quantidade",
             "min_stock": "Stock Mínimo",
             "unit_cost": "Custo Unitário",
@@ -731,7 +731,7 @@ const resources = {
             "template": "Modelo",
             "condition": "Condição",
             "confirm_complete_inspection": "Concluir inspeção e gerar link?",
-            "ok": "OK",
+            // "ok": "OK", // Duplicate
             "monitor": "Monitorar",
             "action_required": "Ação Necessária",
             "notes_observations": "Notas / Observações...",
@@ -743,7 +743,7 @@ const resources = {
             "complete_and_share": "Concluir e Partilhar",
             "copy_link": "Copiar Link",
             "link_copied": "Link copiado!",
-            "completed": "Concluído",
+            // "completed": "Concluído", // Duplicate
             "uploading": "A enviar...",
             "inspection_report": "Relatório de Inspeção",
             "public_report_title": "Relatório de Estado do Veículo",
@@ -808,7 +808,7 @@ const resources = {
             // Approval Page
             "approval_page_title": "Aprovação de Orçamento",
             "approval_subtitle": "Por favor reveja os detalhes do orçamento para o seu veículo abaixo.",
-            "invalid_link": "Link de aprovação inválido.",
+            // "invalid_link": "Link de aprovação inválido.", // Duplicate
             "expired_link": "Orçamento não encontrado ou link expirado.",
             "load_error": "Falha ao carregar detalhes do orçamento.",
             "thank_you": "Obrigado!",
@@ -966,7 +966,7 @@ const resources = {
             "parts_supplies": "Gestion des Pièces et Fournitures",
             "add_part": "Ajouter Pièce",
             "edit_part": "Modifier Pièce",
-            "part_number": "N° Pièce",
+            // "part_number": "N° Pièce", // Duplicate
             "quantity": "Quantité",
             "min_stock": "Stock Minimum",
             "unit_cost": "Coût Unitaire",
@@ -1031,7 +1031,7 @@ const resources = {
             "complete_and_share": "Terminer et Partager",
             "copy_link": "Copier le Lien",
             "link_copied": "Lien copié dans le presse-papiers !",
-            "completed": "Terminé",
+            // "completed": "Terminé", // Duplicate
             "uploading": "Téléchargement...",
             "inspection_report": "Rapport d'Inspection",
             "public_report_title": "Rapport de Santé du Véhicule",
@@ -1141,7 +1141,7 @@ const resources = {
             // Approval Page
             "approval_page_title": "Approbation du Devis",
             "approval_subtitle": "Veuillez examiner les détails du devis pour votre véhicule ci-dessous.",
-            "invalid_link": "Lien d'approbation invalide.",
+            // "invalid_link": "Lien d'approbation invalide.", // Duplicate
             "expired_link": "Devis introuvable ou lien expiré.",
             "load_error": "Échec du chargement des détails du devis.",
             "thank_you": "Merci!",
@@ -1299,7 +1299,7 @@ const resources = {
             "parts_supplies": "Gestión de Piezas y Suministros",
             "add_part": "Añadir Pieza",
             "edit_part": "Editar Pieza",
-            "part_number": "N° Pieza",
+            // "part_number": "N° Pieza", // Duplicate
             "quantity": "Cantidad",
             "min_stock": "Stock Mínimo",
             "unit_cost": "Coste Unitario",
