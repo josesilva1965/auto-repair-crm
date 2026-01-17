@@ -11,7 +11,9 @@ export function Reports() {
   const { currency } = useSettings();
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
+  const [workOrderItems, setWorkOrderItems] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [timeLogs, setTimeLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30');
 
@@ -21,14 +23,18 @@ export function Reports() {
 
   async function loadData() {
     setLoading(true);
-    const [ordersRes, techniciansRes, invoicesRes] = await Promise.all([
+    const [ordersRes, techniciansRes, invoicesRes, itemsRes, logsRes] = await Promise.all([
       supabase.from('work_orders').select('*'),
       supabase.from('technicians').select('*'),
       supabase.from('invoices').select('*'),
+      supabase.from('work_order_items').select('*'),
+      supabase.from('time_logs').select('*'),
     ]);
     setWorkOrders(ordersRes.data || []);
     setTechnicians(techniciansRes.data || []);
     setInvoices(invoicesRes.data || []);
+    setWorkOrderItems(itemsRes.data || []);
+    setTimeLogs(logsRes.data || []);
     setLoading(false);
   }
 
@@ -75,8 +81,14 @@ export function Reports() {
 
   // Tech productivity
   const techProductivity = technicians.map((tech) => {
-    const techOrders = filteredOrders.filter((o) => o.technician_id === tech.id && o.status === 'completed');
-    const totalHours = techOrders.reduce((sum, o) => sum + (o.labor_hours || 0), 0);
+    const validStatuses = ['completed', 'in-progress', 'testing', 'pending'];
+    const techOrders = filteredOrders.filter((o) => o.technician_id === tech.id && validStatuses.includes(o.status));
+    const techOrderIds = techOrders.map(o => o.id);
+
+    const totalHours = workOrderItems
+      .filter(i => techOrderIds.includes(i.work_order_id) && i.item_type === 'labor')
+      .reduce((sum, i) => sum + (i.quantity || 0), 0);
+
     const totalRevenue = techOrders.reduce((sum, o) => sum + (o.actual_cost || o.estimated_cost || 0), 0);
     return {
       name: tech.name.split(' ')[0],

@@ -27,18 +27,22 @@ export function Technicians() {
         status: 'available',
     });
 
+    const [workOrderItems, setWorkOrderItems] = useState<any[]>([]);
+
     useEffect(() => {
         loadData();
     }, []);
 
     async function loadData() {
         setLoading(true);
-        const [techniciansRes, ordersRes] = await Promise.all([
+        const [techniciansRes, ordersRes, itemsRes] = await Promise.all([
             supabase.from('technicians').select('*').order('name'),
             supabase.from('work_orders').select('*'),
+            supabase.from('work_order_items').select('*'),
         ]);
         setTechnicians(techniciansRes.data || []);
         setWorkOrders(ordersRes.data || []);
+        setWorkOrderItems(itemsRes.data || []);
         setLoading(false);
     }
 
@@ -80,16 +84,42 @@ export function Technicians() {
         setIsModalOpen(true);
     }
 
+    function getTechStatus(tech: Technician) {
+        // If manually set to off-duty, respect it
+        if (tech.status === 'off-duty') return 'off-duty';
+
+        // Otherwise check for active orders
+        const hasActiveJob = workOrders.some(
+            o => o.technician_id === tech.id &&
+                ['in-progress', 'testing'].includes(o.status)
+        );
+
+        return hasActiveJob ? 'busy' : 'available';
+    }
+
+    function getTechMetrics(techId: string) {
+        const techOrders = workOrders.filter(o => o.technician_id === techId && o.status === 'completed');
+        const techOrderIds = techOrders.map(o => o.id);
+
+        const revenue = techOrders.reduce((sum, o) => sum + (o.actual_cost || o.estimated_cost || 0), 0);
+
+        const hours = workOrderItems
+            .filter(i => techOrderIds.includes(i.work_order_id) && i.item_type === 'labor')
+            .reduce((sum, i) => sum + (i.quantity || 0), 0);
+
+        return { revenue, hours };
+    }
+
     const filteredTechs = technicians.filter((t) =>
         t.name.toLowerCase().includes(search.toLowerCase()) ||
         t.email?.toLowerCase().includes(search.toLowerCase()) ||
         t.specialization?.toLowerCase().includes(search.toLowerCase())
     );
 
+    // Selected Tech Metrics
+    const selectedTechMetrics = selectedTech ? getTechMetrics(selectedTech.id) : { revenue: 0, hours: 0 };
     const techOrders = selectedTech ? workOrders.filter((o) => o.technician_id === selectedTech.id) : [];
     const completedOrders = techOrders.filter((o) => o.status === 'completed');
-    const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.actual_cost || o.estimated_cost || 0), 0);
-    const totalHours = completedOrders.reduce((sum, o) => sum + (o.labor_hours || 0), 0);
 
     return (
         <div>
@@ -137,8 +167,8 @@ export function Technicians() {
                             { key: 'specialization', header: t('specialization'), render: (tech) => tech.specialization || '-' },
                             { key: 'phone', header: t('phone'), render: (tech) => tech.phone || '-' },
                             { key: 'hourly_rate', header: t('hourly_rate'), render: (tech) => `${currency}${(tech.hourly_rate || 0).toFixed(2)}` },
-                            { key: 'status', header: t('status'), render: (tech) => <StatusBadge status={tech.status || 'available'} /> },
-                            { key: 'jobs', header: t('active_jobs'), render: (tech) => workOrders.filter((o) => o.technician_id === tech.id && o.status !== 'completed').length },
+                            { key: 'status', header: t('status'), render: (tech) => <StatusBadge status={getTechStatus(tech)} /> },
+                            { key: 'jobs', header: t('active_jobs'), render: (tech) => workOrders.filter((o) => o.technician_id === tech.id && !['completed', 'cancelled', 'archived'].includes(o.status)).length },
                         ]}
                     />
                 </div>
@@ -168,14 +198,14 @@ export function Technicians() {
                                     <DollarSign className="w-4 h-4" />
                                     <p className="text-sm">{t('revenue')}</p>
                                 </div>
-                                <p className="text-xl font-bold text-neutral-900 dark:text-white">{currency}{totalRevenue.toFixed(2)}</p>
+                                <p className="text-xl font-bold text-neutral-900 dark:text-white">{currency}{selectedTechMetrics.revenue.toFixed(2)}</p>
                             </div>
                             <div className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                                 <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 mb-1">
                                     <Clock className="w-4 h-4" />
                                     <p className="text-sm">{t('hours')}</p>
                                 </div>
-                                <p className="text-xl font-bold text-neutral-900 dark:text-white">{totalHours.toFixed(1)}</p>
+                                <p className="text-xl font-bold text-neutral-900 dark:text-white">{selectedTechMetrics.hours.toFixed(1)}</p>
                             </div>
                         </div>
 
