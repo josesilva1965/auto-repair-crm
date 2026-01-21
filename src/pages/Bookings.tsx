@@ -312,48 +312,47 @@ export function Bookings() {
                                                     </div>
                                                 </div>
                                                 {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-                                                    <>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="secondary"
-                                                            className="w-full text-xs"
-                                                            onClick={async () => {
-                                                                const { error: woError } = await supabase.from('work_orders').insert([{
-                                                                    customer_id: booking.customer_id,
-                                                                    vehicle_id: booking.vehicle_id,
-                                                                    status: 'pending',
-                                                                    priority: 'normal',
-                                                                    description: booking.service_type + (booking.notes ? `\nNotes: ${booking.notes}` : ''),
-                                                                    scheduled_date: booking.scheduled_time,
-                                                                    estimated_cost: 0,
-                                                                    actual_cost: 0
-                                                                }]);
+                                                    <Button
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        className="w-full text-xs"
+                                                        onClick={async () => {
+                                                            const { error: woError } = await supabase.from('work_orders').insert([{
+                                                                customer_id: booking.customer_id,
+                                                                vehicle_id: booking.vehicle_id,
+                                                                status: 'pending',
+                                                                priority: 'normal',
+                                                                description: booking.service_type + (booking.notes ? `\nNotes: ${booking.notes}` : ''),
+                                                                scheduled_date: booking.scheduled_time,
+                                                                estimated_cost: 0,
+                                                                actual_cost: 0
+                                                            }]);
 
-                                                                if (woError) {
-                                                                    console.error('Error creating work order:', woError);
-                                                                    alert('Error creating work order');
-                                                                } else {
-                                                                    await supabase.from('bookings')
-                                                                        .update({ status: 'completed' })
-                                                                        .eq('id', booking.id);
-                                                                    loadBookings();
-                                                                    alert('Work Order Created');
-                                                                }
-                                                            }}
-                                                        >
-                                                            {t('new_work_order')}
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="danger"
-                                                            className="w-full text-xs mt-2"
-                                                            onClick={() => handleDeleteBooking(booking.id)}
-                                                        >
-                                                            <Trash2 className="w-3 h-3 mr-1 inline" />
-                                                            {t('delete')}
-                                                        </Button>
-                                                    </>
+                                                            if (woError) {
+                                                                console.error('Error creating work order:', woError);
+                                                                alert('Error creating work order');
+                                                            } else {
+                                                                await supabase.from('bookings')
+                                                                    .update({ status: 'completed' })
+                                                                    .eq('id', booking.id);
+                                                                loadBookings();
+                                                                alert('Work Order Created');
+                                                            }
+                                                        }}
+                                                    >
+                                                        {t('new_work_order')}
+                                                    </Button>
                                                 )}
+                                                {/* Delete button always visible for all bookings */}
+                                                <Button
+                                                    size="sm"
+                                                    variant="danger"
+                                                    className="w-full text-xs mt-2"
+                                                    onClick={() => handleDeleteBooking(booking.id)}
+                                                >
+                                                    <Trash2 className="w-3 h-3 mr-1 inline" />
+                                                    {t('delete')}
+                                                </Button>
                                             </div>
                                         ) : (
                                             <Button
