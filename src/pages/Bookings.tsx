@@ -192,7 +192,7 @@ export function Bookings() {
         <div className="flex gap-6 h-[calc(100vh-8rem)]">
             {/* Calendar Sidebar */}
             <div className="w-80 flex-shrink-0">
-                <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-4">
+                <div className="bg-card rounded-xl border border-border shadow-card p-4">
                     <DayPicker
                         mode="single"
                         selected={selectedDate}
@@ -203,19 +203,19 @@ export function Bookings() {
                     />
                 </div>
 
-                <div className="mt-4 bg-white rounded-xl border border-neutral-200 shadow-card p-4">
-                    <h3 className="font-semibold text-neutral-900 mb-3">{t('stats')}</h3>
+                <div className="mt-4 bg-card rounded-xl border border-border shadow-card p-4">
+                    <h3 className="font-semibold text-card-foreground mb-3">{t('stats')}</h3>
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                            <span className="text-neutral-500">{t('total_bookings')}</span>
+                            <span className="text-muted-foreground">{t('total_bookings')}</span>
                             <span className="font-medium">{bookings.length}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                            <span className="text-neutral-500">{t('pending')}</span>
+                            <span className="text-muted-foreground">{t('pending')}</span>
                             <span className="font-medium text-amber-600">{bookings.filter(b => b.status === 'pending').length}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                            <span className="text-neutral-500">{t('confirmed')}</span>
+                            <span className="text-muted-foreground">{t('confirmed')}</span>
                             <span className="font-medium text-emerald-600">{bookings.filter(b => b.status === 'confirmed').length}</span>
                         </div>
                     </div>
@@ -226,8 +226,8 @@ export function Bookings() {
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-[32px] font-bold text-neutral-900">{t('bookings')}</h1>
-                        <p className="text-neutral-500">
+                        <h1 className="text-[32px] font-bold text-foreground">{t('bookings')}</h1>
+                        <p className="text-muted-foreground">
                             {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : t('select_date')}
                         </p>
                     </div>
@@ -242,7 +242,7 @@ export function Bookings() {
 
                 <div className="flex-1 overflow-y-auto">
                     {timeSlots.length === 0 ? (
-                        <div className="flex items-center justify-center h-64 text-neutral-500">
+                        <div className="flex items-center justify-center h-64 text-muted-foreground">
                             <p>{t('no_available_slots')}</p>
                         </div>
                     ) : (
@@ -263,11 +263,11 @@ export function Bookings() {
 
                                 return (
                                     <div key={hour} className={`p-4 rounded-xl border ${booking
-                                        ? 'bg-white border-neutral-200 shadow-sm'
-                                        : 'bg-neutral-50 border-dashed border-neutral-300'
+                                        ? 'bg-card border-border shadow-sm'
+                                        : 'bg-muted/50 border-dashed border-border'
                                         }`}>
                                         <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-2 text-neutral-600">
+                                            <div className="flex items-center gap-2 text-muted-foreground">
                                                 <Clock className="w-4 h-4" />
                                                 <span className="font-medium">{timeString}</span>
                                             </div>
@@ -283,15 +283,15 @@ export function Bookings() {
                                         {booking ? (
                                             <div className="space-y-3">
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center gap-2 text-sm text-neutral-900">
-                                                        <User className="w-4 h-4 text-neutral-400" />
+                                                    <div className="flex items-center gap-2 text-sm text-foreground">
+                                                        <User className="w-4 h-4 text-muted-foreground" />
                                                         <span className="font-medium">{booking.customers?.name}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-sm text-neutral-600">
-                                                        <Car className="w-4 h-4 text-neutral-400" />
+                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                        <Car className="w-4 h-4 text-muted-foreground" />
                                                         <span>{booking.vehicles?.make} {booking.vehicles?.model}</span>
                                                     </div>
-                                                    <div className="text-sm text-neutral-500 pl-6">
+                                                    <div className="text-sm text-muted-foreground pl-6">
                                                         {booking.service_type}
                                                     </div>
                                                 </div>

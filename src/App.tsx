@@ -22,47 +22,54 @@ const ApproveEstimate = lazy(() => import('./pages/ApproveEstimate').then(module
 
 const PublicInspection = lazy(() => import('./pages/PublicInspection').then(module => ({ default: module.PublicInspection })));
 
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/react-query';
+
+// ... (imports remain)
+
 function App() {
   return (
     <ThemeProvider>
       <SettingsProvider>
-        <BrowserRouter>
-          <Suspense
-            fallback={
-              <div className="h-screen w-screen flex items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            }
-          >
-            <Routes>
-              <Route path="/estimate-approval/:token" element={<ApproveEstimate />} />
-              <Route path="/inspection/:token" element={<PublicInspection />} />
-              <Route
-                path="/*"
-                element={
-                  <Layout>
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/work-orders" element={<WorkOrders />} />
-                      <Route path="/customers" element={<Customers />} />
-                      <Route path="/vehicles" element={<Vehicles />} />
-                      <Route path="/inventory" element={<Inventory />} />
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Suspense
+              fallback={
+                <div className="h-screen w-screen flex items-center justify-center bg-background">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              }
+            >
+              <Routes>
+                <Route path="/estimate-approval/:token" element={<ApproveEstimate />} />
+                <Route path="/inspection/:token" element={<PublicInspection />} />
+                <Route
+                  path="/*"
+                  element={
+                    <Layout>
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/work-orders" element={<WorkOrders />} />
+                        <Route path="/customers" element={<Customers />} />
+                        <Route path="/vehicles" element={<Vehicles />} />
+                        <Route path="/inventory" element={<Inventory />} />
 
-                      <Route path="/billing" element={<Billing />} />
-                      <Route path="/reports" element={<Reports />} />
-                      <Route path="/technicians" element={<Technicians />} />
-                      <Route path="/messages" element={<Messages />} />
-                      <Route path="/reminders" element={<ServiceReminders />} />
-                      <Route path="/bookings" element={<Bookings />} />
-                      <Route path="/settings" element={<Settings />} />
-                      <Route path="/estimates" element={<Estimates />} />
-                    </Routes>
-                  </Layout>
-                }
-              />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+                        <Route path="/billing" element={<Billing />} />
+                        <Route path="/reports" element={<Reports />} />
+                        <Route path="/technicians" element={<Technicians />} />
+                        <Route path="/messages" element={<Messages />} />
+                        <Route path="/reminders" element={<ServiceReminders />} />
+                        <Route path="/bookings" element={<Bookings />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/estimates" element={<Estimates />} />
+                      </Routes>
+                    </Layout>
+                  }
+                />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </QueryClientProvider>
       </SettingsProvider>
     </ThemeProvider>
   );

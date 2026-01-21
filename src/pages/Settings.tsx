@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings, BusinessHour, EmailSettings } from '../contexts/SettingsContext';
-import { Clock, Loader2, Mail } from 'lucide-react';
+import { Clock, Loader2, Mail, Globe, ShieldAlert, Save, Download, Trash2, CheckCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 export function Settings() {
     const { t } = useTranslation();
@@ -76,257 +81,370 @@ export function Settings() {
     ];
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-[32px] font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                    {t('settings')}
-                </h1>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('settings')}</h1>
+                <p className="text-muted-foreground mt-1">Manage your application preferences and configurations.</p>
             </div>
 
-            {/* Language & Currency Section */}
-            <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-                    {t('language')} & {t('currency')}
-                </h2>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
-                        <label htmlFor="language" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {t('language')}
-                        </label>
-                        <select
-                            id="language"
-                            value={language}
-                            onChange={handleLanguageChange}
-                            className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50 dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900"
+            <div className="grid gap-8">
+                {/* Shop Details Section */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Wrench className="w-5 h-5 text-primary" />
+                            <CardTitle>{t('shop_details') || 'Shop Details'}</CardTitle>
+                        </div>
+                        <CardDescription>{t('shop_details_description') || 'Configure your shop identification.'}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none">{t('shop_name') || 'Shop Name'}</label>
+                                <Input
+                                    type="text"
+                                    value={localEmail.shop_name || ''}
+                                    onChange={(e) => handleEmailChange('shop_name', e.target.value)}
+                                    placeholder="AutoShop CRM"
+                                />
+                            </div>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="bg-muted/30 px-6 py-4 flex items-center gap-4">
+                        <Button
+                            onClick={handleSaveEmail}
+                            disabled={savingEmail}
+                            className="min-w-[100px]"
                         >
-                            <option value="en-GB">English (UK)</option>
-                            <option value="pt-PT">Português (Portugal)</option>
-                            <option value="fr-FR">Français</option>
-                            <option value="es-ES">Español</option>
-                            <option value="de-DE">Deutsch</option>
-                        </select>
-                    </div>
+                            {savingEmail && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            {savingEmail ? t('saving') : t('save_changes')}
+                        </Button>
+                        {emailSaveMessage && (
+                            <span className={cn("text-sm font-medium flex items-center gap-2", emailSaveMessage === t('success') ? "text-emerald-600" : "text-destructive")}>
+                                {emailSaveMessage === t('success') ? <CheckCircle className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                                {emailSaveMessage}
+                            </span>
+                        )}
+                    </CardFooter>
+                </Card>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {t('currency')}
-                            </label>
-                            <div className="flex h-10 w-full items-center rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-                                {currency}
-                            </div>
+                {/* Language & Currency Section */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Globe className="w-5 h-5 text-primary" />
+                            <CardTitle>{t('regional_settings') || 'Regional Settings'}</CardTitle>
                         </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {t('tax_rate')}
-                            </label>
-                            <div className="flex h-10 w-full items-center rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-                                {(taxRate * 100).toFixed(0)}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-4 rounded-md bg-blue-50 p-4 dark:bg-blue-900/20">
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                        Changing the language will automatically update the default currency and tax rate.
-                    </p>
-                </div>
-            </div>
-
-            {/* Email Configuration Section */}
-            <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <div className="flex items-center gap-2 mb-4">
-                    <Mail className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        {t('email_configuration') || 'Email Configuration'}
-                    </h2>
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                    {t('email_config_description') || 'Configure email settings for customer notifications'}
-                </p>
-
-                <div className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {t('sender_name') || 'Sender Name'}
-                            </label>
-                            <input
-                                type="text"
-                                value={localEmail.sender_name}
-                                onChange={(e) => handleEmailChange('sender_name', e.target.value)}
-                                placeholder="Auto Repair Shop"
-                                className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {t('sender_email') || 'Sender Email'}
-                            </label>
-                            <input
-                                type="email"
-                                value={localEmail.sender_email}
-                                onChange={(e) => handleEmailChange('sender_email', e.target.value)}
-                                placeholder="noreply@yourshop.com"
-                                className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
-                            />
-                        </div>
-                    </div>
-
-                    {/* EmailJS Configuration */}
-                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
-                        <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-3">
-                            {t('email_service') || 'Email Service'} <span className="text-emerald-600 font-normal">(EmailJS - Free & Easy)</span>
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                            Sign up at <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">emailjs.com</a> (free tier: 200 emails/month)
-                        </p>
-
-                        <div className="grid gap-4 md:grid-cols-1">
+                        <CardDescription>{t('language_currency_description') || 'Configure your language, currency, and tax rates.'}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                    Service ID
+                                <label htmlFor="language" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    {t('language')}
                                 </label>
-                                <input
-                                    type="text"
-                                    value={localEmail.emailjs_service_id || ''}
-                                    onChange={(e) => handleEmailChange('emailjs_service_id', e.target.value)}
-                                    placeholder="service_xxxxxxx"
-                                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
-                                />
+                                <div className="relative">
+                                    <select
+                                        id="language"
+                                        value={language}
+                                        onChange={handleLanguageChange}
+                                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+                                    >
+                                        <option value="en-GB">English (UK)</option>
+                                        <option value="pt-PT">Português (Portugal)</option>
+                                        <option value="fr-FR">Français</option>
+                                        <option value="es-ES">Español</option>
+                                        <option value="de-DE">Deutsch</option>
+                                    </select>
+                                    <Globe className="absolute right-3 top-2.5 h-4 w-4 opacity-50 pointer-events-none" />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                    Template ID
-                                </label>
-                                <input
-                                    type="text"
-                                    value={localEmail.emailjs_template_id || ''}
-                                    onChange={(e) => handleEmailChange('emailjs_template_id', e.target.value)}
-                                    placeholder="template_xxxxxxx"
-                                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                    Public Key
-                                </label>
-                                <input
-                                    type="text"
-                                    value={localEmail.emailjs_public_key || ''}
-                                    onChange={(e) => handleEmailChange('emailjs_public_key', e.target.value)}
-                                    placeholder="xxxxxxxxxxxx"
-                                    className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 mt-6">
-                    <button
-                        onClick={handleSaveEmail}
-                        disabled={savingEmail}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        {savingEmail && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {t('save')}
-                    </button>
-                    {emailSaveMessage && (
-                        <span className={`text-sm font-medium ${emailSaveMessage === t('success') ? 'text-green-600' : 'text-red-600'}`}>
-                            {emailSaveMessage}
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            {/* Business Hours Section */}
-            <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <div className="flex items-center gap-2 mb-4">
-                    <Clock className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        {t('business_hours')}
-                    </h2>
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                    {t('configure_hours')}
-                </p>
-
-                <div className="space-y-3">
-                    {localHours.map((hour) => (
-                        <div key={hour.day_of_week} className="flex items-center gap-4 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                            <div className="flex items-center gap-2 w-32">
-                                <input
-                                    type="checkbox"
-                                    id={`day-${hour.day_of_week}`}
-                                    checked={hour.enabled}
-                                    onChange={(e) => handleHourChange(hour.day_of_week, 'enabled', e.target.checked)}
-                                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                />
-                                <label
-                                    htmlFor={`day-${hour.day_of_week}`}
-                                    className="text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer"
-                                >
-                                    {dayNames[hour.day_of_week]}
-                                </label>
-                            </div>
-
-                            <div className="flex items-center gap-2 flex-1">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-500 dark:text-slate-400">
-                                        {t('start_time')}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium leading-none">
+                                        {t('currency')}
                                     </label>
-                                    <input
-                                        type="time"
-                                        value={hour.start_time}
-                                        onChange={(e) => handleHourChange(hour.day_of_week, 'start_time', e.target.value)}
-                                        disabled={!hour.enabled}
-                                        className="flex h-9 w-full rounded-md border border-slate-300 bg-transparent px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
-                                    />
+                                    <div className="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-muted-foreground">
+                                        {currency}
+                                    </div>
                                 </div>
 
-                                <span className="text-slate-400 dark:text-slate-500">—</span>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs text-slate-500 dark:text-slate-400">
-                                        {t('end_time')}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium leading-none">
+                                        {t('tax_rate')}
                                     </label>
-                                    <input
-                                        type="time"
-                                        value={hour.end_time}
-                                        onChange={(e) => handleHourChange(hour.day_of_week, 'end_time', e.target.value)}
-                                        disabled={!hour.enabled}
-                                        className="flex h-9 w-full rounded-md border border-slate-300 bg-transparent px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50"
+                                    <div className="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-muted-foreground">
+                                        {(taxRate * 100).toFixed(0)}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="rounded-lg bg-primary/10 p-4 border border-primary/20">
+                            <div className="flex gap-3">
+                                <AlertTriangle className="h-5 w-5 text-primary" />
+                                <div className="text-sm text-primary-foreground">
+                                    <p className="font-medium">Note</p>
+                                    <p className="text-primary/80 mt-1">Changing the language will automatically update default currency and tax formats to match the region.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Email Configuration Section */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Mail className="w-5 h-5 text-primary" />
+                            <CardTitle>{t('email_configuration') || 'Email Configuration'}</CardTitle>
+                        </div>
+                        <CardDescription>{t('email_config_description') || 'Configure email settings for customer notifications.'}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none">{t('sender_name') || 'Sender Name'}</label>
+                                <Input
+                                    type="text"
+                                    value={localEmail.sender_name}
+                                    onChange={(e) => handleEmailChange('sender_name', e.target.value)}
+                                    placeholder="Auto Repair Shop"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none">{t('sender_email') || 'Sender Email'}</label>
+                                <Input
+                                    type="email"
+                                    value={localEmail.sender_email}
+                                    onChange={(e) => handleEmailChange('sender_email', e.target.value)}
+                                    placeholder="noreply@yourshop.com"
+                                />
+                            </div>
+                        </div>
+
+                        <Separator className="my-4" />
+
+                        <div>
+                            <h3 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                                {t('email_service') || 'Email Service'} <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded">EmailJS</span>
+                            </h3>
+                            <p className="text-xs text-muted-foreground mb-4">
+                                Configure your EmailJS credentials below. Sign up at <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">emailjs.com</a>.
+                            </p>
+
+                            <div className="grid gap-4 md:grid-cols-1 max-w-xl">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium leading-none">Service ID</label>
+                                    <Input
+                                        value={localEmail.emailjs_service_id || ''}
+                                        onChange={(e) => handleEmailChange('emailjs_service_id', e.target.value)}
+                                        placeholder="service_xxxxxxx"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium leading-none">Template ID</label>
+                                    <Input
+                                        value={localEmail.emailjs_template_id || ''}
+                                        onChange={(e) => handleEmailChange('emailjs_template_id', e.target.value)}
+                                        placeholder="template_xxxxxxx"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium leading-none">Public Key</label>
+                                    <Input
+                                        type="password"
+                                        value={localEmail.emailjs_public_key || ''}
+                                        onChange={(e) => handleEmailChange('emailjs_public_key', e.target.value)}
+                                        placeholder="sk_test_..."
                                     />
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </CardContent>
+                    <CardFooter className="bg-muted/30 px-6 py-4 flex items-center gap-4">
+                        <Button
+                            onClick={handleSaveEmail}
+                            disabled={savingEmail}
+                            className="min-w-[100px]"
+                        >
+                            {savingEmail && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            {savingEmail ? t('saving') : t('save_changes')}
+                        </Button>
+                        {emailSaveMessage && (
+                            <span className={cn("text-sm font-medium flex items-center gap-2", emailSaveMessage === t('success') ? "text-emerald-600" : "text-destructive")}>
+                                {emailSaveMessage === t('success') ? <CheckCircle className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                                {emailSaveMessage}
+                            </span>
+                        )}
+                    </CardFooter>
+                </Card>
 
-                <div className="flex items-center gap-3 mt-6">
-                    <button
-                        onClick={handleSaveHours}
-                        disabled={saving}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {t('save')}
-                    </button>
-                    {saveMessage && (
-                        <span className={`text-sm font-medium ${saveMessage === t('success') ? 'text-green-600' : 'text-red-600'}`}>
-                            {saveMessage}
-                        </span>
-                    )}
-                </div>
+                {/* Business Hours Section */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-primary" />
+                            <CardTitle>{t('business_hours')}</CardTitle>
+                        </div>
+                        <CardDescription>{t('configure_hours')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {localHours.map((hour) => (
+                                <div key={hour.day_of_week} className="flex items-center gap-4 p-3 rounded-lg border border-border/40 bg-background/50 hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-3 w-32">
+                                        <input
+                                            type="checkbox"
+                                            id={`day-${hour.day_of_week}`}
+                                            checked={hour.enabled}
+                                            onChange={(e) => handleHourChange(hour.day_of_week, 'enabled', e.target.checked)}
+                                            className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                                        />
+                                        <label
+                                            htmlFor={`day-${hour.day_of_week}`}
+                                            className={cn("text-sm font-medium cursor-pointer", !hour.enabled && "text-muted-foreground")}
+                                        >
+                                            {dayNames[hour.day_of_week]}
+                                        </label>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <div className="relative">
+                                            <input
+                                                type="time"
+                                                value={hour.start_time}
+                                                onChange={(e) => handleHourChange(hour.day_of_week, 'start_time', e.target.value)}
+                                                disabled={!hour.enabled}
+                                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            />
+                                        </div>
+                                        <span className="text-muted-foreground">—</span>
+                                        <div className="relative">
+                                            <input
+                                                type="time"
+                                                value={hour.end_time}
+                                                onChange={(e) => handleHourChange(hour.day_of_week, 'end_time', e.target.value)}
+                                                disabled={!hour.enabled}
+                                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                    <CardFooter className="bg-muted/30 px-6 py-4 flex items-center gap-4">
+                        <Button
+                            onClick={handleSaveHours}
+                            disabled={saving}
+                            className="min-w-[100px]"
+                        >
+                            {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            {saving ? t('saving') : t('save_changes')}
+                        </Button>
+                        {saveMessage && (
+                            <span className={cn("text-sm font-medium flex items-center gap-2", saveMessage === t('success') ? "text-emerald-600" : "text-destructive")}>
+                                {saveMessage === t('success') ? <CheckCircle className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                                {saveMessage}
+                            </span>
+                        )}
+                    </CardFooter>
+                </Card>
+
+                {/* Data Management Section */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Save className="w-5 h-5 text-primary" />
+                            <CardTitle>{t('data_management') || 'Data Management'}</CardTitle>
+                        </div>
+                        <CardDescription>{t('manage_data_desc') || 'Backup your data or perform dangerous operations.'}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Export / Backup */}
+                        <div className="flex items-center justify-between p-4 bg-muted/30 border border-border/50 rounded-lg">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-background rounded-full border border-border text-primary">
+                                    <Download className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="font-medium text-foreground">{t('backup_data') || 'Backup Data'}</h3>
+                                    <p className="text-sm text-muted-foreground max-w-md">
+                                        {t('backup_description') || 'Download a complete JSON backup of your database.'}
+                                    </p>
+                                </div>
+                            </div>
+                            <Button
+                                variant="outline"
+                                onClick={async () => {
+                                    const { exportDatabase } = await import('../lib/dataCleanup');
+                                    if (confirm(t('confirm_export') || 'Download database backup?')) {
+                                        const result = await exportDatabase();
+                                        if (result.success) {
+                                            alert(`${t('export_success') || 'Export successful!'} (${result.count} tables)`);
+                                        } else {
+                                            alert(t('export_error') || 'Export failed');
+                                        }
+                                    }
+                                }}
+                            >
+                                {t('export_database') || 'Export'}
+                            </Button>
+                        </div>
+
+                        {/* Danger Zone */}
+                        <div className="border border-destructive/20 rounded-lg overflow-hidden">
+                            <div className="bg-destructive/10 px-4 py-3 border-b border-destructive/20">
+                                <h3 className="font-semibold text-destructive flex items-center gap-2">
+                                    <ShieldAlert className="w-4 h-4" />
+                                    {t('danger_zone') || 'Danger Zone'}
+                                </h3>
+                            </div>
+                            <div className="p-4 bg-background">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-2 bg-destructive/10 rounded-full text-destructive">
+                                            <Trash2 className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-medium text-foreground">{t('reset_transactions') || 'Reset Transactions'}</h4>
+                                            <p className="text-sm text-muted-foreground max-w-md mt-1">
+                                                {t('reset_description') || 'Permanently delete all financial and work order history. This cannot be undone.'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={async () => {
+                                            if (confirm(t('confirm_reset_1') || 'WARNING: This will permanently delete all transaction history. Are you sure?')) {
+                                                if (confirm(t('confirm_reset_2') || 'Identify verification: Are you absolutely sure this is what you want to do?')) {
+                                                    if (!confirm(t('confirm_reset_final') || 'Final Warning: This cannot be undone. Click OK to wipe all transaction data.')) return;
+
+                                                    const { resetTransactions } = await import('../lib/dataCleanup');
+                                                    const result = await resetTransactions();
+
+                                                    if (result.success) {
+                                                        alert(t('reset_success') || 'All transactions have been deleted.');
+                                                        window.location.reload();
+                                                    } else {
+                                                        console.error('Reset failed details:', result.error);
+                                                        alert(`${t('reset_error') || 'Failed to reset data:'} ${result.error?.message || JSON.stringify(result.error)}`);
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        {t('delete_transactions') || 'Delete Transactions'}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
 }
-

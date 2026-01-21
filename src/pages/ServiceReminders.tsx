@@ -83,8 +83,8 @@ export function ServiceReminders() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-[32px] font-bold text-neutral-900 dark:text-white">{t('reminders')}</h1>
-                    <p className="text-neutral-500 dark:text-neutral-400">{t('automated_notifications')}</p>
+                    <h1 className="text-[32px] font-bold text-foreground">{t('reminders')}</h1>
+                    <p className="text-muted-foreground">{t('automated_notifications')}</p>
                 </div>
                 <Button onClick={() => { resetForm(); setIsModalOpen(true); }}>
                     <Plus className="w-4 h-4 mr-2 inline" />
@@ -92,48 +92,48 @@ export function ServiceReminders() {
                 </Button>
             </div>
 
-            <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm p-4 mb-6">
+            <div className="bg-card rounded-xl border border-border shadow-sm p-4 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
-                            <Bell className="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                    <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('pending')}</p>
-                            <p className="text-xl font-bold text-neutral-900 dark:text-white">
+                            <p className="text-sm text-muted-foreground">{t('pending')}</p>
+                            <p className="text-xl font-bold text-foreground">
                                 {reminders.filter(r => r.status === 'pending').length}
                             </p>
                         </div>
                     </div>
-                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg flex items-center gap-3">
-                        <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
-                            <Mail className="w-5 h-5 text-yellow-600 dark:text-yellow-300" />
+                    <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                        <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center">
+                            <Mail className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                         </div>
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('sent')}</p>
-                            <p className="text-xl font-bold text-neutral-900 dark:text-white">
+                            <p className="text-sm text-muted-foreground">{t('sent')}</p>
+                            <p className="text-xl font-bold text-foreground">
                                 {reminders.filter(r => r.status === 'sent').length}
                             </p>
                         </div>
                     </div>
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-300" />
+                    <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('completed')}</p>
-                            <p className="text-xl font-bold text-neutral-900 dark:text-white">
+                            <p className="text-sm text-muted-foreground">{t('completed')}</p>
+                            <p className="text-xl font-bold text-foreground">
                                 {reminders.filter(r => r.status === 'completed').length}
                             </p>
                         </div>
                     </div>
-                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center gap-3">
-                        <div className="w-10 h-10 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center">
-                            <XCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
+                    <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                         </div>
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('cancelled')}</p>
-                            <p className="text-xl font-bold text-neutral-900 dark:text-white">
+                            <p className="text-sm text-muted-foreground">{t('cancelled')}</p>
+                            <p className="text-xl font-bold text-foreground">
                                 {reminders.filter(r => r.status === 'cancelled').length}
                             </p>
                         </div>
@@ -142,13 +142,13 @@ export function ServiceReminders() {
             </div>
 
             <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                     type="text"
                     placeholder={t('search_reminders')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary-100"
                 />
             </div>
 
@@ -222,11 +222,11 @@ export function ServiceReminders() {
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">{t('customer')}</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">{t('customer')}</label>
                         <select
                             value={form.customer_id}
                             onChange={(e) => setForm({ ...form, customer_id: e.target.value, vehicle_id: '' })}
-                            className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                             required
                         >
                             <option value="">{t('select_customer')}</option>
@@ -237,11 +237,11 @@ export function ServiceReminders() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">{t('vehicle')}</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">{t('vehicle')}</label>
                         <select
                             value={form.vehicle_id}
                             onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })}
-                            className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                            className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                             required
                             disabled={!form.customer_id}
                         >

@@ -104,8 +104,8 @@ export function Customers() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[32px] font-bold text-neutral-900">{t('customers')}</h1>
-          <p className="text-neutral-500">{t('customer_management')}</p>
+          <h1 className="text-[32px] font-bold text-foreground">{t('customers')}</h1>
+          <p className="text-muted-foreground">{t('customer_management')}</p>
         </div>
         <Button onClick={() => { resetForm(); setEditingCustomer(null); setIsModalOpen(true); }}>
           <Plus className="w-4 h-4 mr-2 inline" />
@@ -116,13 +116,13 @@ export function Customers() {
       <div className="flex gap-6">
         <div className="flex-1">
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder={t('search_customers')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 bg-background text-foreground"
             />
           </div>
 
@@ -152,11 +152,11 @@ export function Customers() {
         </div>
 
         {selectedCustomer && (
-          <div className="w-96 bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+          <div className="w-96 bg-card rounded-xl border border-border shadow-card p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-neutral-900">{selectedCustomer.name}</h2>
-                <p className="text-sm text-neutral-500">Customer since {new Date(selectedCustomer.created_at).toLocaleDateString()}</p>
+                <h2 className="text-lg font-semibold text-foreground">{selectedCustomer.name}</h2>
+                <p className="text-sm text-muted-foreground">Customer since {new Date(selectedCustomer.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="secondary" size="sm" onClick={() => openEdit(selectedCustomer)}>{t('edit')}</Button>
@@ -167,45 +167,45 @@ export function Customers() {
             <div className="space-y-3 mb-6">
               {selectedCustomer.phone && (
                 <div className="flex items-center gap-3 text-sm">
-                  <Phone className="w-4 h-4 text-neutral-400" />
+                  <Phone className="w-4 h-4 text-muted-foreground" />
                   <span>{selectedCustomer.phone}</span>
                 </div>
               )}
               {selectedCustomer.email && (
                 <div className="flex items-center gap-3 text-sm">
-                  <Mail className="w-4 h-4 text-neutral-400" />
+                  <Mail className="w-4 h-4 text-muted-foreground" />
                   <span>{selectedCustomer.email}</span>
                 </div>
               )}
               {selectedCustomer.address && (
                 <div className="flex items-center gap-3 text-sm">
-                  <MapPin className="w-4 h-4 text-neutral-400" />
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
                   <span>{selectedCustomer.address}</span>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-neutral-50 rounded-lg">
+            <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
               <div>
-                <p className="text-sm text-neutral-500">Total Spent</p>
-                <p className="text-xl font-bold text-neutral-900">{currency}{totalSpent.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Total Spent</p>
+                <p className="text-xl font-bold text-foreground">{currency}{totalSpent.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-neutral-500">Total Visits</p>
-                <p className="text-xl font-bold text-neutral-900">{customerOrders.length}</p>
+                <p className="text-sm text-muted-foreground">Total Visits</p>
+                <p className="text-xl font-bold text-foreground">{customerOrders.length}</p>
               </div>
             </div>
 
             <div className="mb-4">
-              <h3 className="font-medium text-neutral-900 mb-2">{t('vehicles')} ({customerVehicles.length})</h3>
+              <h3 className="font-medium text-foreground mb-2">{t('vehicles')} ({customerVehicles.length})</h3>
               {customerVehicles.length === 0 ? (
-                <p className="text-sm text-neutral-500">{t('no_vehicles')}</p>
+                <p className="text-sm text-muted-foreground">{t('no_vehicles')}</p>
               ) : (
                 <div className="space-y-2">
                   {customerVehicles.map((v) => (
-                    <div key={v.id} className="p-3 bg-neutral-50 rounded-lg text-sm">
-                      <p className="font-medium">{v.year} {v.make} {v.model}</p>
-                      <p className="text-neutral-500">{v.license_plate}</p>
+                    <div key={v.id} className="p-3 bg-muted/50 rounded-lg text-sm">
+                      <p className="font-medium text-foreground">{v.year} {v.make} {v.model}</p>
+                      <p className="text-muted-foreground">{v.license_plate}</p>
                     </div>
                   ))}
                 </div>
@@ -214,8 +214,8 @@ export function Customers() {
 
             {selectedCustomer.notes && (
               <div>
-                <h3 className="font-medium text-neutral-900 mb-2">{t('notes')}</h3>
-                <p className="text-sm text-neutral-600">{selectedCustomer.notes}</p>
+                <h3 className="font-medium text-foreground mb-2">{t('notes')}</h3>
+                <p className="text-sm text-muted-foreground">{selectedCustomer.notes}</p>
               </div>
             )}
           </div>
@@ -236,7 +236,7 @@ export function Customers() {
           <Input label={t('address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">VAT Rate (%)</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">VAT Rate (%)</label>
               <input
                 type="number"
                 min="0"
@@ -244,12 +244,12 @@ export function Customers() {
                 step="0.01"
                 value={form.vat_rate}
                 onChange={(e) => setForm({ ...form, vat_rate: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                className="w-full px-3 py-2.5 rounded-lg border border-border focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-background text-foreground"
                 placeholder="20.00"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Default Discount (%)</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Default Discount (%)</label>
               <input
                 type="number"
                 min="0"
@@ -257,7 +257,7 @@ export function Customers() {
                 step="0.01"
                 value={form.default_discount}
                 onChange={(e) => setForm({ ...form, default_discount: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+                className="w-full px-3 py-2.5 rounded-lg border border-border focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-background text-foreground"
                 placeholder="0.00"
               />
             </div>

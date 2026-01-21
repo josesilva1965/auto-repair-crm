@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase, type Vehicle, type Customer, type ServiceHistory } from '../lib/supabase';
 import { DataTable } from '../components/DataTable';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
-import { Plus, Search, History, AlertCircle } from 'lucide-react';
+import { Plus, Search, History, AlertCircle, X } from 'lucide-react';
 import { carMakes, getCarLogoUrl, getModelsForMake } from '../data/carMakes';
 
 export function Vehicles() {
@@ -140,8 +140,8 @@ export function Vehicles() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[32px] font-bold text-neutral-900">{t('vehicles')}</h1>
-          <p className="text-neutral-500">{t('vehicle_management')}</p>
+          <h1 className="text-[32px] font-bold text-foreground">{t('vehicles')}</h1>
+          <p className="text-muted-foreground">{t('vehicle_management')}</p>
         </div>
         <Button onClick={() => { resetForm(); setEditingVehicle(null); setIsModalOpen(true); }}>
           <Plus className="w-4 h-4 mr-2 inline" />
@@ -152,13 +152,13 @@ export function Vehicles() {
       <div className="flex gap-6">
         <div className="flex-1">
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder={t('search_vehicles')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 bg-background text-foreground"
             />
           </div>
 
@@ -216,32 +216,32 @@ export function Vehicles() {
         </div>
 
         {selectedVehicle && (
-          <div className="w-96 bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+          <div className="w-96 bg-card rounded-xl border border-border shadow-card p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-neutral-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
                 </h2>
-                <p className="text-sm text-neutral-500">{selectedVehicle.color}</p>
+                <p className="text-sm text-muted-foreground">{selectedVehicle.color}</p>
               </div>
               <Button variant="secondary" size="sm" onClick={() => openEdit(selectedVehicle)}>{t('edit')}</Button>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
               <div>
-                <p className="text-neutral-500">{t('vin')}</p>
+                <p className="text-muted-foreground">{t('vin')}</p>
                 <p className="font-mono">{selectedVehicle.vin || '-'}</p>
               </div>
               <div>
-                <p className="text-neutral-500">{t('license_plate')}</p>
-                <p className="font-medium">{selectedVehicle.license_plate || '-'}</p>
+                <p className="text-muted-foreground">{t('license_plate')}</p>
+                <p className="font-medium text-foreground">{selectedVehicle.license_plate || '-'}</p>
               </div>
               <div>
-                <p className="text-neutral-500">{t('mileage')}</p>
-                <p className="font-medium">{selectedVehicle.mileage?.toLocaleString() || '-'} mi</p>
+                <p className="text-muted-foreground">{t('mileage')}</p>
+                <p className="font-medium text-foreground">{selectedVehicle.mileage?.toLocaleString() || '-'} mi</p>
               </div>
               <div>
-                <p className="text-neutral-500">{t('owner')}</p>
+                <p className="text-muted-foreground">{t('owner')}</p>
                 <p className="font-medium">{getCustomerName(selectedVehicle.customer_id)}</p>
               </div>
             </div>
@@ -257,22 +257,22 @@ export function Vehicles() {
             )}
 
             <div>
-              <h3 className="font-medium text-neutral-900 mb-3 flex items-center gap-2">
+              <h3 className="font-medium text-foreground mb-3 flex items-center gap-2">
                 <History className="w-4 h-4" />
                 {t('service_history')}
               </h3>
               {vehicleHistory.length === 0 ? (
-                <p className="text-sm text-neutral-500">{t('no_service_history')}</p>
+                <p className="text-sm text-muted-foreground">{t('no_service_history')}</p>
               ) : (
                 <div className="space-y-3">
                   {vehicleHistory.slice(0, 5).map((s) => (
-                    <div key={s.id} className="p-3 bg-neutral-50 rounded-lg">
+                    <div key={s.id} className="p-3 bg-muted/50 rounded-lg">
                       <div className="flex justify-between">
-                        <p className="font-medium text-sm">{s.service_type}</p>
-                        <p className="text-xs text-neutral-500">{s.service_date}</p>
+                        <p className="font-medium text-sm text-foreground">{s.service_type}</p>
+                        <p className="text-xs text-muted-foreground">{s.service_date}</p>
                       </div>
-                      <p className="text-xs text-neutral-600 mt-1 whitespace-pre-wrap">{s.description}</p>
-                      {s.mileage_at_service && <p className="text-xs text-neutral-500 mt-1">{s.mileage_at_service.toLocaleString()} mi</p>}
+                      <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{s.description}</p>
+                      {s.mileage_at_service && <p className="text-xs text-muted-foreground mt-1">{s.mileage_at_service.toLocaleString()} mi</p>}
                     </div>
                   ))}
                 </div>
@@ -322,7 +322,7 @@ export function Vehicles() {
                       {make.name}
                     </option>
                   ))}
-                  <option value="custom">➕ Other (custom)</option>
+                  <option value="custom">Other (custom)</option>
                 </select>
               ) : (
                 <div className="flex gap-2">
@@ -340,7 +340,7 @@ export function Vehicles() {
                     }}
                     className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg"
                   >
-                    ✕
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               )}
@@ -368,7 +368,7 @@ export function Vehicles() {
                       {model}
                     </option>
                   ))}
-                  <option value="custom">➕ Other (custom)</option>
+                  <option value="custom">Other (custom)</option>
                 </select>
               ) : (
                 <div className="flex gap-2">
@@ -388,7 +388,7 @@ export function Vehicles() {
                       }}
                       className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg"
                     >
-                      ✕
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>

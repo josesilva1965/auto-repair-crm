@@ -132,37 +132,37 @@ export function Estimates() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-[32px] font-bold text-neutral-900 dark:text-white">{t('estimates') || 'Estimates'}</h1>
-                    <p className="text-neutral-500 dark:text-neutral-400">{t('manage_estimates') || 'Manage customer estimates'}</p>
+                    <h1 className="text-[32px] font-bold text-foreground">{t('estimates') || 'Estimates'}</h1>
+                    <p className="text-muted-foreground">{t('manage_estimates') || 'Manage customer estimates'}</p>
                 </div>
             </div>
 
             {/* Summary Stats */}
             <div className="grid grid-cols-3 gap-6 mb-6">
-                <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-card p-6">
+                <div className="bg-card rounded-xl border border-border shadow-card p-6">
                     <div className="flex items-center gap-3">
                         <Send className="w-8 h-8 text-amber-500" />
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('awaiting_response') || 'Awaiting Response'}</p>
-                            <p className="text-2xl font-bold text-neutral-900 dark:text-white">{pendingCount}</p>
+                            <p className="text-sm text-muted-foreground">{t('awaiting_response') || 'Awaiting Response'}</p>
+                            <p className="text-2xl font-bold text-foreground">{pendingCount}</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-card p-6">
+                <div className="bg-card rounded-xl border border-border shadow-card p-6">
                     <div className="flex items-center gap-3">
                         <Check className="w-8 h-8 text-emerald-500" />
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('approved') || 'Approved'}</p>
-                            <p className="text-2xl font-bold text-neutral-900 dark:text-white">{approvedCount}</p>
+                            <p className="text-sm text-muted-foreground">{t('approved') || 'Approved'}</p>
+                            <p className="text-2xl font-bold text-foreground">{approvedCount}</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-card p-6">
+                <div className="bg-card rounded-xl border border-border shadow-card p-6">
                     <div className="flex items-center gap-3">
                         <X className="w-8 h-8 text-red-500" />
                         <div>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('rejected') || 'Rejected'}</p>
-                            <p className="text-2xl font-bold text-neutral-900 dark:text-white">{rejectedCount}</p>
+                            <p className="text-sm text-muted-foreground">{t('rejected') || 'Rejected'}</p>
+                            <p className="text-2xl font-bold text-foreground">{rejectedCount}</p>
                         </div>
                     </div>
                 </div>
@@ -171,19 +171,19 @@ export function Estimates() {
             {/* Filters */}
             <div className="flex items-center gap-4 mb-4">
                 <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                         type="text"
                         placeholder={t('search_estimates') || 'Search estimates...'}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                        className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
                     />
                 </div>
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                    className="px-4 py-2 border border-border rounded-lg bg-background text-foreground"
                 >
                     <option value="all">{t('all') || 'All'}</option>
                     <option value="draft">{t('draft') || 'Draft'}</option>
@@ -224,8 +224,8 @@ export function Estimates() {
                         {/* Header */}
                         <div className="flex justify-between items-start">
                             <div>
-                                <h3 className="text-2xl font-bold text-neutral-900 dark:text-white">{selectedEstimate.estimate_number}</h3>
-                                <p className="text-neutral-500 dark:text-neutral-400">
+                                <h3 className="text-2xl font-bold text-foreground">{selectedEstimate.estimate_number}</h3>
+                                <p className="text-muted-foreground">
                                     {t('created') || 'Created'} {new Date(selectedEstimate.created_at).toLocaleDateString()}
                                 </p>
                             </div>
@@ -237,25 +237,25 @@ export function Estimates() {
                         {/* Customer & Work Order Info */}
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('customer') || 'Customer'}</p>
-                                <p className="font-medium text-neutral-900 dark:text-white">{getCustomerName(selectedEstimate.customer_id)}</p>
+                                <p className="text-sm text-muted-foreground">{t('customer') || 'Customer'}</p>
+                                <p className="font-medium text-foreground">{getCustomerName(selectedEstimate.customer_id)}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('work_order') || 'Work Order'}</p>
-                                <p className="font-medium text-neutral-900 dark:text-white">#{getWorkOrderNumber(selectedEstimate.work_order_id)}</p>
+                                <p className="text-sm text-muted-foreground">{t('work_order') || 'Work Order'}</p>
+                                <p className="font-medium text-foreground">#{getWorkOrderNumber(selectedEstimate.work_order_id)}</p>
                             </div>
                             {selectedEstimate.sent_at && (
                                 <div>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('sent_via') || 'Sent Via'}</p>
-                                    <p className="font-medium text-neutral-900 dark:text-white capitalize">
+                                    <p className="text-sm text-muted-foreground">{t('sent_via') || 'Sent Via'}</p>
+                                    <p className="font-medium text-foreground capitalize">
                                         {selectedEstimate.sent_via} - {new Date(selectedEstimate.sent_at).toLocaleString()}
                                     </p>
                                 </div>
                             )}
                             {selectedEstimate.approved_at && (
                                 <div>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('approved_at') || 'Approved At'}</p>
-                                    <p className="font-medium text-neutral-900 dark:text-white">
+                                    <p className="text-sm text-muted-foreground">{t('approved_at') || 'Approved At'}</p>
+                                    <p className="font-medium text-foreground">
                                         {new Date(selectedEstimate.approved_at).toLocaleString()}
                                     </p>
                                 </div>
@@ -264,15 +264,15 @@ export function Estimates() {
 
                         {/* Notes */}
                         {selectedEstimate.notes && (
-                            <div className="bg-neutral-50 dark:bg-neutral-700 p-3 rounded-lg">
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">{t('notes') || 'Notes'}</p>
-                                <p className="text-neutral-900 dark:text-white">{selectedEstimate.notes}</p>
+                            <div className="bg-muted/50 p-3 rounded-lg">
+                                <p className="text-sm text-muted-foreground mb-1">{t('notes') || 'Notes'}</p>
+                                <p className="text-foreground">{selectedEstimate.notes}</p>
                             </div>
                         )}
 
                         {/* Line Items */}
-                        <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4">
-                            <h4 className="font-semibold mb-3 text-sm text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-600 pb-2">
+                        <div className="bg-muted/50 rounded-lg p-4">
+                            <h4 className="font-semibold mb-3 text-sm text-foreground border-b border-border pb-2">
                                 {t('itemized_breakdown') || 'Itemized Breakdown'}
                             </h4>
                             {estimateItems.length > 0 ? (
@@ -280,24 +280,24 @@ export function Estimates() {
                                     {estimateItems.map((item, i) => (
                                         <div key={i} className="flex text-sm">
                                             <div className="flex-1">
-                                                <span className="font-medium text-neutral-900 dark:text-white">{item.description}</span>
-                                                <span className="ml-2 text-xs text-neutral-500 bg-neutral-200 dark:bg-neutral-600 px-1.5 py-0.5 rounded capitalize">{item.item_type}</span>
+                                                <span className="font-medium text-foreground">{item.description}</span>
+                                                <span className="ml-2 text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded capitalize">{item.item_type}</span>
                                             </div>
-                                            <div className="w-16 text-right text-neutral-600 dark:text-neutral-400">{item.quantity} x</div>
-                                            <div className="w-20 text-right text-neutral-600 dark:text-neutral-400">{currency}{Number(item.unit_price).toFixed(2)}</div>
-                                            <div className="w-20 text-right font-medium text-neutral-900 dark:text-white">{currency}{(item.quantity * item.unit_price).toFixed(2)}</div>
+                                            <div className="w-16 text-right text-muted-foreground">{item.quantity} x</div>
+                                            <div className="w-20 text-right text-muted-foreground">{currency}{Number(item.unit_price).toFixed(2)}</div>
+                                            <div className="w-20 text-right font-medium text-foreground">{currency}{(item.quantity * item.unit_price).toFixed(2)}</div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-neutral-500 mb-4 italic">{t('no_items') || 'No line items found'}</p>
+                                <p className="text-sm text-muted-foreground mb-4 italic">{t('no_items') || 'No line items found'}</p>
                             )}
 
                             {/* Totals */}
-                            <div className="space-y-2 border-t border-neutral-200 dark:border-neutral-600 pt-3">
+                            <div className="space-y-2 border-t border-border pt-3">
                                 <div className="flex justify-between">
-                                    <span className="text-neutral-600 dark:text-neutral-400">{t('subtotal') || 'Subtotal'}</span>
-                                    <span className="text-neutral-900 dark:text-white">{currency}{(selectedEstimate.subtotal ?? 0).toFixed(2)}</span>
+                                    <span className="text-muted-foreground">{t('subtotal') || 'Subtotal'}</span>
+                                    <span className="text-foreground">{currency}{(selectedEstimate.subtotal ?? 0).toFixed(2)}</span>
                                 </div>
                                 {(selectedEstimate.discount ?? 0) > 0 && (
                                     <div className="flex justify-between text-emerald-600">
@@ -306,20 +306,20 @@ export function Estimates() {
                                     </div>
                                 )}
                                 <div className="flex justify-between">
-                                    <span className="text-neutral-600 dark:text-neutral-400">
+                                    <span className="text-muted-foreground">
                                         {t('tax') || 'Tax'} ({selectedEstimate.subtotal > 0 ? ((selectedEstimate.tax / selectedEstimate.subtotal) * 100).toFixed(1) : '0'}%)
                                     </span>
-                                    <span className="text-neutral-900 dark:text-white">{currency}{(selectedEstimate.tax ?? 0).toFixed(2)}</span>
+                                    <span className="text-foreground">{currency}{(selectedEstimate.tax ?? 0).toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between font-bold text-lg border-t border-neutral-200 dark:border-neutral-600 pt-2">
-                                    <span className="text-neutral-900 dark:text-white">{t('total') || 'Total'}</span>
-                                    <span className="text-neutral-900 dark:text-white">{currency}{(selectedEstimate.total ?? 0).toFixed(2)}</span>
+                                <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
+                                    <span className="text-foreground">{t('total') || 'Total'}</span>
+                                    <span className="text-foreground">{currency}{(selectedEstimate.total ?? 0).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="flex justify-between items-center border-t border-neutral-200 dark:border-neutral-700 pt-4">
+                        <div className="flex justify-between items-center border-t border-border pt-4">
                             {selectedEstimate.status === 'sent' && (
                                 <>
                                     {/* Resend Options */}

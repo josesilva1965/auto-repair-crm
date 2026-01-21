@@ -1,5 +1,9 @@
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface ModalProps {
   isOpen: boolean;
@@ -32,16 +36,24 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={`relative bg-white rounded-xl shadow-float w-full ${modalSizes[size]} mx-4 max-h-[90vh] overflow-hidden flex flex-col`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
-          <h2 className="text-lg font-semibold text-neutral-900">{title}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+      <div
+        className={cn(
+          "relative bg-card/95 backdrop-blur-md rounded-xl shadow-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col border border-border/50 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200",
+          modalSizes[size]
+        )}
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/50">
+          <h2 className="text-lg font-semibold text-foreground tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
           >
-            <X className="w-5 h-5 text-neutral-500" />
+            <X className="w-5 h-5" />
           </button>
         </div>
         <div className="flex-1 overflow-auto p-6">{children}</div>
@@ -49,6 +61,8 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     </div>
   );
 }
+
+// Bridge Components to maintain API compatibility while using new UI kit
 
 export function Button({
   children,
@@ -60,26 +74,28 @@ export function Button({
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
 }) {
-  const variants = {
-    primary: 'bg-primary-500 text-white hover:bg-primary-600 shadow-sm',
-    secondary: 'bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50',
-    ghost: 'text-neutral-600 hover:bg-neutral-100',
-    danger: 'bg-red-500 text-white hover:bg-red-600',
+  const mapVariant: Record<string, "default" | "secondary" | "ghost" | "destructive" | "outline"> = {
+    primary: 'default',
+    secondary: 'outline', // Improve secondary to be outline for better contrast usually
+    ghost: 'ghost',
+    danger: 'destructive',
   };
 
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm', // 32px
-    md: 'px-4 py-2.5 text-sm', // 40px
-    lg: 'px-6 py-3.5', // 48px
+  const mapSize: Record<string, "default" | "sm" | "lg" | "icon"> = {
+    sm: 'sm',
+    md: 'default',
+    lg: 'lg',
   };
 
   return (
-    <button
-      className={`font-medium rounded-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+    <UiButton
+      variant={mapVariant[variant] || 'default'}
+      size={mapSize[size] || 'default'}
+      className={className}
       {...props}
     >
       {children}
-    </button>
+    </UiButton>
   );
 }
 
@@ -94,13 +110,15 @@ export function Input({
 }) {
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-neutral-700 mb-1.5">{label}</label>}
-      <input
-        className={`w-full px-3 py-2.5 rounded-lg border ${error ? 'border-red-500 ring-2 ring-red-100' : 'border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100'
-          } outline-none transition-all`}
+      {label && <label className="block text-sm font-medium text-foreground/80 mb-2">{label}</label>}
+      <UiInput
+        className={cn(
+          error && "border-destructive focus-visible:ring-destructive",
+          props.readOnly && "opacity-80 bg-muted/50"
+        )}
         {...props}
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-destructive font-medium animate-in slide-in-from-top-1">{error}</p>}
     </div>
   );
 }
@@ -116,17 +134,25 @@ export function Select({
 }) {
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-neutral-700 mb-1.5">{label}</label>}
-      <select
-        className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white"
-        {...props}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      {label && <label className="block text-sm font-medium text-foreground/80 mb-2">{label}</label>}
+      <div className="relative">
+        <select
+          className={cn(
+            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none",
+          )}
+          {...props}
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {/* Custom arrow could go here if we hid appearance */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down h-4 w-4 opacity-50"><path d="m6 9 6 6 6-6" /></svg>
+        </div>
+      </div>
     </div>
   );
 }
@@ -140,11 +166,8 @@ export function Textarea({
 }) {
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-neutral-700 mb-1.5">{label}</label>}
-      <textarea
-        className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all resize-none"
-        {...props}
-      />
+      {label && <label className="block text-sm font-medium text-foreground/80 mb-2">{label}</label>}
+      <UiTextarea {...props} />
     </div>
   );
 }

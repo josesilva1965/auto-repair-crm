@@ -578,8 +578,8 @@ export function WorkOrders() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[32px] font-bold text-neutral-900">{t('work_orders')}</h1>
-          <p className="text-neutral-500">{t('description')}</p>
+          <h1 className="text-[32px] font-bold text-foreground">{t('work_orders')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
         <Button onClick={() => { resetForm(); setEditingOrder(null); setIsModalOpen(true); }}>
           <Plus className="w-4 h-4 mr-2 inline" />
@@ -589,35 +589,35 @@ export function WorkOrders() {
 
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder={t('search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+            className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 bg-background text-foreground"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-neutral-200 rounded-lg bg-white"
+          className="px-4 py-2 border border-border rounded-lg bg-background text-foreground"
         >
           <option value="all">{t('all')}</option>
           {STATUS_OPTIONS.map((s) => (
             <option key={s.value} value={s.value}>{t(s.label)}</option>
           ))}
         </select>
-        <div className="flex border border-neutral-200 rounded-lg overflow-hidden">
+        <div className="flex border border-border rounded-lg overflow-hidden">
           <button
             onClick={() => setViewMode('list')}
-            className={`px-4 py-2 text-sm ${viewMode === 'list' ? 'bg-primary-500 text-white' : 'bg-white'}`}
+            className={`px-4 py-2 text-sm ${viewMode === 'list' ? 'bg-primary-500 text-white' : 'bg-card text-foreground'}`}
           >
             List
           </button>
           <button
             onClick={() => setViewMode('kanban')}
-            className={`px-4 py-2 text-sm ${viewMode === 'kanban' ? 'bg-primary-500 text-white' : 'bg-white'}`}
+            className={`px-4 py-2 text-sm ${viewMode === 'kanban' ? 'bg-primary-500 text-white' : 'bg-card text-foreground'}`}
           >
             Kanban
           </button>
@@ -657,17 +657,17 @@ export function WorkOrders() {
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex border-b border-neutral-200 mb-4">
+          <div className="flex border-b border-border mb-4">
             <button
               type="button"
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details' ? 'border-primary-500 text-primary-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
               onClick={() => setActiveTab('details')}
             >
               {t('details')}
             </button>
             <button
               type="button"
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'time' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'time' ? 'border-primary-500 text-primary-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
               onClick={() => setActiveTab('time')}
             >
               {t('time_tracking') || 'Time Tracking'}
@@ -710,8 +710,8 @@ export function WorkOrders() {
 
                 {/* AI Suggestion Area */}
                 {form.description && (
-                  <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded-lg border border-primary-100 dark:border-primary-800">
-                    <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-2 uppercase tracking-wide">
+                  <div className="bg-primary/10 dark:bg-primary-900/20 p-3 rounded-lg border border-primary/20 dark:border-primary-800">
+                    <p className="text-xs font-semibold text-primary dark:text-primary-300 mb-2 uppercase tracking-wide">
                       {t('ai_suggestion')}
                     </p>
                     <div className="space-y-2">
@@ -720,18 +720,18 @@ export function WorkOrders() {
                           key={tech.id}
                           onClick={() => setForm({ ...form, technician_id: tech.id })}
                           className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${form.technician_id === tech.id
-                            ? 'bg-primary-100 dark:bg-primary-800 border border-primary-300 dark:border-primary-600'
-                            : 'bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700'
+                            ? 'bg-primary/20 dark:bg-primary-800 border border-primary/30 dark:border-primary-600'
+                            : 'bg-card dark:bg-neutral-800 hover:bg-muted dark:hover:bg-neutral-700'
                             }`}
                         >
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm text-neutral-900 dark:text-white">{tech.name}</span>
-                              <span className="px-1.5 py-0.5 text-[10px] bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded-full">
+                              <span className="font-medium text-sm text-foreground dark:text-white">{tech.name}</span>
+                              <span className="px-1.5 py-0.5 text-[10px] bg-muted dark:bg-neutral-700 text-muted-foreground dark:text-neutral-400 rounded-full">
                                 {tech.score} {t('match')}
                               </span>
                             </div>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{tech.matchReason}</p>
+                            <p className="text-xs text-muted-foreground dark:text-neutral-400">{tech.matchReason}</p>
                           </div>
                           {form.technician_id === tech.id && (
                             <span className="text-primary-600 dark:text-primary-400 text-xs font-medium">{t('selected')}</span>
@@ -784,14 +784,14 @@ export function WorkOrders() {
               </div>
 
               {/* Line Items Section */}
-              <div className="border-t border-neutral-200 pt-4">
-                <h3 className="font-semibold text-sm text-neutral-900 mb-3">{t('line_items_section')}</h3>
+              <div className="border-t border-border pt-4">
+                <h3 className="font-semibold text-sm text-foreground mb-3">{t('line_items_section')}</h3>
 
                 <div className="space-y-2 mb-4">
                   {lineItems.map((item, idx) => (
-                    <div key={idx} className="flex gap-2 items-center bg-neutral-50 p-2 rounded text-sm">
-                      <div className="flex-1 font-medium">{item.description}</div>
-                      <div className="w-20 text-neutral-500 capitalize">{item.item_type}</div>
+                    <div key={idx} className="flex gap-2 items-center bg-muted/50 p-2 rounded text-sm">
+                      <div className="flex-1 font-medium text-foreground">{item.description}</div>
+                      <div className="w-20 text-muted-foreground capitalize">{item.item_type}</div>
                       <div className="w-16 text-right">{item.quantity} x</div>
                       <div className="w-24 text-right">{currency}{item.unit_price.toFixed(2)}</div>
                       <div className="w-24 text-right font-semibold">{currency}{(item.quantity * item.unit_price).toFixed(2)}</div>

@@ -23,6 +23,7 @@ export interface EmailSettings {
     emailjs_service_id: string;
     emailjs_template_id: string;
     emailjs_public_key: string;
+    shop_name?: string;
 }
 
 const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
@@ -38,6 +39,7 @@ const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
     emailjs_service_id: '',
     emailjs_template_id: '',
     emailjs_public_key: '',
+    shop_name: 'AutoShop CRM',
 };
 
 interface SettingsContextType {
@@ -166,6 +168,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
                     emailjs_service_id: settings.emailjs_service_id,
                     emailjs_template_id: settings.emailjs_template_id,
                     emailjs_public_key: settings.emailjs_public_key,
+                    shop_name: settings.shop_name,
                     updated_at: new Date().toISOString()
                 });
 

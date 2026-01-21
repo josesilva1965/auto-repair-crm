@@ -119,13 +119,13 @@ export function Reports() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[32px] font-bold text-neutral-900">{t('reports')}</h1>
-          <p className="text-neutral-500">{t('generate_report')}</p>
+          <h1 className="text-[32px] font-bold text-foreground">{t('reports')}</h1>
+          <p className="text-muted-foreground">{t('generate_report')}</p>
         </div>
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className="px-4 py-2 border border-neutral-200 rounded-lg bg-white"
+          className="px-4 py-2 border border-border rounded-lg bg-background text-foreground"
         >
           <option value="7">{t('last_7_days')}</option>
           <option value="30">{t('last_30_days')}</option>
@@ -135,60 +135,63 @@ export function Reports() {
       </div>
 
       <div className="grid grid-cols-4 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <DollarSign className="w-8 h-8 text-emerald-500" />
             <div>
-              <p className="text-sm text-neutral-500">{t('total_revenue')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{currency}{totalRevenue.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{t('total_revenue')}</p>
+              <p className="text-2xl font-bold text-foreground">{currency}{totalRevenue.toLocaleString()}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-primary-500" />
             <div>
-              <p className="text-sm text-neutral-500">{t('avg_job_value')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{currency}{avgJobValue.toFixed(2)}</p>
+              <p className="text-sm text-muted-foreground">{t('avg_job_value')}</p>
+              <p className="text-2xl font-bold text-foreground">{currency}{avgJobValue.toFixed(2)}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <Clock className="w-8 h-8 text-amber-500" />
             <div>
-              <p className="text-sm text-neutral-500">{t('completed_jobs')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{completedJobs}</p>
+              <p className="text-sm text-muted-foreground">{t('completed_jobs')}</p>
+              <p className="text-2xl font-bold text-foreground">{completedJobs}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <Users className="w-8 h-8 text-blue-500" />
             <div>
-              <p className="text-sm text-neutral-500">{t('active_technicians')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{technicians.length}</p>
+              <p className="text-sm text-muted-foreground">{t('active_technicians')}</p>
+              <p className="text-2xl font-bold text-foreground">{technicians.length}</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
-          <h3 className="font-semibold text-neutral-900 mb-4">{t('revenue_trend')}</h3>
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
+          <h3 className="font-semibold text-foreground mb-4">{t('revenue_trend')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#737373" />
-              <YAxis tick={{ fontSize: 12 }} stroke="#737373" tickFormatter={(v) => `${currency}${v}`} />
-              <Tooltip formatter={(v: any) => [`${currency}${Number(v).toFixed(2)}`, t('revenue')]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#525252" />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#a3a3a3" />
+              <YAxis tick={{ fontSize: 12 }} stroke="#a3a3a3" tickFormatter={(v) => `${currency}${v}`} />
+              <Tooltip
+                formatter={(v: any) => [`${currency}${Number(v).toFixed(2)}`, t('revenue')]}
+                contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              />
               <Line type="monotone" dataKey="revenue" stroke="#0066FF" strokeWidth={2} dot={{ fill: '#0066FF' }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
-          <h3 className="font-semibold text-neutral-900 mb-4">{t('jobs_by_status')}</h3>
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
+          <h3 className="font-semibold text-foreground mb-4">{t('jobs_by_status')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -205,24 +208,24 @@ export function Reports() {
                   <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
-        <h3 className="font-semibold text-neutral-900 mb-4">{t('technician_productivity')}</h3>
+      <div className="bg-card rounded-xl border border-border shadow-card p-6">
+        <h3 className="font-semibold text-foreground mb-4">{t('technician_productivity')}</h3>
         {techProductivity.length === 0 ? (
-          <p className="text-neutral-500 text-center py-8">{t('no_technician_data')}</p>
+          <p className="text-muted-foreground text-center py-8">{t('no_technician_data')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={techProductivity}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#737373" />
-              <YAxis yAxisId="left" tick={{ fontSize: 12 }} stroke="#737373" />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} stroke="#737373" tickFormatter={(v) => `${currency}${v}`} />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#525252" />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#a3a3a3" />
+              <YAxis yAxisId="left" tick={{ fontSize: 12 }} stroke="#a3a3a3" />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} stroke="#a3a3a3" tickFormatter={(v) => `${currency}${v}`} />
+              <Tooltip contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               <Bar yAxisId="left" dataKey="hours" fill="#0066FF" name="Hours Billed" radius={[4, 4, 0, 0]} />
               <Bar yAxisId="right" dataKey="revenue" fill="#10B981" name="Revenue" radius={[4, 4, 0, 0]} />
             </BarChart>

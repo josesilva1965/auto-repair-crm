@@ -125,8 +125,8 @@ export function Technicians() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-[32px] font-bold text-neutral-900 dark:text-white">{t('technicians')}</h1>
-                    <p className="text-neutral-500 dark:text-neutral-400">{t('technician_management')}</p>
+                    <h1 className="text-[32px] font-bold text-foreground">{t('technicians')}</h1>
+                    <p className="text-muted-foreground">{t('technician_management')}</p>
                 </div>
                 <Button onClick={() => { resetForm(); setEditingTech(null); setIsModalOpen(true); }}>
                     <Plus className="w-4 h-4 mr-2 inline" />
@@ -137,13 +137,13 @@ export function Technicians() {
             <div className="flex gap-6">
                 <div className="flex-1">
                     <div className="relative mb-4">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder={t('search_technicians')}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+                            className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
                         />
                     </div>
 
@@ -157,8 +157,8 @@ export function Technicians() {
                                 header: t('name'),
                                 render: (tech) => (
                                     <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-                                            <Wrench className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                            <Wrench className="w-4 h-4 text-primary" />
                                         </div>
                                         <span className="font-medium">{tech.name}</span>
                                     </div>
@@ -174,11 +174,11 @@ export function Technicians() {
                 </div>
 
                 {selectedTech && (
-                    <div className="w-96 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-card p-6">
+                    <div className="w-96 bg-card rounded-xl border border-border shadow-card p-6">
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">{selectedTech.name}</h2>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{selectedTech.specialization || 'General'}</p>
+                                <h2 className="text-lg font-semibold text-foreground">{selectedTech.name}</h2>
+                                <p className="text-sm text-muted-foreground">{selectedTech.specialization || 'General'}</p>
                             </div>
                             <div className="flex gap-2">
                                 <Button variant="secondary" size="sm" onClick={() => openEdit(selectedTech)}>{t('edit')}</Button>
@@ -187,33 +187,33 @@ export function Technicians() {
                         </div>
 
                         <div className="space-y-3 mb-6">
-                            {selectedTech.phone && <div className="text-sm"><span className="text-neutral-500 dark:text-neutral-400">{t('phone')}:</span> <span className="text-neutral-900 dark:text-white">{selectedTech.phone}</span></div>}
-                            {selectedTech.email && <div className="text-sm"><span className="text-neutral-500 dark:text-neutral-400">{t('email')}:</span> <span className="text-neutral-900 dark:text-white">{selectedTech.email}</span></div>}
-                            <div className="text-sm"><span className="text-neutral-500 dark:text-neutral-400">{t('rate')}:</span> <span className="text-neutral-900 dark:text-white">{currency}{(selectedTech.hourly_rate || 0).toFixed(2)}/hr</span></div>
+                            {selectedTech.phone && <div className="text-sm"><span className="text-muted-foreground">{t('phone')}:</span> <span className="text-foreground">{selectedTech.phone}</span></div>}
+                            {selectedTech.email && <div className="text-sm"><span className="text-muted-foreground">{t('email')}:</span> <span className="text-foreground">{selectedTech.email}</span></div>}
+                            <div className="text-sm"><span className="text-muted-foreground">{t('rate')}:</span> <span className="text-foreground">{currency}{(selectedTech.hourly_rate || 0).toFixed(2)}/hr</span></div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                                <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 mb-1">
+                            <div className="p-4 bg-muted/50 rounded-lg">
+                                <div className="flex items-center gap-2 text-muted-foreground mb-1">
                                     <DollarSign className="w-4 h-4" />
                                     <p className="text-sm">{t('revenue')}</p>
                                 </div>
-                                <p className="text-xl font-bold text-neutral-900 dark:text-white">{currency}{selectedTechMetrics.revenue.toFixed(2)}</p>
+                                <p className="text-xl font-bold text-foreground">{currency}{selectedTechMetrics.revenue.toFixed(2)}</p>
                             </div>
-                            <div className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                                <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 mb-1">
+                            <div className="p-4 bg-muted/50 rounded-lg">
+                                <div className="flex items-center gap-2 text-muted-foreground mb-1">
                                     <Clock className="w-4 h-4" />
                                     <p className="text-sm">{t('hours')}</p>
                                 </div>
-                                <p className="text-xl font-bold text-neutral-900 dark:text-white">{selectedTechMetrics.hours.toFixed(1)}</p>
+                                <p className="text-xl font-bold text-foreground">{selectedTechMetrics.hours.toFixed(1)}</p>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="font-medium text-neutral-900 dark:text-white mb-2">{t('stats')}</h3>
+                            <h3 className="font-medium text-foreground mb-2">{t('stats')}</h3>
                             <div className="space-y-2 text-sm">
-                                <div className="flex justify-between"><span className="text-neutral-500 dark:text-neutral-400">{t('completed')}</span><span className="font-medium text-neutral-900 dark:text-white">{completedOrders.length}</span></div>
-                                <div className="flex justify-between"><span className="text-neutral-500 dark:text-neutral-400">{t('active')}</span><span className="font-medium text-neutral-900 dark:text-white">{techOrders.filter((o) => o.status !== 'completed').length}</span></div>
+                                <div className="flex justify-between"><span className="text-muted-foreground">{t('completed')}</span><span className="font-medium text-foreground">{completedOrders.length}</span></div>
+                                <div className="flex justify-between"><span className="text-muted-foreground">{t('active')}</span><span className="font-medium text-foreground">{techOrders.filter((o) => o.status !== 'completed').length}</span></div>
                             </div>
                         </div>
                     </div>
@@ -231,8 +231,8 @@ export function Technicians() {
                     <div className="grid grid-cols-2 gap-4">
                         <Input label={t('hourly_rate')} type="number" step="0.01" value={form.hourly_rate} onChange={(e) => setForm({ ...form, hourly_rate: parseFloat(e.target.value) || 0 })} required />
                         <div>
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">{t('status')}</label>
-                            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white">
+                            <label className="block text-sm font-medium text-foreground mb-1">{t('status')}</label>
+                            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground">
                                 <option value="available">{t('available')}</option>
                                 <option value="busy">{t('busy')}</option>
                                 <option value="off-duty">{t('off_duty')}</option>

@@ -266,7 +266,7 @@ export function Billing() {
         <Purchasing />
       ) : (
         <>
-      // ... wrap existing content ...
+
 
           <div className="grid grid-cols-3 gap-6 mb-6">
             {activeTab === 'invoices' ? (

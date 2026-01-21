@@ -1,4 +1,6 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 interface Column<T> {
   key: keyof T | string;
@@ -22,33 +24,32 @@ export function DataTable<T extends { id: string }>({
 }: DataTableProps<T>) {
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto"></div>
-        <p className="mt-4 text-neutral-500">Loading...</p>
-      </div>
+      <Card className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 shadow-card overflow-hidden">
+    <Card className="overflow-hidden border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-neutral-50 border-b border-neutral-200">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-muted/50 text-muted-foreground font-medium uppercase text-xs tracking-wider">
+            <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
-                  className="px-6 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider"
+                  className={cn("px-6 py-4 font-semibold", col.className)}
                 >
                   {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100">
+          <tbody className="divide-y divide-border/50">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-12 text-center text-neutral-500">
+                <td colSpan={columns.length} className="px-6 py-12 text-center text-muted-foreground">
                   No data available
                 </td>
               </tr>
@@ -57,10 +58,16 @@ export function DataTable<T extends { id: string }>({
                 <tr
                   key={item.id}
                   onClick={() => onRowClick?.(item)}
-                  className={`hover:bg-neutral-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                  className={cn(
+                    "group transition-colors hover:bg-muted/30",
+                    onRowClick && "cursor-pointer"
+                  )}
                 >
                   {columns.map((col) => (
-                    <td key={String(col.key)} className={`px-6 py-4 text-sm text-neutral-900 ${col.className || ''}`}>
+                    <td
+                      key={String(col.key)}
+                      className={cn("px-6 py-4 text-foreground/80 group-hover:text-foreground", col.className)}
+                    >
                       {col.render ? col.render(item) : String((item as any)[col.key] ?? '-')}
                     </td>
                   ))}
@@ -70,26 +77,29 @@ export function DataTable<T extends { id: string }>({
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
 
 export function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-700',
-    'in-progress': 'bg-blue-100 text-blue-700',
-    completed: 'bg-emerald-100 text-emerald-700',
-    cancelled: 'bg-neutral-100 text-neutral-700',
-    paid: 'bg-emerald-100 text-emerald-700',
-    overdue: 'bg-red-100 text-red-700',
-    available: 'bg-emerald-100 text-emerald-700',
-    busy: 'bg-amber-100 text-amber-700',
-    'low-stock': 'bg-red-100 text-red-700',
-    'in-stock': 'bg-emerald-100 text-emerald-700',
+    pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+    'in-progress': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+    completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
+    paid: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    overdue: 'bg-destructive/10 text-destructive border-destructive/20',
+    available: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    busy: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+    'low-stock': 'bg-destructive/10 text-destructive border-destructive/20',
+    'in-stock': 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
   };
 
   return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[status] || 'bg-neutral-100 text-neutral-700'}`}>
+    <span className={cn(
+      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border",
+      statusColors[status] || 'bg-muted text-muted-foreground border-border'
+    )}>
       {status.replace('-', ' ')}
     </span>
   );

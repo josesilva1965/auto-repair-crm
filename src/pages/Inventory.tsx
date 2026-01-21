@@ -117,8 +117,8 @@ export function Inventory() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[32px] font-bold text-neutral-900">{t('inventory')}</h1>
-          <p className="text-neutral-500">{t('parts_supplies')}</p>
+          <h1 className="text-[32px] font-bold text-foreground">{t('inventory')}</h1>
+          <p className="text-muted-foreground">{t('parts_supplies')}</p>
         </div>
         <Button onClick={() => { resetForm(); setEditingPart(null); setIsModalOpen(true); }}>
           <Plus className="w-4 h-4 mr-2 inline" />
@@ -127,30 +127,30 @@ export function Inventory() {
       </div>
 
       <div className="grid grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <Package className="w-8 h-8 text-primary-500" />
             <div>
-              <p className="text-sm text-neutral-500">{t('total_items')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{inventory.length}</p>
+              <p className="text-sm text-muted-foreground">{t('total_items')}</p>
+              <p className="text-2xl font-bold text-foreground">{inventory.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <AlertTriangle className={`w-8 h-8 ${lowStockCount > 0 ? 'text-amber-500' : 'text-emerald-500'}`} />
             <div>
-              <p className="text-sm text-neutral-500">{t('low_stock_alerts')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{lowStockCount}</p>
+              <p className="text-sm text-muted-foreground">{t('low_stock_alerts')}</p>
+              <p className="text-2xl font-bold text-foreground">{lowStockCount}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-card p-6">
+        <div className="bg-card rounded-xl border border-border shadow-card p-6">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 font-bold">{currency}</div>
             <div>
-              <p className="text-sm text-neutral-500">{t('inventory_value')}</p>
-              <p className="text-2xl font-bold text-neutral-900">{currency}{totalValue.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{t('inventory_value')}</p>
+              <p className="text-2xl font-bold text-foreground">{currency}{totalValue.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -158,19 +158,19 @@ export function Inventory() {
 
       <div className="flex items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder={t('search_inventory')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500"
+            className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 bg-background text-foreground"
           />
         </div>
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 border border-neutral-200 rounded-lg bg-white"
+          className="px-4 py-2 border border-border rounded-lg bg-background text-foreground"
         >
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>{t(c.label)}</option>

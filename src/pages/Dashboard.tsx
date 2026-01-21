@@ -53,8 +53,8 @@ export function Dashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-[32px] font-bold text-neutral-900">{t('dashboard')}</h1>
-        <p className="text-neutral-500">{t('overview')}</p>
+        <h1 className="text-[32px] font-bold text-foreground">{t('dashboard')}</h1>
+        <p className="text-muted-foreground">{t('overview')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -89,7 +89,7 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-neutral-900">{t('active_jobs')}</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('active_jobs')}</h2>
             <Link to="/work-orders" className="text-sm text-primary-500 hover:text-primary-600">
               {t('view_all')}
             </Link>
@@ -116,12 +116,12 @@ export function Dashboard() {
 
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-neutral-900">{t('technician_schedule')}</h2>
-            <span className="text-sm text-neutral-500">{technicians.length} {t('technicians').toLowerCase()}</span>
+            <h2 className="text-lg font-semibold text-foreground">{t('technician_schedule')}</h2>
+            <span className="text-sm text-muted-foreground">{technicians.length} {t('technicians').toLowerCase()}</span>
           </div>
-          <div className="bg-white rounded-xl border border-neutral-200 shadow-card divide-y divide-neutral-100">
+          <div className="bg-card rounded-xl border border-border shadow-card divide-y divide-border">
             {technicians.length === 0 ? (
-              <div className="p-8 text-center text-neutral-500">{t('no_technicians')}</div>
+              <div className="p-8 text-center text-muted-foreground">{t('no_technicians')}</div>
             ) : (
               technicians.slice(0, 5).map((tech) => (
                 <div key={tech.id} className="p-4 flex items-center justify-between">
@@ -130,8 +130,8 @@ export function Dashboard() {
                       <Wrench className="w-5 h-5 text-primary-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-neutral-900">{tech.name}</p>
-                      <p className="text-sm text-neutral-500">{tech.specialization || 'General'}</p>
+                      <p className="font-medium text-foreground">{tech.name}</p>
+                      <p className="text-sm text-muted-foreground">{tech.specialization || 'General'}</p>
                     </div>
                   </div>
                   <StatusBadge status={tech.status} />
@@ -145,17 +145,17 @@ export function Dashboard() {
       {lowStockItems.length > 0 && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-neutral-900">{t('low_stock_alerts')}</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('low_stock_alerts')}</h2>
             <Link to="/inventory" className="text-sm text-primary-500 hover:text-primary-600">
               {t('manage_inventory')}
             </Link>
           </div>
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4">
             <div className="flex flex-wrap gap-3">
               {lowStockItems.map((item) => (
-                <div key={item.id} className="bg-white px-3 py-2 rounded-lg border border-red-200">
-                  <span className="font-medium text-neutral-900">{item.name}</span>
-                  <span className="ml-2 text-red-600 text-sm">({item.quantity} {t('left')})</span>
+                <div key={item.id} className="bg-card px-3 py-2 rounded-lg border border-border">
+                  <span className="font-medium text-foreground">{item.name}</span>
+                  <span className="ml-2 text-destructive text-sm">({item.quantity} {t('left')})</span>
                 </div>
               ))}
             </div>

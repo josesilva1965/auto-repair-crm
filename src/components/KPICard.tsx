@@ -1,5 +1,6 @@
-import { TrendingUp, TrendingDown } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, LucideIcon } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface KPICardProps {
   title: string;
@@ -10,30 +11,35 @@ interface KPICardProps {
 }
 
 const colorMap = {
-  blue: 'bg-primary-50 text-primary-600',
-  green: 'bg-emerald-50 text-emerald-600',
-  yellow: 'bg-amber-50 text-amber-600',
-  red: 'bg-red-50 text-red-600',
+  blue: 'bg-primary/10 text-primary',
+  green: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  yellow: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  red: 'bg-destructive/10 text-destructive',
 };
 
 export function KPICard({ title, value, trend, icon: Icon, color = 'blue' }: KPICardProps) {
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-card">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-neutral-500 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-neutral-900">{value}</p>
-          {trend !== undefined && (
-            <div className={`flex items-center gap-1 mt-2 text-sm ${trend >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              {trend >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-              <span>{Math.abs(trend)}% from last week</span>
-            </div>
-          )}
+    <Card className="hover:shadow-lg transition-shadow duration-300 border-border/50 bg-card/50 backdrop-blur-sm">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
+            <h3 className="text-2xl font-bold tracking-tight text-foreground">{value}</h3>
+            {trend !== undefined && (
+              <div className={cn(
+                "flex items-center gap-1 mt-2 text-xs font-medium",
+                trend >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+              )}>
+                {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                <span>{Math.abs(trend)}% from last week</span>
+              </div>
+            )}
+          </div>
+          <div className={cn("p-3 rounded-xl", colorMap[color])}>
+            <Icon className="w-5 h-5" />
+          </div>
         </div>
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorMap[color]}`}>
-          <Icon className="w-6 h-6" />
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
