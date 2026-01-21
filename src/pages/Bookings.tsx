@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DayPicker } from 'react-day-picker';
 import { format, isToday } from 'date-fns';
-import { Plus, Calendar as CalendarIcon, Clock, User, Car, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock, User, Car, CheckCircle, XCircle, AlertCircle, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
 import { DataTable, StatusBadge } from '../components/DataTable';
@@ -138,6 +138,22 @@ export function Bookings() {
             time: '09:00',
             notes: ''
         });
+    }
+
+    async function handleDeleteBooking(bookingId: string) {
+        if (!confirm(t('confirm_delete') || 'Are you sure you want to delete this booking?')) return;
+
+        const { error } = await supabase
+            .from('bookings')
+            .delete()
+            .eq('id', bookingId);
+
+        if (error) {
+            console.error('Error deleting booking:', error);
+            alert('Error deleting booking');
+        } else {
+            loadBookings();
+        }
     }
 
     const availableVehicles = form.customer_id
@@ -296,36 +312,47 @@ export function Bookings() {
                                                     </div>
                                                 </div>
                                                 {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        className="w-full text-xs"
-                                                        onClick={async () => {
-                                                            const { error: woError } = await supabase.from('work_orders').insert([{
-                                                                customer_id: booking.customer_id,
-                                                                vehicle_id: booking.vehicle_id,
-                                                                status: 'pending',
-                                                                priority: 'normal',
-                                                                description: booking.service_type + (booking.notes ? `\nNotes: ${booking.notes}` : ''),
-                                                                scheduled_date: booking.scheduled_time,
-                                                                estimated_cost: 0,
-                                                                actual_cost: 0
-                                                            }]);
+                                                    <>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="secondary"
+                                                            className="w-full text-xs"
+                                                            onClick={async () => {
+                                                                const { error: woError } = await supabase.from('work_orders').insert([{
+                                                                    customer_id: booking.customer_id,
+                                                                    vehicle_id: booking.vehicle_id,
+                                                                    status: 'pending',
+                                                                    priority: 'normal',
+                                                                    description: booking.service_type + (booking.notes ? `\nNotes: ${booking.notes}` : ''),
+                                                                    scheduled_date: booking.scheduled_time,
+                                                                    estimated_cost: 0,
+                                                                    actual_cost: 0
+                                                                }]);
 
-                                                            if (woError) {
-                                                                console.error('Error creating work order:', woError);
-                                                                alert('Error creating work order');
-                                                            } else {
-                                                                await supabase.from('bookings')
-                                                                    .update({ status: 'completed' })
-                                                                    .eq('id', booking.id);
-                                                                loadBookings();
-                                                                alert('Work Order Created');
-                                                            }
-                                                        }}
-                                                    >
-                                                        {t('new_work_order')}
-                                                    </Button>
+                                                                if (woError) {
+                                                                    console.error('Error creating work order:', woError);
+                                                                    alert('Error creating work order');
+                                                                } else {
+                                                                    await supabase.from('bookings')
+                                                                        .update({ status: 'completed' })
+                                                                        .eq('id', booking.id);
+                                                                    loadBookings();
+                                                                    alert('Work Order Created');
+                                                                }
+                                                            }}
+                                                        >
+                                                            {t('new_work_order')}
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="danger"
+                                                            className="w-full text-xs mt-2"
+                                                            onClick={() => handleDeleteBooking(booking.id)}
+                                                        >
+                                                            <Trash2 className="w-3 h-3 mr-1 inline" />
+                                                            {t('delete')}
+                                                        </Button>
+                                                    </>
                                                 )}
                                             </div>
                                         ) : (
