@@ -458,6 +458,92 @@ export class CommunicationService {
             return { success: false, message: 'Failed to send email - check console for details' };
         }
     }
+    /**
+     * Send work order started notification to customer using EmailJS.
+     */
+    async sendWorkOrderStartedNotification(
+        customer: Customer,
+        vehicleInfo: string,
+        workOrder: any
+    ): Promise<SendResult> {
+        if (!customer.email) {
+            return { success: false, message: 'Customer has no email address on file' };
+        }
+
+        // Get email settings for EmailJS configuration
+        const { data: emailSettings } = await supabase
+            .from('email_settings')
+            .select('*')
+            .single();
+
+        const emailjsServiceId = emailSettings?.emailjs_service_id;
+        const emailjsTemplateId = emailSettings?.emailjs_template_id;
+        const emailjsPublicKey = emailSettings?.emailjs_public_key;
+        const senderName = emailSettings?.sender_name || 'Auto Repair Shop';
+
+        // Get public URL for portal link
+        const baseUrl = emailSettings?.public_url?.replace(/\/$/, '') || window.location.origin;
+
+        // Ensure customer has a portal token
+        let portalToken = customer.portal_token;
+        if (!portalToken) {
+            // Need to fetch it if not in the customer object passed in, or generate one if missing
+            // For now, let's assume we can fetch it or it's on the object. 
+            // Better to re-fetch customer to be safe if not present
+            const { data: fetchedCustomer } = await supabase
+                .from('customers')
+                .select('portal_token')
+                .eq('id', customer.id)
+                .single();
+            portalToken = fetchedCustomer?.portal_token;
+        }
+
+        const portalLink = portalToken ? `${baseUrl}/portal/${portalToken}` : baseUrl;
+
+        // If EmailJS not configured, fall back to console logging (development mode)
+        if (!emailjsServiceId || !emailjsTemplateId || !emailjsPublicKey) {
+            console.log(`[EMAIL - DEV MODE] EmailJS not configured`);
+            console.log(`  To: ${customer.email}`);
+            console.log(`  Subject: Work Started - ${vehicleInfo}`);
+            console.log(`  Portal Link: ${portalLink}`);
+            return {
+                success: true,
+                message: `Email simulated (configure EmailJS in Settings for real delivery)`
+            };
+        }
+
+        try {
+            // Send email using EmailJS
+            // Note: You may need to update your EmailJS template to accept 'portal_link' and 'action_url'
+            const templateParams = {
+                to_email: customer.email,
+                to_name: customer.name,
+                from_name: senderName,
+                vehicle_info: vehicleInfo,
+                subject: `Work Started - ${vehicleInfo}`,
+                message: `We have started working on your vehicle (${vehicleInfo}). You can track the progress and view details in our customer portal.`,
+                portal_link: portalLink,
+                action_url: portalLink // Common parameter name for buttons in email templates
+            };
+
+            const response = await emailjs.send(
+                emailjsServiceId,
+                emailjsTemplateId,
+                templateParams,
+                emailjsPublicKey
+            );
+
+            if (response.status === 200) {
+                // Create in-app notification for shop staff too? Maybe not needed for "Started", but good for audit.
+                return { success: true, message: `Status email sent to ${customer.email}` };
+            } else {
+                return { success: false, message: 'Failed to send email' };
+            }
+        } catch (err) {
+            console.error('EmailJS send error:', err);
+            return { success: false, message: 'Failed to send email - check console for details' };
+        }
+    }
 }
 
 // Export singleton instance

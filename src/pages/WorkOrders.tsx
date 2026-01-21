@@ -479,6 +479,28 @@ export function WorkOrders() {
       }
     }
 
+    // NEW: Send notification when work starts (in-progress)
+    if (newStatus === 'in-progress' && order) {
+      const customer = customers.find(c => c.id === order.customer_id);
+      const vehicle = vehicles.find(v => v.id === order.vehicle_id);
+      const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Vehicle';
+
+      if (customer) {
+        console.log('Sending work started notification to', customer.email);
+        communicationService.sendWorkOrderStartedNotification(
+          customer,
+          vehicleInfo,
+          order
+        ).then(result => {
+          if (result.success) {
+            console.log('Work started notification sent:', result.message);
+          } else {
+            console.warn('Failed to send work started notification:', result.message);
+          }
+        });
+      }
+    }
+
     // Auto-create invoice and service history when completed
     if (newStatus === 'completed' && order) {
       // Send customer notification
