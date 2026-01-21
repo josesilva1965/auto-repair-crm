@@ -1,0 +1,13 @@
+npm warn Unknown project config "store-dir". This will stop working in the next major version of npm.
+npm warn Unknown project config "virtual-store-dir". This will stop working in the next major version of npm.
+
+> react_repo@0.0.0 build
+> pnpm install --prefer-offline && tsc -b && vite build
+
+Already up to date
+Done in 333ms
+src/components/KPICard.tsx(87,13): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+src/components/KPICard.tsx(87,14): error TS2786: 'Area' cannot be used as a JSX component.
+  Its type 'typeof Area' is not a valid JSX element type.
+    Type 'typeof Area' is not assignable to type 'new (props: any, deprecatedLegacyContext?: any) => Component<any, any, any>'.
+      Type 'Area' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, props, refs

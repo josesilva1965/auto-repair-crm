@@ -120,19 +120,19 @@ export function PortalLayout() {
 
     return (
         <PortalContext.Provider value={{ data, loading, refresh: fetchData }}>
-            <div className="min-h-screen bg-neutral-50 pb-20 md:pb-0">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 md:pb-0 font-sans selection:bg-primary/20">
                 {/* Mobile Header */}
-                <div className="bg-white border-b px-4 py-3 sticky top-0 z-10 md:hidden flex items-center justify-center shadow-sm">
-                    <h1 className="font-semibold text-lg text-neutral-900">{t('my_garage') || 'My Garage'}</h1>
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 sticky top-0 z-10 md:hidden flex items-center justify-center shadow-sm">
+                    <h1 className="font-bold text-lg text-slate-900 dark:text-slate-100 font-display tracking-tight">{t('my_garage') || 'My Garage'}</h1>
                 </div>
 
                 {/* Using a max-width container for desktop view to simulate mobile app feel centrally, or just full width */}
-                <div className="max-w-md mx-auto md:max-w-4xl md:p-8 min-h-[calc(100vh-60px)]">
+                <div className="max-w-md mx-auto md:max-w-5xl md:p-8 min-h-[calc(100vh-60px)] pt-6 md:pt-10">
                     <Outlet />
                 </div>
 
                 {/* Bottom Navigation (Mobile) */}
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center h-16 px-2 md:hidden z-20 pb-safe">
+                <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center h-20 px-2 md:hidden z-20 pb-safe shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
                     {navItems.map((item) => {
                         const isActive = item.exact
                             ? location.pathname === item.path
@@ -143,44 +143,60 @@ export function PortalLayout() {
                                 key={item.path}
                                 to={item.path}
                                 className={cn(
-                                    "flex flex-col items-center justify-center w-full h-full space-y-1",
-                                    isActive ? "text-primary" : "text-neutral-400 hover:text-neutral-600"
+                                    "relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300",
+                                    isActive ? "text-primary -translate-y-1" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                 )}
                             >
-                                <item.icon className={cn("w-6 h-6", isActive && "fill-current/10")} />
-                                <span className="text-[10px] font-medium">{item.label}</span>
+                                {isActive && (
+                                    <div className="absolute top-0 w-12 h-1 rounded-b-full bg-primary shadow-[0_2px_10px_rgba(var(--primary),0.5)]" />
+                                )}
+                                <item.icon className={cn("w-6 h-6 transition-transform duration-300", isActive && "scale-110")} />
+                                <span className={cn("text-[10px] font-medium tracking-wide", isActive ? "font-bold" : "font-medium")}>{item.label}</span>
                             </Link>
                         );
                     })}
                 </div>
 
                 {/* Desktop Navigation (Simple Header override for desktop - optional improvement) */}
-                <div className="hidden md:flex fixed top-0 left-0 right-0 bg-white border-b h-16 items-center w-full px-8 justify-between z-20 shadow-sm">
-                    <div className="flex items-center gap-2">
-                        <Car className="w-6 h-6 text-primary" />
-                        <span className="font-bold text-xl">{t('my_garage') || 'My Garage'}</span>
+                <div className="hidden md:flex fixed top-0 left-0 right-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 h-20 items-center w-full px-8 justify-between z-20 shadow-sm transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20 text-white">
+                            <Car className="w-6 h-6" />
+                        </div>
+                        <span className="font-bold text-2xl tracking-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+                            {t('my_garage') || 'My Garage'}
+                        </span>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        {navItems.map(item => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={cn(
-                                    "text-sm font-medium transition-colors hover:text-primary",
-                                    (item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path))
-                                        ? "text-primary border-b-2 border-primary py-5"
-                                        : "text-neutral-500"
-                                )}
-                            >
-                                {item.label}
-                            </Link>
-                        ))}
+                    <div className="flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
+                        {navItems.map(item => {
+                            const isActive = (item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path));
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    className={cn(
+                                        "px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden",
+                                        isActive
+                                            ? "text-primary bg-white dark:bg-slate-900 shadow-sm ring-1 ring-black/5"
+                                            : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50"
+                                    )}
+                                >
+                                    <span className="relative z-10 flex items-center gap-2">
+                                        <item.icon className={cn("w-4 h-4", isActive && "fill-current/20")} />
+                                        {item.label}
+                                    </span>
+                                </Link>
+                            );
+                        })}
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-neutral-600">
-                        <span>{data.customer.name}</span>
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    <div className="flex items-center gap-4">
+                        <div className="text-right hidden lg:block">
+                            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{data.customer.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{data.customer.email}</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-slate-900">
                             {data.customer.name.charAt(0)}
                         </div>
                     </div>

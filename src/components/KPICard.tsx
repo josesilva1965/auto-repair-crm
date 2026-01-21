@@ -84,6 +84,7 @@ export function KPICard({ title, value, trend, icon: Icon, color = 'blue', chart
                 <stop offset="100%" stopColor={theme.fill} stopOpacity={0} />
               </linearGradient>
             </defs>
+            {/* @ts-ignore */}
             <Area
               type="monotone"
               dataKey="val"

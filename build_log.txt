@@ -1,0 +1,12 @@
+npm warn Unknown project config "store-dir". This will stop working in the next major version of npm.
+npm warn Unknown project config "virtual-store-dir". This will stop working in the next major version of npm.
+
+> react_repo@0.0.0 build
+> pnpm install --prefer-offline && tsc -b && vite build
+
+Already up to date
+Done in 297ms
+src/components/ui/select.tsx(95,5): error TS1005: ')' expected.
+src/components/ui/select.tsx(96,3): error TS1109: Expression expected.
+src/components/ui/select.tsx(96,4): error TS1128: Declaration or statement expected.
+vite.config.ts(6,25): error TS2307: Cannot find module 'vite-plugin-pwa' or its corresponding type declarations.

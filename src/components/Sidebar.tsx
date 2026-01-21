@@ -62,6 +62,14 @@ const navItems = [
     }
 ];
 
+const groupColors: Record<string, string> = {
+    'overview_group': 'text-blue-500 dark:text-blue-400',
+    'operations_group': 'text-emerald-500 dark:text-emerald-400',
+    'management_group': 'text-amber-500 dark:text-amber-400',
+    'communication_group': 'text-purple-500 dark:text-purple-400',
+    'system_group': 'text-slate-500 dark:text-slate-400',
+};
+
 interface SidebarProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
@@ -121,15 +129,8 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                 {/* Navigation */}
                 <div className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
                     <nav className="space-y-6 px-3">
-                        {navItems.map((group, groupIndex) => {
-                            // Define group colors
-                            const groupColors: Record<string, string> = {
-                                'overview_group': 'text-blue-500 dark:text-blue-400',
-                                'operations_group': 'text-emerald-500 dark:text-emerald-400',
-                                'management_group': 'text-amber-500 dark:text-amber-400',
-                                'communication_group': 'text-purple-500 dark:text-purple-400',
-                                'system_group': 'text-slate-500 dark:text-slate-400',
-                            };
+
+                        {navItems.map((group) => {
                             const groupColor = groupColors[group.group] || 'text-muted-foreground';
 
                             return (
@@ -148,19 +149,26 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                                                     to={item.path}
                                                     className={cn(
                                                         "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                                                        "font-display tracking-wide", // Nicer lettering
+                                                        "font-display tracking-wide",
                                                         isActive
                                                             ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
-                                                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:pl-4", // Subtle slide effect
+                                                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:pl-4",
                                                         !isOpen && "justify-center px-0 py-3 hover:pl-0"
                                                     )}
                                                     onClick={() => isMobile && setIsOpen(false)}
                                                 >
                                                     <div className={cn(
-                                                        "transition-transform duration-200 group-hover:scale-110",
-                                                        isActive ? "text-primary" : groupColor // Apply group color
+                                                        "transition-transform duration-200 group-hover:scale-110"
                                                     )}>
-                                                        <item.icon className="w-5 h-5" />
+                                                        {/* Force color application by checking isActive status explicitly but allowing color override if desired, 
+                                                                or just use the group color ALWAYS for the icon to make it pop even when active, 
+                                                                or blend it. Let's keep it vibrant. */}
+                                                        <item.icon className={cn(
+                                                            "w-5 h-5 transition-colors",
+                                                            isActive ? "text-primary" : groupColor,
+                                                            // Add a subtle drop shadow to colored icons to make them pop more
+                                                            !isActive && "filter drop-shadow-sm"
+                                                        )} />
                                                     </div>
 
                                                     {isOpen && (
@@ -172,7 +180,6 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                                                     )}
 
                                                     {!isOpen && (
-                                                        // Tooltip-like popup for collapsed state (simplified)
                                                         <div className="absolute left-full ml-4 px-3 py-1.5 bg-popover text-popover-foreground text-xs font-medium rounded-md shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap border border-border/50 backdrop-blur-md">
                                                             {t(item.label)}
                                                         </div>

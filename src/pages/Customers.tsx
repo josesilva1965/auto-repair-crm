@@ -9,7 +9,7 @@ import { Plus, Search, Phone, Mail, MapPin } from 'lucide-react';
 
 export function Customers() {
   const { t } = useTranslation();
-  const { currency } = useSettings();
+  const { currency, emailSettings } = useSettings();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
@@ -160,6 +160,18 @@ export function Customers() {
               </div>
               <div className="flex gap-2">
                 <Button variant="secondary" size="sm" onClick={() => openEdit(selectedCustomer)}>{t('edit')}</Button>
+                <Button variant="secondary" size="sm" onClick={() => {
+                  const { emailSettings } = useSettings();
+                  // Use configured public_url or fallback to current origin (useful for dev)
+                  const baseUrl = emailSettings.public_url || window.location.origin;
+                  // Ensure no double slashes if public_url ends with /
+                  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+                  const url = `${cleanBaseUrl}/portal/${selectedCustomer.portal_token}`;
+                  navigator.clipboard.writeText(url);
+                  alert(t('link_copied') || 'Portal link copied to clipboard!');
+                }}>
+                  {t('copy_portal_link') || 'Copy Portal Link'}
+                </Button>
                 <Button variant="danger" size="sm" onClick={() => handleDelete(selectedCustomer.id)}>{t('delete')}</Button>
               </div>
             </div>
