@@ -161,9 +161,8 @@ export function Customers() {
               <div className="flex gap-2">
                 <Button variant="secondary" size="sm" onClick={() => openEdit(selectedCustomer)}>{t('edit')}</Button>
                 <Button variant="secondary" size="sm" onClick={() => {
-                  const { emailSettings } = useSettings();
                   // Use configured public_url or fallback to current origin (useful for dev)
-                  const baseUrl = emailSettings.public_url || window.location.origin;
+                  const baseUrl = emailSettings?.public_url || window.location.origin;
                   // Ensure no double slashes if public_url ends with /
                   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
                   const url = `${cleanBaseUrl}/portal/${selectedCustomer.portal_token}`;
