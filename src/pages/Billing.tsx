@@ -191,7 +191,7 @@ export function Billing() {
   }
 
   async function handleDeleteInvoice(invoice: Invoice) {
-    if (!confirm(t('confirm_delete') || 'Are you sure you want to delete this invoice?')) return;
+    if (!confirm(t('confirm_delete'))) return;
 
     // 1. Restore work order status to 'completed' so it reappears
     if (invoice.work_order_id) {
@@ -258,7 +258,7 @@ export function Billing() {
           className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${activeTab === 'purchasing' ? 'border-primary-500 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}
           onClick={() => setActiveTab('purchasing')}
         >
-          {t('purchasing') || 'Purchasing'}
+          {t('purchasing')}
         </button>
       </div>
 

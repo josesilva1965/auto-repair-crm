@@ -186,7 +186,7 @@ export function Settings() {
                                 <AlertTriangle className="h-5 w-5 text-primary" />
                                 <div className="text-sm text-primary-foreground">
                                     <p className="font-medium">Note</p>
-                                    <p className="text-primary/80 mt-1">Changing the language will automatically update default currency and tax formats to match the region.</p>
+                                    <p className="text-primary/80 mt-1">{t('language_change_note')}</p>
                                 </div>
                             </div>
                         </div>
@@ -204,6 +204,17 @@ export function Settings() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none">{t('public_url') || 'Public URL'}</label>
+                                <Input
+                                    type="url"
+                                    value={localEmail.public_url || ''}
+                                    onChange={(e) => handleEmailChange('public_url', e.target.value)}
+                                    placeholder="https://your-app-url.netlify.app"
+                                />
+                                <p className="text-[10px] text-muted-foreground">Required for correct links in emails</p>
+                            </div>
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium leading-none">{t('sender_name') || 'Sender Name'}</label>
                                 <Input

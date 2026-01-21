@@ -59,7 +59,7 @@ export function DataTable<T extends { id: string }>({
                   key={item.id}
                   onClick={() => onRowClick?.(item)}
                   className={cn(
-                    "group transition-colors hover:bg-muted/30",
+                    "group transition-all duration-200 hover:bg-muted/40 hover:shadow-sm hover:-translate-y-[1px]",
                     onRowClick && "cursor-pointer"
                   )}
                 >
@@ -83,16 +83,16 @@ export function DataTable<T extends { id: string }>({
 
 export function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, string> = {
-    pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-    'in-progress': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-    completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-    cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
-    paid: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-    overdue: 'bg-destructive/10 text-destructive border-destructive/20',
-    available: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-    busy: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-    'low-stock': 'bg-destructive/10 text-destructive border-destructive/20',
-    'in-stock': 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-[0_0_10px_-4px_rgba(245,158,11,0.5)]',
+    'in-progress': 'bg-blue-500/10 text-blue-600 border-blue-500/20 shadow-[0_0_10px_-4px_rgba(59,130,246,0.5)]',
+    completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_10px_-4px_rgba(16,185,129,0.5)]',
+    cancelled: 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_10px_-4px_rgba(239,68,68,0.5)]',
+    paid: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_10px_-4px_rgba(16,185,129,0.5)]',
+    overdue: 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_10px_-4px_rgba(239,68,68,0.5)]',
+    available: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_10px_-4px_rgba(16,185,129,0.5)]',
+    busy: 'bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-[0_0_10px_-4px_rgba(245,158,11,0.5)]',
+    'low-stock': 'bg-destructive/10 text-destructive border-destructive/20 shadow-[0_0_10px_-4px_rgba(239,68,68,0.5)]',
+    'in-stock': 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_10px_-4px_rgba(16,185,129,0.5)]',
   };
 
   return (

@@ -832,7 +832,7 @@ export function WorkOrders() {
                     onClick={() => setIsInspectionModalOpen(true)}
                   >
                     <Check className="w-3 h-3 mr-1" />
-                    {t('inspection') || 'Inspection'}
+                    {t('inspection')}
                   </Button>
                 </div>
 
@@ -964,28 +964,28 @@ export function WorkOrders() {
                       </div>
                     ) : (
                       <Input
-                        label="Description"
+                        label={t('description')}
                         value={newItem.description}
                         onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                        placeholder="Item name..."
+                        placeholder={t('item_name_placeholder')}
                       />
                     )}
                   </div>
                   <div className="col-span-2">
                     <Select
-                      label="Type"
+                      label={t('type')}
                       value={newItem.item_type}
                       onChange={(e) => setNewItem({ ...newItem, item_type: e.target.value as any })}
                       options={[
-                        { value: 'part', label: 'Part' },
-                        { value: 'labor', label: 'Labor' },
-                        { value: 'other', label: 'Other' },
+                        { value: 'part', label: t('part') },
+                        { value: 'labor', label: t('labor') },
+                        { value: 'other', label: t('other') },
                       ]}
                     />
                   </div>
                   <div className="col-span-2">
                     <Input
-                      label="Qty"
+                      label={t('qty')}
                       type="number"
                       min="0.1"
                       step="0.1"
@@ -995,7 +995,7 @@ export function WorkOrders() {
                   </div>
                   <div className="col-span-2">
                     <Input
-                      label="Price"
+                      label={t('price')}
                       type="number"
                       min="0"
                       step="0.01"
@@ -1019,8 +1019,8 @@ export function WorkOrders() {
                       <div className="flex items-center gap-3">
                         <FileText className="w-5 h-5 text-amber-600" />
                         <div>
-                          <p className="font-medium text-amber-900">{t('create_estimate') || 'Create Estimate'}</p>
-                          <p className="text-sm text-amber-700">{t('send_estimate_to_customer') || 'Send an estimate to the customer for approval'}</p>
+                          <p className="font-medium text-amber-900">{t('create_estimate')}</p>
+                          <p className="text-sm text-amber-700">{t('send_estimate_to_customer')}</p>
                         </div>
                       </div>
                       <Button
@@ -1029,7 +1029,7 @@ export function WorkOrders() {
                         className="bg-amber-600 hover:bg-amber-700"
                       >
                         <Send className="w-4 h-4 mr-2" />
-                        {t('create_estimate') || 'Create Estimate'}
+                        {t('create_estimate')}
                       </Button>
                     </div>
 
@@ -1043,13 +1043,13 @@ export function WorkOrders() {
                               {existingEstimate.status === 'sent' && (
                                 <>
                                   <AlertCircle className="w-4 h-4 text-amber-600" />
-                                  <span className="text-amber-800">{t('estimate_awaiting_approval') || 'Estimate sent - awaiting customer approval'}</span>
+                                  <span className="text-amber-800">{t('estimate_awaiting_approval')}</span>
                                 </>
                               )}
                               {existingEstimate.status === 'approved' && (
                                 <>
                                   <Check className="w-4 h-4 text-emerald-600" />
-                                  <span className="text-emerald-800">{t('estimate_approved') || 'Customer has approved the estimate'}</span>
+                                  <span className="text-emerald-800">{t('estimate_approved')}</span>
                                 </>
                               )}
                             </div>
@@ -1076,12 +1076,12 @@ export function WorkOrders() {
       <Modal
         isOpen={isEstimateModalOpen}
         onClose={() => { setIsEstimateModalOpen(false); setEstimateNotes(''); }}
-        title={t('send_estimate') || 'Send Estimate to Customer'}
+        title={t('send_estimate')}
       >
         <div className="space-y-4">
           {/* Estimate Preview */}
           <div className="bg-neutral-50 rounded-lg p-4">
-            <h4 className="font-semibold text-sm text-neutral-900 mb-3 border-b pb-2">{t('estimate_preview') || 'Estimate Preview'}</h4>
+            <h4 className="font-semibold text-sm text-neutral-900 mb-3 border-b pb-2">{t('estimate_preview')}</h4>
 
             <div className="space-y-2 mb-4">
               {lineItems.map((item, idx) => (
@@ -1096,7 +1096,7 @@ export function WorkOrders() {
 
             <div className="space-y-1 border-t pt-3">
               <div className="flex justify-between text-sm">
-                <span className="text-neutral-600">{t('subtotal') || 'Subtotal'}</span>
+                <span className="text-neutral-600">{t('subtotal')}</span>
                 <span>{currency}{calculatedTotal.toFixed(2)}</span>
               </div>
               {editingOrder && customers.find(c => c.id === editingOrder.customer_id)?.default_discount > 0 && (
@@ -1106,11 +1106,11 @@ export function WorkOrders() {
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-neutral-600">{t('tax') || 'Tax'} ({editingOrder ? (customers.find(c => c.id === editingOrder.customer_id)?.vat_rate || 20) : 20}%)</span>
+                <span className="text-neutral-600">{t('tax')} ({editingOrder ? (customers.find(c => c.id === editingOrder.customer_id)?.vat_rate || 20) : 20}%)</span>
                 <span>{currency}{((calculatedTotal - (calculatedTotal * ((editingOrder ? (customers.find(c => c.id === editingOrder.customer_id)?.default_discount || 0) : 0) / 100))) * ((editingOrder ? (customers.find(c => c.id === editingOrder.customer_id)?.vat_rate || 20) : 20) / 100)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
-                <span>{t('total') || 'Total'}</span>
+                <span>{t('total')}</span>
                 <span>{currency}{(() => {
                   const discountedSubtotal = calculatedTotal - (calculatedTotal * ((editingOrder ? (customers.find(c => c.id === editingOrder.customer_id)?.default_discount || 0) : 0) / 100));
                   const tax = discountedSubtotal * ((editingOrder ? (customers.find(c => c.id === editingOrder.customer_id)?.vat_rate || 20) : 20) / 100);
@@ -1122,18 +1122,18 @@ export function WorkOrders() {
 
           {/* Notes to Customer */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">{t('notes_to_customer') || 'Notes to Customer'}</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">{t('notes_to_customer')}</label>
             <Textarea
               value={estimateNotes}
               onChange={(e) => setEstimateNotes(e.target.value)}
               rows={3}
-              placeholder={t('estimate_notes_placeholder') || 'Add any notes or context for the customer...'}
+              placeholder={t('estimate_notes_placeholder')}
             />
           </div>
 
           {/* Send Options */}
           <div className="border-t pt-4">
-            <p className="text-sm font-medium text-neutral-700 mb-3">{t('send_via') || 'Send via:'}</p>
+            <p className="text-sm font-medium text-neutral-700 mb-3">{t('send_via')}</p>
             <div className="flex gap-3">
               <Button
                 onClick={() => createEstimate('email')}
@@ -1141,7 +1141,7 @@ export function WorkOrders() {
                 className="flex-1"
               >
                 <Mail className="w-4 h-4 mr-2" />
-                {t('email') || 'Email'}
+                {t('email')}
               </Button>
               <Button
                 onClick={() => createEstimate('sms')}
@@ -1150,7 +1150,7 @@ export function WorkOrders() {
                 className="flex-1"
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
-                {t('sms') || 'SMS'}
+                {t('sms')}
               </Button>
               <Button
                 onClick={() => createEstimate('print')}
@@ -1159,14 +1159,14 @@ export function WorkOrders() {
                 className="flex-1"
               >
                 <Printer className="w-4 h-4 mr-2" />
-                {t('print') || 'Print'}
+                {t('print')}
               </Button>
             </div>
           </div>
 
           {sendingEstimate && (
             <div className="text-center text-sm text-neutral-500 animate-pulse">
-              {t('sending') || 'Sending...'}
+              {t('sending')}
             </div>
           )}
         </div>
@@ -1322,7 +1322,7 @@ function DraggableCard({ order, onEdit, getTechName, estimate, onArchive }: { or
       return (
         <div className="flex items-center gap-1 text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
           <Check className="w-3 h-3" />
-          <span>{t('approved') || 'Approved'}</span>
+          <span>{t('approved')}</span>
         </div>
       );
     }
@@ -1334,21 +1334,21 @@ function DraggableCard({ order, onEdit, getTechName, estimate, onArchive }: { or
         return (
           <div className="flex items-center gap-1 text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-full">
             <Clock className="w-3 h-3" />
-            <span>{t('awaiting_approval') || 'Awaiting Approval'}</span>
+            <span>{t('awaiting_approval')}</span>
           </div>
         );
       case 'approved':
         return (
           <div className="flex items-center gap-1 text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">
             <Check className="w-3 h-3" />
-            <span>{t('approved') || 'Approved'}</span>
+            <span>{t('approved')}</span>
           </div>
         );
       case 'rejected':
         return (
           <div className="flex items-center gap-1 text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">
             <AlertCircle className="w-3 h-3" />
-            <span>{t('rejected') || 'Rejected'}</span>
+            <span>{t('rejected')}</span>
           </div>
         );
       default:

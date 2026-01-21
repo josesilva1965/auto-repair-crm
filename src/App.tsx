@@ -20,6 +20,13 @@ const Settings = lazy(() => import('./pages/Settings').then(module => ({ default
 const Estimates = lazy(() => import('./pages/Estimates').then(module => ({ default: module.Estimates })));
 const ApproveEstimate = lazy(() => import('./pages/ApproveEstimate').then(module => ({ default: module.ApproveEstimate })));
 
+// Portal Components
+const PortalLayout = lazy(() => import('./layouts/PortalLayout').then(module => ({ default: module.PortalLayout })));
+const PortalHome = lazy(() => import('./pages/portal/PortalHome').then(module => ({ default: module.PortalHome })));
+const PortalVehicles = lazy(() => import('./pages/portal/PortalVehicles').then(module => ({ default: module.PortalVehicles })));
+const PortalHistory = lazy(() => import('./pages/portal/PortalHistory').then(module => ({ default: module.PortalHistory })));
+const PortalBooking = lazy(() => import('./pages/portal/PortalBooking').then(module => ({ default: module.PortalBooking })));
+
 const PublicInspection = lazy(() => import('./pages/PublicInspection').then(module => ({ default: module.PublicInspection })));
 
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -43,6 +50,15 @@ function App() {
               <Routes>
                 <Route path="/estimate-approval/:token" element={<ApproveEstimate />} />
                 <Route path="/inspection/:token" element={<PublicInspection />} />
+
+                {/* Customer Portal Routes */}
+                <Route path="/portal/:token" element={<PortalLayout />}>
+                  <Route index element={<PortalHome />} />
+                  <Route path="vehicles" element={<PortalVehicles />} />
+                  <Route path="history" element={<PortalHistory />} />
+                  <Route path="booking" element={<PortalBooking />} />
+                </Route>
+
                 <Route
                   path="/*"
                   element={

@@ -14,6 +14,7 @@ export type Customer = {
   notes: string | null;
   vat_rate: number | null;
   default_discount: number | null;
+  portal_token: string | null;
   created_at: string;
 };
 

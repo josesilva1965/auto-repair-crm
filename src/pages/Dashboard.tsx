@@ -53,7 +53,7 @@ export function Dashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-[32px] font-bold text-foreground">{t('dashboard')}</h1>
+        <h1 className="text-[32px] font-bold text-foreground font-display tracking-tight">{t('dashboard')}</h1>
         <p className="text-muted-foreground">{t('overview')}</p>
       </div>
 
@@ -98,7 +98,7 @@ export function Dashboard() {
             data={activeJobs.slice(0, 5)}
             loading={loading}
             columns={[
-              { key: 'id', header: t('order_number'), render: (item) => item.id.substring(0, 8) },
+              { key: 'id', header: t('order_number'), render: (item) => <span className="font-mono text-xs">{item.id.substring(0, 8)}</span> },
               {
                 key: 'status',
                 header: t('status'),

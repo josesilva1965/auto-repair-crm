@@ -29,13 +29,13 @@ import {
 
 const navItems = [
     {
-        group: 'Overview', items: [
+        group: 'overview_group', items: [
             { path: '/', label: 'dashboard', icon: LayoutDashboard },
             { path: '/bookings', label: 'bookings', icon: Calendar },
         ]
     },
     {
-        group: 'Operations', items: [
+        group: 'operations_group', items: [
             { path: '/work-orders', label: 'work_orders', icon: ClipboardList },
             { path: '/customers', label: 'customers', icon: Users },
             { path: '/vehicles', label: 'vehicles', icon: Car },
@@ -43,20 +43,20 @@ const navItems = [
         ]
     },
     {
-        group: 'Management', items: [
+        group: 'management_group', items: [
             { path: '/billing', label: 'billing', icon: Receipt },
             { path: '/reports', label: 'reports', icon: BarChart3 },
             { path: '/technicians', label: 'technicians', icon: Wrench },
         ]
     },
     {
-        group: 'Communication', items: [
+        group: 'communication_group', items: [
             { path: '/messages', label: 'messages', icon: MessageSquare },
             { path: '/reminders', label: 'reminders', icon: Bell },
         ]
     },
     {
-        group: 'System', items: [
+        group: 'system_group', items: [
             { path: '/settings', label: 'settings', icon: Settings },
         ]
     }
@@ -94,7 +94,8 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
             {/* Sidebar Container */}
             <aside
                 className={cn(
-                    "fixed top-0 left-0 z-50 h-screen bg-card border-r border-border transition-all duration-300 ease-in-out flex flex-col",
+                    "fixed top-0 left-0 z-50 h-screen border-r border-border/40 transition-all duration-300 ease-in-out flex flex-col",
+                    "bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60",
                     isOpen ? "w-64 translate-x-0" : isMobile ? "-translate-x-full" : "w-[72px]"
                 )}
             >
@@ -106,69 +107,83 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                         </div>
                         <div className={cn("flex flex-col transition-opacity duration-200", !isOpen && "hidden opacity-0")}>
                             <span className="font-bold text-sm tracking-tight truncate max-w-[140px]">
-                                {emailSettings.shop_name || 'AutoShop'}
+                                {emailSettings.shop_name || t('default_shop_name')}
                             </span>
                             {!emailSettings.shop_name && (
-                                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">CRM Pro</span>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('crm_pro')}</span>
                             )}
                         </div>
                     </div>
 
-                    {isOpen && !isMobile && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
-                            <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                    )}
                 </div>
+
 
                 {/* Navigation */}
                 <div className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
                     <nav className="space-y-6 px-3">
-                        {navItems.map((group, groupIndex) => (
-                            <div key={group.group}>
-                                {isOpen && (
-                                    <h4 className="mb-2 text-xs font-semibold text-muted-foreground/50 uppercase tracking-wider px-2">
-                                        {group.group}
-                                    </h4>
-                                )}
-                                <div className="space-y-1">
-                                    {group.items.map((item) => {
-                                        const isActive = location.pathname === item.path;
-                                        return (
-                                            <Link
-                                                key={item.path}
-                                                to={item.path}
-                                                className={cn(
-                                                    "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                                                    isActive
-                                                        ? "bg-primary/10 text-primary shadow-sm"
-                                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                                                    !isOpen && "justify-center px-0 py-3"
-                                                )}
-                                                onClick={() => isMobile && setIsOpen(false)}
-                                            >
-                                                <item.icon className={cn("w-5 h-5", isActive && "text-primary")} />
+                        {navItems.map((group, groupIndex) => {
+                            // Define group colors
+                            const groupColors: Record<string, string> = {
+                                'overview_group': 'text-blue-500 dark:text-blue-400',
+                                'operations_group': 'text-emerald-500 dark:text-emerald-400',
+                                'management_group': 'text-amber-500 dark:text-amber-400',
+                                'communication_group': 'text-purple-500 dark:text-purple-400',
+                                'system_group': 'text-slate-500 dark:text-slate-400',
+                            };
+                            const groupColor = groupColors[group.group] || 'text-muted-foreground';
 
-                                                {isOpen && (
-                                                    <span className="flex-1 truncate">{t(item.label)}</span>
-                                                )}
-
-                                                {isOpen && isActive && (
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_2px_rgba(var(--primary),0.5)]" />
-                                                )}
-
-                                                {!isOpen && (
-                                                    // Tooltip-like popup for collapsed state (simplified)
-                                                    <div className="absolute left-full ml-4 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap border border-border">
-                                                        {t(item.label)}
+                            return (
+                                <div key={group.group}>
+                                    {isOpen && (
+                                        <h4 className="mb-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-2 font-display">
+                                            {t(group.group)}
+                                        </h4>
+                                    )}
+                                    <div className="space-y-1">
+                                        {group.items.map((item) => {
+                                            const isActive = location.pathname === item.path;
+                                            return (
+                                                <Link
+                                                    key={item.path}
+                                                    to={item.path}
+                                                    className={cn(
+                                                        "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                                                        "font-display tracking-wide", // Nicer lettering
+                                                        isActive
+                                                            ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
+                                                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:pl-4", // Subtle slide effect
+                                                        !isOpen && "justify-center px-0 py-3 hover:pl-0"
+                                                    )}
+                                                    onClick={() => isMobile && setIsOpen(false)}
+                                                >
+                                                    <div className={cn(
+                                                        "transition-transform duration-200 group-hover:scale-110",
+                                                        isActive ? "text-primary" : groupColor // Apply group color
+                                                    )}>
+                                                        <item.icon className="w-5 h-5" />
                                                     </div>
-                                                )}
-                                            </Link>
-                                        )
-                                    })}
+
+                                                    {isOpen && (
+                                                        <span className="flex-1 truncate">{t(item.label)}</span>
+                                                    )}
+
+                                                    {isOpen && isActive && (
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_2px_rgba(var(--primary),0.5)]" />
+                                                    )}
+
+                                                    {!isOpen && (
+                                                        // Tooltip-like popup for collapsed state (simplified)
+                                                        <div className="absolute left-full ml-4 px-3 py-1.5 bg-popover text-popover-foreground text-xs font-medium rounded-md shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap border border-border/50 backdrop-blur-md">
+                                                            {t(item.label)}
+                                                        </div>
+                                                    )}
+                                                </Link>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </nav>
                 </div>
 
@@ -186,7 +201,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                             <div className="flex gap-2">
                                 <Button variant="outline" size="sm" className="w-full text-xs h-8" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                                     {theme === 'dark' ? <Sun className="w-3 h-3 mr-2" /> : <Moon className="w-3 h-3 mr-2" />}
-                                    Theme
+                                    {t('theme')}
                                 </Button>
                             </div>
                         </div>
@@ -196,13 +211,9 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                         </Button>
                     )}
 
-                    {!isOpen && !isMobile && (
-                        <Button variant="ghost" size="icon" className="w-full text-muted-foreground" onClick={() => setIsOpen(true)}>
-                            <PanelLeftOpen className="w-4 h-4" />
-                        </Button>
-                    )}
+
                 </div>
-            </aside>
+            </aside >
         </>
     );
 }

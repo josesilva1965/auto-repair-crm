@@ -264,7 +264,10 @@ export class CommunicationService {
 
             // Add Approval Link (for Estimates)
             if (type === 'estimate' && approvalToken) {
-                const approvalLink = `${window.location.origin}/estimate-approval/${approvalToken}`;
+                // Use configured public URL or fallback to current origin
+                const baseUrl = emailSettings?.public_url?.replace(/\/$/, '') || window.location.origin;
+                const approvalLink = `${baseUrl}/estimate-approval/${approvalToken}`;
+                console.log('[DEBUG] Generated Approval Link:', approvalLink, 'BaseURL:', baseUrl, 'PublicURL Setting:', emailSettings?.public_url);
                 message += `\n\n✅ APPROVE OR DECLINE ONLINE:\nClick here to review and respond to this estimate instantly:\n${approvalLink}`;
             }
 
