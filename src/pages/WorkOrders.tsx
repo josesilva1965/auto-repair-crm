@@ -167,25 +167,31 @@ export function WorkOrders() {
     setIsModalOpen(false);
     setEditingOrder(null);
 
-    // Send notification if this is a NEW work order with 'in-progress' status
-    if (!editingOrder && form.status === 'in-progress' && orderId) {
+    // Send notification for ALL new work orders (so customer knows work order was created)
+    if (!editingOrder && orderId) {
       const customer = customers.find(c => c.id === form.customer_id);
       const vehicle = vehicles.find(v => v.id === form.vehicle_id);
       const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Vehicle';
 
+      console.log('[WorkOrders] New work order created:', { orderId, status: form.status, customerId: form.customer_id });
+
       if (customer) {
-        console.log('Sending work started notification for new order to', customer.email);
+        console.log('[WorkOrders] Sending notification to customer:', customer.email);
         communicationService.sendWorkOrderStartedNotification(
           customer,
           vehicleInfo,
           { id: orderId, ...payload }
         ).then(result => {
           if (result.success) {
-            console.log('New work order notification sent:', result.message);
+            console.log('[WorkOrders] Notification sent successfully:', result.message);
           } else {
-            console.warn('Failed to send new work order notification:', result.message);
+            console.warn('[WorkOrders] Failed to send notification:', result.message);
           }
+        }).catch(err => {
+          console.error('[WorkOrders] Error sending notification:', err);
         });
+      } else {
+        console.warn('[WorkOrders] Customer not found for ID:', form.customer_id);
       }
     }
 
