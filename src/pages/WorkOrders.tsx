@@ -166,6 +166,29 @@ export function WorkOrders() {
 
     setIsModalOpen(false);
     setEditingOrder(null);
+
+    // Send notification if this is a NEW work order with 'in-progress' status
+    if (!editingOrder && form.status === 'in-progress' && orderId) {
+      const customer = customers.find(c => c.id === form.customer_id);
+      const vehicle = vehicles.find(v => v.id === form.vehicle_id);
+      const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Vehicle';
+
+      if (customer) {
+        console.log('Sending work started notification for new order to', customer.email);
+        communicationService.sendWorkOrderStartedNotification(
+          customer,
+          vehicleInfo,
+          { id: orderId, ...payload }
+        ).then(result => {
+          if (result.success) {
+            console.log('New work order notification sent:', result.message);
+          } else {
+            console.warn('Failed to send new work order notification:', result.message);
+          }
+        });
+      }
+    }
+
     resetForm();
     loadData();
   }
