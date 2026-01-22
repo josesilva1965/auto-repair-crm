@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase, type Vehicle, type Customer, type ServiceHistory } from '../lib/supabase';
 import { DataTable } from '../components/DataTable';
+import { EmptyState } from '../components/EmptyState';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
-import { Plus, Search, History, AlertCircle, X } from 'lucide-react';
+import { Plus, Search, History, AlertCircle, X, Car } from 'lucide-react';
 import { carMakes, getCarLogoUrl, getModelsForMake } from '../data/carMakes';
+import { toast } from 'sonner';
 
 export function Vehicles() {
   const { t } = useTranslation();
@@ -81,7 +83,7 @@ export function Vehicles() {
     } catch (err: any) {
       console.error('Error saving vehicle:', err);
       const errorMessage = err.message || err.hint || err.details || 'Unknown error';
-      alert(`Failed to save vehicle: ${errorMessage}`);
+      toast.error(`${t('vehicle_save_error') || 'Failed to save vehicle'}: ${errorMessage}`);
     }
   }
 
@@ -212,6 +214,17 @@ export function Vehicles() {
                 },
               },
             ]}
+            emptyState={
+              <EmptyState
+                title={t('no_vehicles_found')}
+                description={t('no_vehicles_desc')}
+                icon={Car}
+                action={{
+                  label: t('add_vehicle'),
+                  onClick: () => { resetForm(); setEditingVehicle(null); setIsModalOpen(true); }
+                }}
+              />
+            }
           />
         </div>
 

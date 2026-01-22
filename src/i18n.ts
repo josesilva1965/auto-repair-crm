@@ -40,6 +40,10 @@ const resources = {
             "time": "Time",
             "select_date": "Select a date to view bookings",
             "save_booking": "Save Booking",
+            "available_technicians": "Available Technicians",
+            "slots_available": "slots available",
+            "full": "Full",
+            "create_work_order": "Create Work Order",
 
             "total_bookings": "Total Bookings",
             "part": "Part",
@@ -49,11 +53,58 @@ const resources = {
             // "stats": "Statistics", // Use existing key
 
             // Settings
+            "settings_description": "Manage your application preferences and configurations.",
             "language": "Language",
             "currency": "Currency",
             "tax_rate": "Tax Rate",
             "language_currency": "Language & Currency",
+            "regional_settings": "Regional Settings",
+            "language_currency_description": "Configure your language, currency, and tax rates.",
             "language_change_note": "Changing the language will automatically update the default currency and tax rate.",
+            "note": "Note",
+
+
+
+            // Settings - Shop Details
+            "shop_details": "Shop Details",
+            "shop_details_description": "Configure your shop identification.",
+            "shop_name": "Shop Name",
+
+            // Settings - Email
+            "email_configuration": "Email Configuration",
+            "email_config_description": "Configure email settings for customer notifications.",
+            "public_url": "Public URL",
+            "sender_name": "Sender Name",
+            "sender_email": "Sender Email",
+            "email_service": "Email Service",
+            "saving": "Saving...",
+            "save_changes": "Save Changes",
+            "emailjs_config_description": "Configure your EmailJS credentials below.",
+            "public_url_help": "Required for correct links in emails",
+
+            // Settings - Business Hours
+            "business_hours": "Business Hours",
+            "configure_hours": "Configure your weekly operating hours.",
+
+
+            // Settings - Data Management
+            "data_management": "Data Management",
+            "manage_data_desc": "Backup your data or perform dangerous operations.",
+            "backup_data": "Backup Data",
+            "backup_description": "Download a complete JSON backup of your database.",
+            "confirm_export": "Download database backup?",
+            "export_success": "Export successful!",
+            "export_error": "Export failed",
+            "export_database": "Export Database",
+            "danger_zone": "Danger Zone",
+            "reset_transactions": "Reset Transactions",
+            "reset_description": "Permanently delete all financial and work order history. This cannot be undone.",
+            "confirm_reset_1": "WARNING: This will permanently delete all transaction history. Are you sure?",
+            "confirm_reset_2": "Identify verification: Are you absolutely sure this is what you want to do?",
+            "confirm_reset_final": "Final Warning: This cannot be undone. Click OK to wipe all transaction data.",
+            "reset_success": "All transactions have been deleted.",
+            "reset_error": "Failed to reset data:",
+            "delete_transactions": "Delete Transactions",
 
             // Common
             "add": "Add",
@@ -134,6 +185,19 @@ const resources = {
             "ai_suggestion": "AI Suggested Assignment",
             "selected": "Selected",
             "match": "match",
+            "no_orders": "No work orders found",
+            "create_first_order": "Create your first work order to get started.",
+            "admin_no_active_jobs": "No Active Jobs",
+            // "admin_no_active_jobs": "No Active Jobs", // Duplicate removed
+            "admin_no_active_jobs_desc": "All caught up! Create a new work order when you're ready.",
+            "no_inventory_items": "No inventory items",
+            "no_inventory_desc": "Track parts and supplies here. Add your first item to get started.",
+            "no_customers_found": "No customers found",
+            "no_customers_desc": "Build your client base. Add your first customer to get started.",
+            "no_vehicles_found": "No vehicles found",
+            "no_vehicles_desc": "Track vehicle history. Add a vehicle to a customer profile.",
+            "no_technicians_found": "No technicians found",
+            "no_technicians_desc": "Manage your team. Add technicians to assign work orders.",
 
             // Customers
             "customer_management": "Customer Management",
@@ -305,8 +369,8 @@ const resources = {
             "saturday": "Saturday",
 
             // Business Hours
-            "business_hours": "Business Hours",
-            "configure_hours": "Configure your available hours for bookings",
+            // "business_hours": "Business Hours", // Duplicate
+
             "start_time": "Start Time",
             "end_time": "End Time",
             "no_available_slots": "No available slots for this day",
@@ -403,6 +467,11 @@ const resources = {
             "itemized_breakdown": "Itemized Breakdown",
             "no_items": "No line items found",
             "work_order": "Work Order",
+            "estimate_create_error": "Failed to create estimate",
+            "service_history_save_error": "Failed to save service history",
+            "archive_error": "Failed to archive work order",
+            "archive_success": "Work order archived",
+            "vehicle_save_error": "Failed to save vehicle",
 
             // Notifications
             "notifications": "Notifications",
@@ -443,6 +512,7 @@ const resources = {
 
             // Misc
             "general": "General",
+            "help": "Help",
             "dark_mode": "Dark Mode",
             "light_mode": "Light Mode",
             "keyboard_shortcuts": "Keyboard Shortcuts",
@@ -481,6 +551,11 @@ const resources = {
             // Navigation
             "dashboard": "Painel",
             "work_orders": "Ordens de Serviço",
+            "estimate_create_error": "Falha ao criar orçamento",
+            "service_history_save_error": "Falha ao guardar histórico de serviço",
+            "archive_error": "Falha ao arquivar ordem de serviço",
+            "archive_success": "Ordem de serviço arquivada",
+            "vehicle_save_error": "Falha ao guardar veículo",
             "customers": "Clientes",
             "vehicles": "Veículos",
             "inventory": "Inventário",
@@ -508,11 +583,56 @@ const resources = {
             "receive": "Receber",
 
             // Settings
+            "settings_description": "Gerencie as preferências e configurações da aplicação.",
             "language": "Idioma",
             "currency": "Moeda",
             "tax_rate": "Taxa de Imposto",
             "language_currency": "Idioma e Moeda",
+            "regional_settings": "Definições Regionais",
+            "language_currency_description": "Configure o seu idioma, moeda e taxas de imposto.",
             "language_change_note": "Alterar o idioma irá atualizar automaticamente a moeda e taxa de imposto.",
+            "note": "Nota",
+
+            // Settings - Shop Details
+            "shop_details": "Detalhes da Oficina",
+            "shop_details_description": "Configure a identificação da sua oficina.",
+            "shop_name": "Nome da Oficina",
+
+            // Settings - Email
+            "email_configuration": "Configuração de Email",
+            "email_config_description": "Configure as definições de email para notificações aos clientes.",
+            "public_url": "URL Público",
+            "sender_name": "Nome do Remetente",
+            "sender_email": "Email do Remetente",
+            "email_service": "Serviço de Email",
+            "saving": "A guardar...",
+            "save_changes": "Guardar Alterações",
+            "emailjs_config_description": "Configure as suas credenciais EmailJS abaixo.",
+            "public_url_help": "Necessário para links corretos nos emails",
+
+            // Settings - Business Hours
+            "business_hours": "Horário de Funcionamento",
+            "configure_hours": "Configure o seu horário de funcionamento semanal.",
+
+
+            // Settings - Data Management
+            "data_management": "Gestão de Dados",
+            "manage_data_desc": "Faça backup dos seus dados ou execute operações perigosas.",
+            "backup_data": "Backup de Dados",
+            "backup_description": "Descarregue um backup JSON completo da sua base de dados.",
+            "confirm_export": "Descarregar backup da base de dados?",
+            "export_success": "Exportação bem-sucedida!",
+            "export_error": "Falha na exportação",
+            "export_database": "Exportar Base de Dados",
+            "danger_zone": "Zona de Perigo",
+            "reset_transactions": "Reiniciar Transações",
+            "reset_description": "Apagar permanentemente todo o histórico financeiro e de ordens de serviço. Isto não pode ser desfeito.",
+            "confirm_reset_1": "AVISO: Isto irá apagar permanentemente todo o histórico de transações. Tem a certeza?",
+            "confirm_reset_2": "Verificação de identidade: Tem a certeza absoluta que quer fazer isto?",
+            "confirm_reset_final": "Aviso Final: Isto não pode ser desfeito. Clique OK para limpar todos os dados de transações.",
+            "reset_success": "Todas as transações foram apagadas.",
+            "reset_error": "Falha ao reiniciar dados:",
+            "delete_transactions": "Apagar Transações",
 
             // Common
             "add": "Adicionar",
@@ -690,6 +810,18 @@ const resources = {
             "jobs_by_status": "Trabalhos por Estado",
             "technician_productivity": "Produtividade dos Técnicos",
             "no_technician_data": "Sem dados de técnicos disponíveis",
+            "no_orders": "Nenhuma ordem de serviço encontrada",
+            "create_first_order": "Crie a sua primeira ordem de serviço para começar.",
+            "admin_no_active_jobs": "Sem Trabalhos Ativos",
+            "admin_no_active_jobs_desc": "Tudo em dia! Crie uma nova ordem de serviço quando estiver pronto.",
+            "no_inventory_items": "Sem itens de inventário",
+            "no_inventory_desc": "Gerencie peças e suprimentos. Adicione o seu primeiro item.",
+            "no_customers_found": "Nenhum cliente encontrado",
+            "no_customers_desc": "Construa a sua base de clientes. Adicione o primeiro cliente.",
+            "no_vehicles_found": "Nenhum veículo encontrado",
+            "no_vehicles_desc": "Acompanhe o histórico. Adicione um veículo ao perfil de cliente.",
+            "no_technicians_found": "Nenhum técnico encontrado",
+            "no_technicians_desc": "Gerencie a sua equipa. Adicione técnicos para atribuir ordens.",
             "last_7_days": "Últimos 7 dias",
             "last_30_days": "Últimos 30 dias",
             "last_90_days": "Últimos 90 dias",
@@ -715,6 +847,10 @@ const resources = {
             "time": "Hora",
             "select_date": "Selecione uma data para ver os agendamentos",
             "save_booking": "Guardar Agendamento",
+            "available_technicians": "Técnicos Disponíveis",
+            "slots_available": "vagas disponíveis",
+            "full": "Completo",
+            "create_work_order": "Criar Ordem de Serviço",
             "total_bookings": "Total de Agendamentos",
             "part": "Peça",
             "labor": "Mão de Obra",
@@ -761,6 +897,7 @@ const resources = {
 
 
             // Table/List
+            "help": "Ajuda",
             "showing": "A mostrar",
             "of": "de",
             "entries": "entradas",
@@ -840,8 +977,8 @@ const resources = {
             "Dashboard Warning Lights": "Luzes de Aviso do Painel",
 
             // Business Hours
-            "business_hours": "Horário de Funcionamento",
-            "configure_hours": "Configure o seu horário disponível para agendamentos",
+            // "business_hours": "Horário de Funcionamento", // Duplicate
+
             "start_time": "Hora Início",
             "end_time": "Hora Fim",
             "no_available_slots": "Sem horários disponíveis para este dia",
@@ -918,6 +1055,18 @@ const resources = {
             // Navigation
             "dashboard": "Tableau de Bord",
             "work_orders": "Ordres de Travail",
+            "no_orders": "Aucun ordre de travail trouvé",
+            "create_first_order": "Créez votre premier ordre de travail pour commencer.",
+            "admin_no_active_jobs": "Aucun Travail Actif",
+            "admin_no_active_jobs_desc": "Tout est à jour ! Créez un nouvel ordre de travail quand vous êtes prêt.",
+            "no_inventory_items": "Aucun article en stock",
+            "no_inventory_desc": "Suivez vos pièces et fournitures ici. Ajoutez votre premier article.",
+            "no_customers_found": "Aucun client trouvé",
+            "no_customers_desc": "Développez votre clientèle. Ajoutez votre premier client.",
+            "no_vehicles_found": "Aucun véhicule trouvé",
+            "no_vehicles_desc": "Suivez l'historique. Ajoutez un véhicule à un profil client.",
+            "no_technicians_found": "Aucun technicien trouvé",
+            "no_technicians_desc": "Gérez votre équipe. Ajoutez des techniciens pour assigner des travaux.",
             "customers": "Clients",
             "vehicles": "Véhicules",
             "inventory": "Stock",
@@ -942,6 +1091,57 @@ const resources = {
             "tax_rate": "Taux de Taxe",
             "language_currency": "Langue et Devise",
             "language_change_note": "Changer la langue mettra automatiquement à jour la devise et le taux de taxe.",
+            "regional_settings": "Paramètres Régionaux",
+            "language_currency_description": "Configurez votre langue, devise et taux de taxe.",
+            "settings_description": "Gérez les préférences et configurations de votre application.",
+            "note": "Note",
+
+            // Settings - Shop Details
+            "shop_details": "Détails de l'Atelier",
+            "shop_details_description": "Configurez l'identification de votre atelier.",
+            "shop_name": "Nom de l'Atelier",
+
+            // Settings - Email
+            "email_configuration": "Configuration Email",
+            "email_config_description": "Configurez les paramètres email pour les notifications clients.",
+            "public_url": "URL Publique",
+            "sender_name": "Nom de l'Expéditeur",
+            "sender_email": "Email de l'Expéditeur",
+            "email_service": "Service Email",
+            "saving": "Enregistrement...",
+            "save_changes": "Enregistrer les modifications",
+            "emailjs_config_description": "Configurez vos identifiants EmailJS ci-dessous.",
+            "public_url_help": "Requis pour des liens corrects dans les emails",
+
+            // Settings - Business Hours
+            "business_hours": "Heures d'Ouverture",
+            "configure_hours": "Configurez vos heures d'ouverture hebdomadaires.",
+            "sunday": "Dimanche",
+            "monday": "Lundi",
+            "tuesday": "Mardi",
+            "wednesday": "Mercredi",
+            "thursday": "Jeudi",
+            "friday": "Vendredi",
+            "saturday": "Samedi",
+
+            // Settings - Data Management
+            "data_management": "Gestion des Données",
+            "manage_data_desc": "Sauvegardez vos données ou effectuez des opérations dangereuses.",
+            "backup_data": "Sauvegarde des Données",
+            "backup_description": "Téléchargez une sauvegarde JSON complète de votre base de données.",
+            "confirm_export": "Télécharger la sauvegarde de la base de données ?",
+            "export_success": "Exportation réussie !",
+            "export_error": "Échec de l'exportation",
+            "export_database": "Exporter la Base de Données",
+            "danger_zone": "Zone de Danger",
+            "reset_transactions": "Réinitialiser les Transactions",
+            "reset_description": "Supprimer définitivement tout l'historique financier et des ordres de travail. Ceci ne peut pas être annulé.",
+            "confirm_reset_1": "ATTENTION : Ceci supprimera définitivement tout l'historique des transactions. Êtes-vous sûr ?",
+            "confirm_reset_2": "Vérification d'identité : Êtes-vous absolument sûr de vouloir faire cela ?",
+            "confirm_reset_final": "Dernier Avertissement : Ceci ne peut pas être annulé. Cliquez sur OK pour effacer toutes les données de transaction.",
+            "reset_success": "Toutes les transactions ont été supprimées.",
+            "reset_error": "Échec de la réinitialisation des données :",
+            "delete_transactions": "Supprimer les Transactions",
 
             // Common
             "add": "Ajouter",
@@ -1000,6 +1200,11 @@ const resources = {
             "medium": "Moyenne",
             "low": "Basse",
             "in_progress": "En Cours",
+            "estimate_create_error": "Échec de la création du devis",
+            "service_history_save_error": "Échec de l'enregistrement de l'historique de service",
+            "archive_error": "Échec de l'archivage de l'ordre de travail",
+            "archive_success": "Ordre de travail archivé",
+            "vehicle_save_error": "Échec de l'enregistrement du véhicule",
             "testing": "En Test",
             "waiting_parts": "En Attente de Pièces",
             "scheduled": "Planifié",
@@ -1251,6 +1456,18 @@ const resources = {
             // Navigation
             "dashboard": "Panel",
             "work_orders": "Órdenes de Trabajo",
+            "no_orders": "No se encontraron órdenes de trabajo",
+            "create_first_order": "Cree su primera orden de trabajo para comenzar.",
+            "admin_no_active_jobs": "Sin Trabajos Activos",
+            "admin_no_active_jobs_desc": "¡Todo al día! Cree una nueva orden de trabajo cuando esté listo.",
+            "no_inventory_items": "Sin artículos de inventario",
+            "no_inventory_desc": "Haga un seguimiento de piezas y suministros aquí. Añada su primer artículo.",
+            "no_customers_found": "No se encontraron clientes",
+            "no_customers_desc": "Construya su base de clientes. Añada su primer cliente.",
+            "no_vehicles_found": "No se encontraron vehículos",
+            "no_vehicles_desc": "Haga un seguimiento del historial. Añada un vehículo a un perfil de cliente.",
+            "no_technicians_found": "No se encontraron técnicos",
+            "no_technicians_desc": "Gestione su equipo. Añada técnicos para asignar órdenes de trabajo.",
             "customers": "Clientes",
             "vehicles": "Vehículos",
             "inventory": "Inventario",
@@ -1275,6 +1492,57 @@ const resources = {
             "tax_rate": "Tasa de Impuestos",
             "language_currency": "Idioma y Moneda",
             "language_change_note": "Cambiar el idioma actualizará automáticamente la moneda y la tasa de impuestos.",
+            "regional_settings": "Configuración Regional",
+            "language_currency_description": "Configure su idioma, moneda y tasas de impuestos.",
+            "settings_description": "Administre las preferencias y configuraciones de su aplicación.",
+            "note": "Nota",
+
+            // Settings - Shop Details
+            "shop_details": "Detalles del Taller",
+            "shop_details_description": "Configure la identificación de su taller.",
+            "shop_name": "Nombre del Taller",
+
+            // Settings - Email
+            "email_configuration": "Configuración de Correo",
+            "email_config_description": "Configure los ajustes de correo para notificaciones a clientes.",
+            "public_url": "URL Pública",
+            "sender_name": "Nombre del Remitente",
+            "sender_email": "Correo del Remitente",
+            "email_service": "Servicio de Correo",
+            "saving": "Guardando...",
+            "save_changes": "Guardar Cambios",
+            "emailjs_config_description": "Configure sus credenciales de EmailJS a continuación.",
+            "public_url_help": "Requerido para enlaces correctos en los correos",
+
+            // Settings - Business Hours
+            "business_hours": "Horario Comercial",
+            "configure_hours": "Configure su horario de atención semanal.",
+            "sunday": "Domingo",
+            "monday": "Lunes",
+            "tuesday": "Martes",
+            "wednesday": "Miércoles",
+            "thursday": "Jueves",
+            "friday": "Viernes",
+            "saturday": "Sábado",
+
+            // Settings - Data Management
+            "data_management": "Gestión de Datos",
+            "manage_data_desc": "Realice copias de seguridad o realice operaciones peligrosas.",
+            "backup_data": "Copia de Seguridad",
+            "backup_description": "Descargue una copia de seguridad JSON completa de su base de datos.",
+            "confirm_export": "¿Descargar copia de seguridad de la base de datos?",
+            "export_success": "¡Exportación exitosa!",
+            "export_error": "Error en la exportación",
+            "export_database": "Exportar Base de Datos",
+            "danger_zone": "Zona de Peligro",
+            "reset_transactions": "Restablecer Transacciones",
+            "reset_description": "Eliminar permanentemente todo el historial financiero y de órdenes de trabajo. Esto no se puede deshacer.",
+            "confirm_reset_1": "ADVERTENCIA: Esto eliminará permanentemente todo el historial de transacciones. ¿Está seguro?",
+            "confirm_reset_2": "Verificación de identidad: ¿Está absolutamente seguro de que desea hacer esto?",
+            "confirm_reset_final": "Advertencia Final: Esto no se puede deshacer. Haga clic en Aceptar para borrar todos los datos de transacciones.",
+            "reset_success": "Todas las transacciones han sido eliminadas.",
+            "reset_error": "Error al restablecer los datos:",
+            "delete_transactions": "Eliminar Transacciones",
 
             // Common
             "add": "Añadir",
@@ -1333,6 +1601,11 @@ const resources = {
             "medium": "Media",
             "low": "Baja",
             "in_progress": "En Progreso",
+            "estimate_create_error": "Error al crear el presupuesto",
+            "service_history_save_error": "Error al guardar el historial de servicio",
+            "archive_error": "Error al archivar la orden de trabajo",
+            "archive_success": "Orden de trabajo archivada",
+            "vehicle_save_error": "Error al guardar el vehículo",
             "testing": "En Pruebas",
             "waiting_parts": "Esperando Piezas",
             "scheduled": "Programado",
@@ -1522,6 +1795,23 @@ const resources = {
             // Navigation
             "dashboard": "Dashboard",
             "work_orders": "Arbeitsaufträge",
+            "estimate_create_error": "Kostenvoranschlag konnte nicht erstellt werden",
+            "service_history_save_error": "Serviceverlauf konnte nicht gespeichert werden",
+            "archive_error": "Arbeitsauftrag konnte nicht archiviert werden",
+            "archive_success": "Arbeitsauftrag archiviert",
+            "vehicle_save_error": "Fahrzeug konnte nicht gespeichert werden",
+            "no_orders": "Keine Arbeitsaufträge gefunden",
+            "create_first_order": "Erstellen Sie Ihren ersten Arbeitsauftrag, um zu beginnen.",
+            "admin_no_active_jobs": "Keine Aktiven Aufträge",
+            "admin_no_active_jobs_desc": "Alles erledigt! Erstellen Sie einen neuen Auftrag, wenn Sie bereit sind.",
+            "no_inventory_items": "Keine Inventarartikel",
+            "no_inventory_desc": "Verfolgen Sie Teile und Zubehör hier. Fügen Sie Ihren ersten Artikel hinzu.",
+            "no_customers_found": "Keine Kunden gefunden",
+            "no_customers_desc": "Bauen Sie Ihren Kundenstamm auf. Fügen Sie Ihren ersten Kunden hinzu.",
+            "no_vehicles_found": "Keine Fahrzeuge gefunden",
+            "no_vehicles_desc": "Verfolgen Sie die Fahrzeughistorie. Fügen Sie ein Fahrzeug hinzu.",
+            "no_technicians_found": "Keine Techniker gefunden",
+            "no_technicians_desc": "Verwalten Sie Ihr Team. Fügen Sie Techniker hinzu, um Aufträge zuzuweisen.",
             "customers": "Kunden",
             "vehicles": "Fahrzeuge",
             "inventory": "Inventar",
@@ -1538,6 +1828,57 @@ const resources = {
             "tax_rate": "Steuersatz",
             "language_currency": "Sprache & Währung",
             "language_change_note": "Das Ändern der Sprache aktualisiert automatisch die Währung und den Steuersatz.",
+            "regional_settings": "Regionale Einstellungen",
+            "language_currency_description": "Konfigurieren Sie Sprache, Währung und Steuersätze.",
+            "settings_description": "Verwalten Sie Ihre Anwendungseinstellungen und Konfigurationen.",
+            "note": "Hinweis",
+
+            // Settings - Shop Details
+            "shop_details": "Werkstatt-Details",
+            "shop_details_description": "Konfigurieren Sie Ihre Werkstatt-Identifikation.",
+            "shop_name": "Werkstattname",
+
+            // Settings - Email
+            "email_configuration": "E-Mail-Konfiguration",
+            "email_config_description": "Konfigurieren Sie E-Mail-Einstellungen für Kundenbenachrichtigungen.",
+            "public_url": "Öffentliche URL",
+            "sender_name": "Absendername",
+            "sender_email": "Absender-E-Mail",
+            "email_service": "E-Mail-Dienst",
+            "saving": "Speichern...",
+            "save_changes": "Änderungen speichern",
+            "emailjs_config_description": "Konfigurieren Sie Ihre EmailJS-Zugangsdaten unten.",
+            "public_url_help": "Erforderlich für korrekte Links in E-Mails",
+
+            // Settings - Business Hours
+            "business_hours": "Öffnungszeiten",
+            "configure_hours": "Konfigurieren Sie Ihre wöchentlichen Öffnungszeiten.",
+            "sunday": "Sonntag",
+            "monday": "Montag",
+            "tuesday": "Dienstag",
+            "wednesday": "Mittwoch",
+            "thursday": "Donnerstag",
+            "friday": "Freitag",
+            "saturday": "Samstag",
+
+            // Settings - Data Management
+            "data_management": "Datenverwaltung",
+            "manage_data_desc": "Sichern Sie Ihre Daten oder führen Sie kritische Operationen durch.",
+            "backup_data": "Datensicherung",
+            "backup_description": "Laden Sie ein vollständiges JSON-Backup Ihrer Datenbank herunter.",
+            "confirm_export": "Datenbank-Backup herunterladen?",
+            "export_success": "Export erfolgreich!",
+            "export_error": "Export fehlgeschlagen",
+            "export_database": "Datenbank exportieren",
+            "danger_zone": "Gefahrenzone",
+            "reset_transactions": "Transaktionen zurücksetzen",
+            "reset_description": "Löschen Sie dauerhaft den gesamten Finanz- und Auftragsverlauf. Dies kann nicht rückgängig gemacht werden.",
+            "confirm_reset_1": "WARNUNG: Dies löscht dauerhaft den gesamten Transaktionsverlauf. Sind Sie sicher?",
+            "confirm_reset_2": "Identitätsprüfung: Sind Sie absolut sicher, dass Sie dies tun möchten?",
+            "confirm_reset_final": "Letzte Warnung: Dies kann nicht rückgängig gemacht werden. Klicken Sie auf OK, um alle Transaktionsdaten zu löschen.",
+            "reset_success": "Alle Transaktionen wurden gelöscht.",
+            "reset_error": "Fehler beim Zurücksetzen der Daten:",
+            "delete_transactions": "Transaktionen löschen",
 
             // Common
             "add": "Hinzufügen",

@@ -14,6 +14,7 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   onRowClick?: (item: T) => void;
   loading?: boolean;
+  emptyState?: React.ReactNode;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -21,6 +22,7 @@ export function DataTable<T extends { id: string }>({
   columns,
   onRowClick,
   loading,
+  emptyState,
 }: DataTableProps<T>) {
   if (loading) {
     return (
@@ -49,8 +51,12 @@ export function DataTable<T extends { id: string }>({
           <tbody className="divide-y divide-border/50">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-12 text-center text-muted-foreground">
-                  No data available
+                <td colSpan={columns.length} className="px-6 py-0">
+                  {emptyState || (
+                    <div className="py-12 text-center text-muted-foreground">
+                      No data available
+                    </div>
+                  )}
                 </td>
               </tr>
             ) : (

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Toaster } from 'sonner';
 import { ThemeProvider } from './components/ThemeProvider';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { Layout } from './components/Layout';
@@ -19,6 +20,7 @@ const Bookings = lazy(() => import('./pages/Bookings').then(module => ({ default
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 const Estimates = lazy(() => import('./pages/Estimates').then(module => ({ default: module.Estimates })));
 const ApproveEstimate = lazy(() => import('./pages/ApproveEstimate').then(module => ({ default: module.ApproveEstimate })));
+const Help = lazy(() => import('./pages/Help').then(module => ({ default: module.Help })));
 
 // Portal Components
 const PortalLayout = lazy(() => import('./layouts/PortalLayout').then(module => ({ default: module.PortalLayout })));
@@ -37,6 +39,7 @@ import { queryClient } from './lib/react-query';
 function App() {
   return (
     <ThemeProvider>
+      <Toaster position="top-right" richColors closeButton />
       <SettingsProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
@@ -78,6 +81,7 @@ function App() {
                         <Route path="/bookings" element={<Bookings />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/estimates" element={<Estimates />} />
+                        <Route path="/help" element={<Help />} />
                       </Routes>
                     </Layout>
                   }

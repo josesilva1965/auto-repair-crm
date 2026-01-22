@@ -7,6 +7,7 @@ import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
 import { Search, FileText, Check, X, Mail, MessageSquare, Printer, Send, RefreshCw } from 'lucide-react';
 import { communicationService } from '../lib/communicationService';
+import { toast } from 'sonner';
 
 export function Estimates() {
     const { t } = useTranslation();
@@ -95,10 +96,10 @@ export function Estimates() {
                 })
                 .eq('id', estimate.id);
 
-            alert(result.message);
+            toast.success(result.message);
             loadData();
         } else {
-            alert(result.message);
+            toast.error(result.message);
         }
         setSending(false);
     }

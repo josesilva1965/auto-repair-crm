@@ -8,6 +8,7 @@ import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { useSettings } from '../contexts/SettingsContext';
 import 'react-day-picker/dist/style.css';
+import { toast } from 'sonner';
 
 interface Booking {
     id: string;
@@ -43,6 +44,7 @@ export function Bookings() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    const [technicianCount, setTechnicianCount] = useState(0);
 
     // Form State
     const [form, setForm] = useState({
@@ -58,10 +60,27 @@ export function Bookings() {
     }, [selectedDate]);
 
     useEffect(() => {
+        loadTechnicianCount();
+    }, []);
+
+    useEffect(() => {
         if (isModalOpen) {
             loadCustomersAndVehicles();
         }
     }, [isModalOpen]);
+
+    async function loadTechnicianCount() {
+        const { count, error } = await supabase
+            .from('technicians')
+            .select('*', { count: 'exact', head: true })
+            .neq('status', 'off-duty'); // Assuming 'off-duty' means not available for bookings
+
+        if (error) {
+            console.error('Error loading technician count:', error);
+        } else {
+            setTechnicianCount(count || 0);
+        }
+    }
 
     async function loadBookings() {
         if (!selectedDate) return;
@@ -122,11 +141,12 @@ export function Bookings() {
 
         if (error) {
             console.error('Error saving booking:', error);
-            alert('Error saving booking');
+            toast.error('Error saving booking');
         } else {
             setIsModalOpen(false);
             loadBookings();
             resetForm();
+            toast.success('Booking saved successfully');
         }
     }
 
@@ -150,9 +170,10 @@ export function Bookings() {
 
         if (error) {
             console.error('Error deleting booking:', error);
-            alert('Error deleting booking');
+            toast.error('Error deleting booking');
         } else {
             loadBookings();
+            toast.success('Booking deleted');
         }
     }
 
@@ -234,6 +255,10 @@ export function Bookings() {
                             <span className="text-muted-foreground">{t('confirmed')}</span>
                             <span className="font-medium text-emerald-600">{bookings.filter(b => b.status === 'confirmed').length}</span>
                         </div>
+                        <div className="flex justify-between text-sm pt-2 border-t border-border mt-2">
+                            <span className="text-muted-foreground">{t('available_technicians')}</span>
+                            <span className="font-medium">{technicianCount}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,13 +272,6 @@ export function Bookings() {
                             {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : t('select_date')}
                         </p>
                     </div>
-                    <Button
-                        onClick={() => setIsModalOpen(true)}
-                        disabled={!selectedDate}
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t('add_booking')}
-                    </Button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
@@ -267,107 +285,120 @@ export function Bookings() {
                                 const timeString = `${hour.toString().padStart(2, '0')}:00`;
 
                                 // Filter past times if it's today
-                                if (selectedDate && isToday(selectedDate)) {
-                                    const currentHour = new Date().getHours();
-                                    if (hour <= currentHour) return null;
-                                }
+                                const isPast = selectedDate && isToday(selectedDate) && hour <= new Date().getHours();
+                                if (isPast) return null;
 
-                                const booking = bookings.find(b => {
+                                const slotBookings = bookings.filter(b => {
                                     const bookingDate = new Date(b.scheduled_time);
                                     return bookingDate.getHours() === hour;
                                 });
 
+                                const slotsTaken = slotBookings.length;
+                                const slotsRemaining = Math.max(0, technicianCount - slotsTaken);
+                                const isFull = slotsRemaining === 0;
+
                                 return (
-                                    <div key={hour} className={`p-4 rounded-xl border ${booking
+                                    <div key={hour} className={`p-4 rounded-xl border ${isFull
                                         ? 'bg-card border-border shadow-sm'
-                                        : 'bg-muted/50 border-dashed border-border'
+                                        : 'bg-muted/30 border-dashed border-border'
                                         }`}>
                                         <div className="flex items-center justify-between mb-3">
                                             <div className="flex items-center gap-2 text-muted-foreground">
                                                 <Clock className="w-4 h-4" />
                                                 <span className="font-medium">{timeString}</span>
                                             </div>
-                                            {booking ? (
-                                                <StatusBadge status={booking.status} />
-                                            ) : (
+                                            {!isFull ? (
                                                 <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                                                    {t('available')}
+                                                    {slotsRemaining} {t('slots_available') || 'slots available'}
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                                                    {t('full') || 'Full'}
                                                 </span>
                                             )}
                                         </div>
 
-                                        {booking ? (
-                                            <div className="space-y-3">
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center gap-2 text-sm text-foreground">
-                                                        <User className="w-4 h-4 text-muted-foreground" />
-                                                        <span className="font-medium">{booking.customers?.name}</span>
+                                        <div className="space-y-4">
+                                            {/* List existing bookings */}
+                                            {slotBookings.map(booking => (
+                                                <div key={booking.id} className="bg-background rounded-lg p-3 border border-border shadow-sm">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <StatusBadge status={booking.status} />
+                                                        <Button
+                                                            size="sm"
+                                                            variant="danger"
+                                                            className="h-6 px-2 text-[10px]"
+                                                            onClick={() => handleDeleteBooking(booking.id)}
+                                                        >
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                        <Car className="w-4 h-4 text-muted-foreground" />
-                                                        <span>{booking.vehicles?.make} {booking.vehicles?.model}</span>
-                                                    </div>
-                                                    <div className="text-sm text-muted-foreground pl-6">
-                                                        {booking.service_type}
-                                                    </div>
-                                                </div>
-                                                {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        className="w-full text-xs"
-                                                        onClick={async () => {
-                                                            const { error: woError } = await supabase.from('work_orders').insert([{
-                                                                customer_id: booking.customer_id,
-                                                                vehicle_id: booking.vehicle_id,
-                                                                status: 'pending',
-                                                                priority: 'normal',
-                                                                description: booking.service_type + (booking.notes ? `\nNotes: ${booking.notes}` : ''),
-                                                                scheduled_date: booking.scheduled_time,
-                                                                estimated_cost: 0,
-                                                                actual_cost: 0
-                                                            }]);
 
-                                                            if (woError) {
-                                                                console.error('Error creating work order:', woError);
-                                                                alert('Error creating work order');
-                                                            } else {
-                                                                await supabase.from('bookings')
-                                                                    .update({ status: 'completed' })
-                                                                    .eq('id', booking.id);
-                                                                loadBookings();
-                                                                alert('Work Order Created');
-                                                            }
-                                                        }}
-                                                    >
-                                                        {t('new_work_order')}
-                                                    </Button>
-                                                )}
-                                                {/* Delete button always visible for all bookings */}
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2 text-sm text-foreground">
+                                                            <User className="w-3 h-3 text-muted-foreground" />
+                                                            <span className="font-medium truncate">{booking.customers?.name}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                            <Car className="w-3 h-3 text-muted-foreground" />
+                                                            <span className="truncate">{booking.vehicles?.make} {booking.vehicles?.model}</span>
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground pl-5 truncate">
+                                                            {booking.service_type}
+                                                        </div>
+                                                    </div>
+
+                                                    {booking.status !== 'completed' && booking.status !== 'cancelled' && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="secondary"
+                                                            className="w-full text-xs mt-2 h-7"
+                                                            onClick={async () => {
+                                                                const { error: woError } = await supabase.from('work_orders').insert([{
+                                                                    customer_id: booking.customer_id,
+                                                                    vehicle_id: booking.vehicle_id,
+                                                                    status: 'pending',
+                                                                    priority: 'normal',
+                                                                    description: booking.service_type + (booking.notes ? `\nNotes: ${booking.notes}` : ''),
+                                                                    scheduled_date: booking.scheduled_time,
+                                                                    estimated_cost: 0,
+                                                                    actual_cost: 0
+                                                                }]);
+
+                                                                if (woError) {
+                                                                    console.error('Error creating work order:', woError);
+                                                                    toast.error('Error creating work order');
+                                                                } else {
+                                                                    await supabase.from('bookings')
+                                                                        .update({ status: 'completed' })
+                                                                        .eq('id', booking.id);
+                                                                    loadBookings();
+                                                                    toast.success('Work Order Created');
+                                                                }
+                                                            }}
+                                                        >
+                                                            {t('create_work_order')}
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            ))}
+
+                                            {/* Add Booking Button only if slots remaining */}
+                                            {!isFull && (
                                                 <Button
-                                                    size="sm"
-                                                    variant="danger"
-                                                    className="w-full text-xs mt-2"
-                                                    onClick={() => handleDeleteBooking(booking.id)}
+                                                    variant="secondary"
+                                                    className="w-full text-xs h-8"
+                                                    onClick={() => {
+                                                        setForm(prev => ({ ...prev, time: timeString }));
+                                                        setIsModalOpen(true);
+                                                    }}
+                                                    disabled={!selectedDate}
                                                 >
-                                                    <Trash2 className="w-3 h-3 mr-1 inline" />
-                                                    {t('delete')}
+                                                    <Plus className="w-3 h-3 mr-1 inline" />
+                                                    {t('book_slot')}
                                                 </Button>
-                                            </div>
-                                        ) : (
-                                            <Button
-                                                variant="secondary"
-                                                className="w-full mt-2"
-                                                onClick={() => {
-                                                    setForm(prev => ({ ...prev, time: timeString }));
-                                                    setIsModalOpen(true);
-                                                }}
-                                                disabled={!selectedDate}
-                                            >
-                                                <Plus className="w-4 h-4 mr-2 inline" />
-                                                {t('book_slot')}
-                                            </Button>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}

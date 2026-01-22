@@ -6,6 +6,8 @@ import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
 import { Plus, Search, AlertTriangle, Package } from 'lucide-react';
 import { StockLevelGauge } from '../components/StockLevelGauge';
+import { toast } from 'sonner';
+import { EmptyState } from '../components/EmptyState';
 
 
 const CATEGORIES = [
@@ -92,8 +94,13 @@ export function Inventory() {
 
   async function handleDelete(id: string) {
     if (confirm(t('confirm_delete'))) {
-      await supabase.from('inventory_parts').delete().eq('id', id);
-      loadData();
+      const { error } = await supabase.from('inventory_parts').delete().eq('id', id);
+      if (error) {
+        toast.error(t('delete_error') || 'Failed to delete part');
+      } else {
+        toast.success(t('delete_success') || 'Part deleted successfully');
+        loadData();
+      }
     }
   }
 
@@ -214,6 +221,17 @@ export function Inventory() {
             ),
           },
         ]}
+        emptyState={
+          <EmptyState
+            title={t('no_inventory_items')}
+            description={t('no_inventory_desc')}
+            icon={Package}
+            action={{
+              label: t('add_part'),
+              onClick: () => { resetForm(); setEditingPart(null); setIsModalOpen(true); }
+            }}
+          />
+        }
       />
 
       <Modal

@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase, type Technician, type WorkOrder } from '../lib/supabase';
 import { DataTable, StatusBadge } from '../components/DataTable';
+import { EmptyState } from '../components/EmptyState';
 import { Modal, Button, Input } from '../components/Modal';
-import { Plus, Search, Wrench, DollarSign, Clock } from 'lucide-react';
+import { Plus, Search, Wrench, DollarSign, Clock, Users } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function Technicians() {
     const { t } = useTranslation();
@@ -48,22 +50,38 @@ export function Technicians() {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        let error;
         if (editingTech) {
-            await supabase.from('technicians').update(form).eq('id', editingTech.id);
+            const { error: updateError } = await supabase.from('technicians').update(form).eq('id', editingTech.id);
+            error = updateError;
         } else {
-            await supabase.from('technicians').insert([form]);
+            const { error: insertError } = await supabase.from('technicians').insert([form]);
+            error = insertError;
         }
-        setIsModalOpen(false);
-        setEditingTech(null);
-        resetForm();
-        loadData();
+
+        if (error) {
+            console.error('Error saving technician:', error);
+            toast.error('Failed to save technician');
+        } else {
+            toast.success('Technician saved successfully');
+            setIsModalOpen(false);
+            setEditingTech(null);
+            resetForm();
+            loadData();
+        }
     }
 
     async function handleDelete(id: string) {
         if (confirm(t('confirm_delete'))) {
-            await supabase.from('technicians').delete().eq('id', id);
-            setSelectedTech(null);
-            loadData();
+            const { error } = await supabase.from('technicians').delete().eq('id', id);
+            if (error) {
+                console.error('Error deleting technician:', error);
+                toast.error('Failed to delete technician');
+            } else {
+                toast.success('Technician deleted');
+                setSelectedTech(null);
+                loadData();
+            }
         }
     }
 
@@ -170,6 +188,17 @@ export function Technicians() {
                             { key: 'status', header: t('status'), render: (tech) => <StatusBadge status={getTechStatus(tech)} /> },
                             { key: 'jobs', header: t('active_jobs'), render: (tech) => workOrders.filter((o) => o.technician_id === tech.id && !['completed', 'cancelled', 'archived'].includes(o.status)).length },
                         ]}
+                        emptyState={
+                            <EmptyState
+                                title={t('no_technicians_found')}
+                                description={t('no_technicians_desc')}
+                                icon={Users}
+                                action={{
+                                    label: t('add_technician'),
+                                    onClick: () => { resetForm(); setEditingTech(null); setIsModalOpen(true); }
+                                }}
+                            />
+                        }
                     />
                 </div>
 

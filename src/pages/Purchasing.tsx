@@ -4,6 +4,7 @@ import { supabase, type PurchaseOrder } from '../lib/supabase';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { Button } from '../components/Modal';
 import { Check, Trash2, ShoppingCart, Loader, PackageCheck } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function Purchasing() {
     const { t } = useTranslation();
@@ -42,8 +43,10 @@ export function Purchasing() {
             const { error } = await supabase.from('purchase_orders').delete().eq('id', id);
             if (error) {
                 console.error('Error deleting order:', error);
+                toast.error('Failed to delete order');
                 return;
             }
+            toast.success('Order deleted');
         } else {
             const { error } = await supabase
                 .from('purchase_orders')
@@ -52,8 +55,10 @@ export function Purchasing() {
 
             if (error) {
                 console.error('Error updating order:', error);
+                toast.error('Failed to update order status');
                 return;
             }
+            toast.success(`Order marked as ${action}`);
         }
         loadOrders();
     }

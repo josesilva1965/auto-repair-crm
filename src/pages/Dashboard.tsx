@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { supabase, type WorkOrder, type Customer, type InventoryPart, type Technician } from '../lib/supabase';
 import { KPICard } from '../components/KPICard';
+import { EmptyState } from '../components/EmptyState';
+import { KPITrendColor } from '../types/enums';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { DollarSign, ClipboardList, Users, AlertTriangle, Wrench } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../contexts/SettingsContext';
 
 export function Dashboard() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { currency } = useSettings();
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -41,14 +44,17 @@ export function Dashboard() {
   }
 
   const activeJobs = workOrders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled' && o.status !== 'archived');
+
+  // Derive tech status from active jobs for more accurate UI
+  const busyTechIds = new Set(activeJobs.map(job => job.technician_id).filter(Boolean));
+  const utilization = technicians.length > 0
+    ? Math.round((busyTechIds.size / technicians.length) * 100)
+    : 0;
+
   const todayRevenue = workOrders
     .filter((o) => o.status === 'completed' && o.completed_date === new Date().toISOString().split('T')[0])
     .reduce((sum, o) => sum + (o.actual_cost || o.estimated_cost || 0), 0);
   const lowStockItems = inventory.filter((i) => i.quantity <= i.min_stock);
-  const availableTechs = technicians.filter((t) => t.status === 'available');
-  const utilization = technicians.length > 0
-    ? Math.round(((technicians.length - availableTechs.length) / technicians.length) * 100)
-    : 0;
 
   return (
     <div>
@@ -63,26 +69,30 @@ export function Dashboard() {
           value={`${currency}${todayRevenue.toLocaleString()}`}
           trend={12}
           icon={DollarSign}
-          color="green"
+          color={KPITrendColor.GREEN}
+          animationDelay={0}
         />
         <KPICard
           title={t('active_jobs')}
           value={activeJobs.length}
           trend={-5}
           icon={ClipboardList}
-          color="blue"
+          color={KPITrendColor.BLUE}
+          animationDelay={100}
         />
         <KPICard
           title={t('tech_utilization')}
           value={`${utilization}%`}
           icon={Users}
-          color="yellow"
+          color={KPITrendColor.YELLOW}
+          animationDelay={200}
         />
         <KPICard
           title={t('low_stock_alerts')}
           value={lowStockItems.length}
           icon={AlertTriangle}
-          color={lowStockItems.length > 0 ? 'red' : 'green'}
+          color={lowStockItems.length > 0 ? KPITrendColor.RED : KPITrendColor.GREEN}
+          animationDelay={300}
         />
       </div>
 
@@ -111,6 +121,17 @@ export function Dashboard() {
                 render: (item) => `${currency}${(item.actual_cost || item.estimated_cost || 0).toFixed(2)}`,
               },
             ]}
+            emptyState={
+              <EmptyState
+                title={t('admin_no_active_jobs')}
+                description={t('admin_no_active_jobs_desc')}
+                icon={ClipboardList}
+                action={{
+                  label: t('new_work_order'),
+                  onClick: () => navigate('/work-orders')
+                }}
+              />
+            }
           />
         </div>
 
@@ -134,7 +155,7 @@ export function Dashboard() {
                       <p className="text-sm text-muted-foreground">{tech.specialization || 'General'}</p>
                     </div>
                   </div>
-                  <StatusBadge status={tech.status} />
+                  <StatusBadge status={busyTechIds.has(tech.id) ? 'busy' : 'available'} />
                 </div>
               ))
             )}

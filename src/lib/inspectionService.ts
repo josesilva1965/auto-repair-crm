@@ -1,4 +1,10 @@
 import { supabase, Inspection, InspectionItem, InspectionTemplate, TemplateItem } from './supabase';
+import { InspectionStatus } from '../types/enums';
+
+interface UpdateItemRecommendationData {
+    recommendation: string;
+    estimated_cost?: number;
+}
 
 export const inspectionService = {
     async getTemplates() {
@@ -64,7 +70,7 @@ export const inspectionService = {
         return inspection;
     },
 
-    async updateItemStatus(itemId: string, status: 'green' | 'yellow' | 'red') {
+    async updateItemStatus(itemId: string, status: InspectionStatus) {
         const { error } = await supabase
             .from('inspection_items')
             .update({ status })
@@ -81,7 +87,7 @@ export const inspectionService = {
     },
 
     async updateItemRecommendation(itemId: string, recommendation: string, cost?: number) {
-        const updateData: any = { recommendation };
+        const updateData: UpdateItemRecommendationData = { recommendation };
         if (cost !== undefined) updateData.estimated_cost = cost;
 
         const { error } = await supabase
@@ -163,7 +169,7 @@ export const inspectionService = {
 
         if (!inspection) throw new Error('Inspection not found');
 
-        const approvedItems = inspection.inspection_items.filter((i: any) => i.customer_decision === 'approved');
+        const approvedItems = inspection.inspection_items.filter((i: InspectionItem) => i.customer_decision === 'approved');
 
         if (approvedItems.length === 0) throw new Error('No approved items to estimate');
 
@@ -186,7 +192,7 @@ export const inspectionService = {
         if (estError) throw estError;
 
         // 4. Create Work Order Items (which populate the estimate effectively)
-        const workOrderItems = approvedItems.map((item: any) => ({
+        const workOrderItems = approvedItems.map((item: InspectionItem) => ({
             work_order_id: inspection.work_order_id,
             description: `Repair: ${item.label} ${item.recommendation ? `(${item.recommendation})` : ''}`,
             quantity: 1,

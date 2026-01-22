@@ -5,10 +5,12 @@ import { useSettings } from '../contexts/SettingsContext';
 import { supabase, type Invoice, type WorkOrder, type Customer, type Estimate } from '../lib/supabase';
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input, Select } from '../components/Modal';
-import { Plus, Search, FileText, DollarSign, Clock, CheckCircle, Printer, Mail, MessageSquare, Trash2 } from 'lucide-react';
+import { Plus, Search, FileText, DollarSign, Clock, CheckCircle, Printer, Mail, MessageSquare, Trash2, Download, Share2, Copy } from 'lucide-react';
 import { PricingEngine, type Discount } from '../lib/pricingEngine';
+import { pdfGenerator } from '../lib/pdfGenerator';
 import { useSearchParams } from 'react-router-dom';
 import { Purchasing } from './Purchasing';
+import { toast } from 'sonner';
 
 export function Billing() {
   const { t } = useTranslation();
@@ -142,7 +144,7 @@ export function Billing() {
 
     if (error) {
       console.error('Error creating invoice:', error);
-      alert('Failed to create invoice: ' + error.message);
+      toast.error('Failed to create invoice: ' + error.message);
       return;
     }
 
@@ -204,7 +206,7 @@ export function Billing() {
 
     if (error) {
       console.error('Error deleting invoice:', error);
-      alert('Failed to delete invoice');
+      toast.error('Failed to delete invoice');
     } else {
       loadData();
     }
@@ -553,9 +555,9 @@ export function Billing() {
                 {selectedInvoice.status === 'pending' && (
                   <div className="flex justify-between items-center border-t pt-4">
                     <div className="flex gap-2">
-                      <Button variant="secondary" size="sm" onClick={() => window.print()}>
-                        <Printer className="w-4 h-4 mr-2" />
-                        {t('print')}
+                      <Button variant="secondary" size="sm" onClick={() => pdfGenerator.generateInvoice(selectedInvoice, customers.find(c => c.id === selectedInvoice.customer_id)!, invoiceItems)}>
+                        <Download className="w-4 h-4 mr-2" />
+                        {t('download_pdf')}
                       </Button>
                       <Button variant="secondary" size="sm" onClick={async () => {
                         // Send email via communication service
@@ -572,22 +574,52 @@ export function Billing() {
                             });
 
                             if (result.success) {
-                              alert(result.message);
+                              toast.success(result.message);
                             } else {
-                              alert('Error: ' + result.message);
+                              toast.error('Error: ' + result.message);
                             }
                           } catch (err) {
                             console.error('Error sending email:', err);
-                            alert('Failed to send email');
+                            toast.error('Failed to send email');
                           }
                         }
                       }}>
                         <Mail className="w-4 h-4 mr-2" />
                         {t('email')}
                       </Button>
-                      <Button variant="secondary" size="sm" onClick={() => alert('Text message sent! (Simulation)')}>
+                      <Button variant="secondary" size="sm" onClick={() => {
+                        const url = `${window.location.origin}/billing?invoiceId=${selectedInvoice.id}`;
+                        navigator.clipboard.writeText(url);
+                        toast.success(t('link_copied') || 'Link copied');
+                      }}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        {t('copy')}
+                      </Button>
+                      <Button variant="secondary" size="sm" onClick={() => {
+                        const customer = customers.find(c => c.id === selectedInvoice.customer_id);
+                        const phone = customer?.phone?.replace(/\D/g, '');
+                        const message = `Here is your invoice link: ${window.location.origin}/billing?invoiceId=${selectedInvoice.id}`;
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                        if (isMobile && phone) {
+                          window.open(`sms:${phone}?&body=${encodeURIComponent(message)}`, '_top');
+                        } else {
+                          navigator.clipboard.writeText(message);
+                          toast.success(t('message_copied') || 'Message copied to clipboard (SMS is typically for mobile)');
+                        }
+                      }}>
                         <MessageSquare className="w-4 h-4 mr-2" />
                         {t('text_message')}
+                      </Button>
+                      <Button variant="secondary" size="sm" onClick={() => {
+                        const customer = customers.find(c => c.id === selectedInvoice.customer_id);
+                        const phone = customer?.phone?.replace(/\D/g, '');
+                        const url = `${window.location.origin}/billing?invoiceId=${selectedInvoice.id}`;
+                        if (phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(`Here is your invoice link: ${url}`)}`, '_blank');
+                        else toast.error('No phone number found');
+                      }}>
+                        <Share2 className="w-4 h-4 mr-2" />
+                        WhatsApp
                       </Button>
                     </div>
                     <Button onClick={() => { markAsPaid(selectedInvoice); setSelectedInvoice(null); }}>
@@ -687,12 +719,47 @@ export function Billing() {
                           customerId: selectedEstimate.customer_id,
                           channel: 'email'
                         });
-                        alert(result.message);
+                        toast.success(result.message);
                         if (result.success) loadData();
                       }
                     }}>
                       <Mail className="w-4 h-4 mr-2" />
                       {t('email')}
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => {
+                      const customer = customers.find(c => c.id === selectedEstimate.customer_id);
+                      const phone = customer?.phone?.replace(/\D/g, '');
+                      const url = `${window.location.origin}/approve-estimate/${selectedEstimate.approval_token}`;
+                      if (phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(`Hi ${customer?.name}, please review your estimate here: ${url}`)}`, '_blank');
+                      else window.open(`https://wa.me/?text=${encodeURIComponent(`Estimate for approval: ${url}`)}`, '_blank');
+                    }}>
+                      <Share2 className="w-4 h-4 mr-2" />
+                      WhatsApp
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => {
+                      const url = `${window.location.origin}/approve-estimate/${selectedEstimate.approval_token}`;
+                      navigator.clipboard.writeText(url);
+                      toast.success(t('link_copied') || 'Link copied');
+                    }}>
+                      <Copy className="w-4 h-4 mr-2" />
+                      {t('copy')}
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => {
+                      const customer = customers.find(c => c.id === selectedEstimate.customer_id);
+                      const phone = customer?.phone?.replace(/\D/g, '');
+                      const url = `${window.location.origin}/approve-estimate/${selectedEstimate.approval_token}`;
+                      const message = `Hi ${customer?.name}, please review your estimate here: ${url}`;
+                      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                      if (isMobile && phone) {
+                        window.open(`sms:${phone}?&body=${encodeURIComponent(message)}`, '_top');
+                      } else {
+                        navigator.clipboard.writeText(message);
+                        toast.success(t('message_copied') || 'Message copied to clipboard');
+                      }
+                    }}>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      SMS
                     </Button>
                   </div>
                   <Button variant="secondary" onClick={() => setSelectedEstimate(null)}>

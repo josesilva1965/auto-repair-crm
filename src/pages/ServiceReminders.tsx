@@ -5,6 +5,7 @@ import { supabase, type ServiceReminder, type Customer, type Vehicle } from '../
 import { DataTable, StatusBadge } from '../components/DataTable';
 import { Modal, Button, Input } from '../components/Modal';
 import { Plus, Search, Calendar, Bell, CheckCircle, XCircle, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function ServiceReminders() {
     const { t } = useTranslation();
@@ -46,10 +47,17 @@ export function ServiceReminders() {
         e.preventDefault();
         if (!form.customer_id || !form.vehicle_id) return;
 
-        await supabase.from('service_reminders').insert([form]);
-        setIsModalOpen(false);
-        resetForm();
-        loadData();
+        const { error } = await supabase.from('service_reminders').insert([form]);
+
+        if (error) {
+            console.error('Error creating reminder:', error);
+            toast.error('Failed to create reminder');
+        } else {
+            toast.success('Reminder created');
+            setIsModalOpen(false);
+            resetForm();
+            loadData();
+        }
     }
 
     async function handleStatusChange(id: string, newStatus: string) {
@@ -59,8 +67,13 @@ export function ServiceReminders() {
 
     async function deleteReminder(id: string) {
         if (confirm(t('confirm_delete'))) {
-            await supabase.from('service_reminders').delete().eq('id', id);
-            loadData();
+            const { error } = await supabase.from('service_reminders').delete().eq('id', id);
+            if (error) {
+                toast.error('Failed to delete reminder');
+            } else {
+                toast.success('Reminder deleted');
+                loadData();
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings, BusinessHour, EmailSettings } from '../contexts/SettingsContext';
+import { toast } from 'sonner';
 import { Clock, Loader2, Mail, Globe, ShieldAlert, Save, Download, Trash2, CheckCircle, AlertTriangle, Wrench } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,13 +90,15 @@ export function Settings() {
 
             <div className="grid gap-8">
                 {/* Shop Details Section */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <Wrench className="w-5 h-5 text-primary" />
+                <Card className="border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <Wrench className="w-5 h-5 text-primary" />
+                            </div>
                             <CardTitle>{t('shop_details') || 'Shop Details'}</CardTitle>
                         </div>
-                        <CardDescription>{t('shop_details_description') || 'Configure your shop identification.'}</CardDescription>
+                        <CardDescription className="ml-12">{t('shop_details_description') || 'Configure your shop identification.'}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid gap-4 md:grid-cols-2">
@@ -129,13 +132,15 @@ export function Settings() {
                 </Card>
 
                 {/* Language & Currency Section */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <Globe className="w-5 h-5 text-primary" />
+                <Card className="border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <Globe className="w-5 h-5 text-primary" />
+                            </div>
                             <CardTitle>{t('regional_settings') || 'Regional Settings'}</CardTitle>
                         </div>
-                        <CardDescription>{t('language_currency_description') || 'Configure your language, currency, and tax rates.'}</CardDescription>
+                        <CardDescription className="ml-12">{t('language_currency_description') || 'Configure your language, currency, and tax rates.'}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid gap-6 md:grid-cols-2">
@@ -194,13 +199,15 @@ export function Settings() {
                 </Card>
 
                 {/* Email Configuration Section */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <Mail className="w-5 h-5 text-primary" />
+                <Card className="border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <Mail className="w-5 h-5 text-primary" />
+                            </div>
                             <CardTitle>{t('email_configuration') || 'Email Configuration'}</CardTitle>
                         </div>
-                        <CardDescription>{t('email_config_description') || 'Configure email settings for customer notifications.'}</CardDescription>
+                        <CardDescription className="ml-12">{t('email_config_description') || 'Configure email settings for customer notifications.'}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid gap-4 md:grid-cols-2">
@@ -294,58 +301,58 @@ export function Settings() {
                 </Card>
 
                 {/* Business Hours Section */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-primary" />
+                <Card className="border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <Clock className="w-5 h-5 text-primary" />
+                            </div>
                             <CardTitle>{t('business_hours')}</CardTitle>
                         </div>
-                        <CardDescription>{t('configure_hours')}</CardDescription>
+                        <CardDescription className="ml-12">{t('configure_hours')}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {localHours.map((hour) => (
-                                <div key={hour.day_of_week} className="flex items-center gap-4 p-3 rounded-lg border border-border/40 bg-background/50 hover:bg-muted/50 transition-colors">
-                                    <div className="flex items-center gap-3 w-32">
-                                        <input
-                                            type="checkbox"
-                                            id={`day-${hour.day_of_week}`}
-                                            checked={hour.enabled}
-                                            onChange={(e) => handleHourChange(hour.day_of_week, 'enabled', e.target.checked)}
-                                            className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
-                                        />
-                                        <label
-                                            htmlFor={`day-${hour.day_of_week}`}
-                                            className={cn("text-sm font-medium cursor-pointer", !hour.enabled && "text-muted-foreground")}
-                                        >
-                                            {dayNames[hour.day_of_week]}
-                                        </label>
-                                    </div>
+                    <CardContent className="space-y-4">
+                        {localHours.map((hour) => (
+                            <div key={hour.day_of_week} className="flex items-center gap-4 p-3 rounded-lg border border-border/40 bg-background/50 hover:bg-muted/50 transition-colors">
+                                <div className="flex items-center gap-3 w-32">
+                                    <input
+                                        type="checkbox"
+                                        id={`day-${hour.day_of_week}`}
+                                        checked={hour.enabled}
+                                        onChange={(e) => handleHourChange(hour.day_of_week, 'enabled', e.target.checked)}
+                                        className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                                    />
+                                    <label
+                                        htmlFor={`day-${hour.day_of_week}`}
+                                        className={cn("text-sm font-medium cursor-pointer", !hour.enabled && "text-muted-foreground")}
+                                    >
+                                        {dayNames[hour.day_of_week]}
+                                    </label>
+                                </div>
 
-                                    <div className="flex items-center gap-3 flex-1">
-                                        <div className="relative">
-                                            <input
-                                                type="time"
-                                                value={hour.start_time}
-                                                onChange={(e) => handleHourChange(hour.day_of_week, 'start_time', e.target.value)}
-                                                disabled={!hour.enabled}
-                                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                            />
-                                        </div>
-                                        <span className="text-muted-foreground">—</span>
-                                        <div className="relative">
-                                            <input
-                                                type="time"
-                                                value={hour.end_time}
-                                                onChange={(e) => handleHourChange(hour.day_of_week, 'end_time', e.target.value)}
-                                                disabled={!hour.enabled}
-                                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                            />
-                                        </div>
+                                <div className="flex items-center gap-3 flex-1">
+                                    <div className="relative">
+                                        <input
+                                            type="time"
+                                            value={hour.start_time}
+                                            onChange={(e) => handleHourChange(hour.day_of_week, 'start_time', e.target.value)}
+                                            disabled={!hour.enabled}
+                                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
+                                    </div>
+                                    <span className="text-muted-foreground">—</span>
+                                    <div className="relative">
+                                        <input
+                                            type="time"
+                                            value={hour.end_time}
+                                            onChange={(e) => handleHourChange(hour.day_of_week, 'end_time', e.target.value)}
+                                            disabled={!hour.enabled}
+                                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </CardContent>
                     <CardFooter className="bg-muted/30 px-6 py-4 flex items-center gap-4">
                         <Button
@@ -366,13 +373,15 @@ export function Settings() {
                 </Card>
 
                 {/* Data Management Section */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <Save className="w-5 h-5 text-primary" />
+                <Card className="border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <Save className="w-5 h-5 text-primary" />
+                            </div>
                             <CardTitle>{t('data_management') || 'Data Management'}</CardTitle>
                         </div>
-                        <CardDescription>{t('manage_data_desc') || 'Backup your data or perform dangerous operations.'}</CardDescription>
+                        <CardDescription className="ml-12">{t('manage_data_desc') || 'Backup your data or perform dangerous operations.'}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Export / Backup */}
@@ -395,9 +404,9 @@ export function Settings() {
                                     if (confirm(t('confirm_export') || 'Download database backup?')) {
                                         const result = await exportDatabase();
                                         if (result.success) {
-                                            alert(`${t('export_success') || 'Export successful!'} (${result.count} tables)`);
+                                            toast.success(`${t('export_success') || 'Export successful!'} (${result.count} tables)`);
                                         } else {
-                                            alert(t('export_error') || 'Export failed');
+                                            toast.error(t('export_error') || 'Export failed');
                                         }
                                     }
                                 }}
@@ -438,11 +447,11 @@ export function Settings() {
                                                     const result = await resetTransactions();
 
                                                     if (result.success) {
-                                                        alert(t('reset_success') || 'All transactions have been deleted.');
-                                                        window.location.reload();
+                                                        toast.success(t('reset_success') || 'All transactions have been deleted.');
+                                                        setTimeout(() => window.location.reload(), 2000);
                                                     } else {
                                                         console.error('Reset failed details:', result.error);
-                                                        alert(`${t('reset_error') || 'Failed to reset data:'} ${result.error?.message || JSON.stringify(result.error)}`);
+                                                        toast.error(`${t('reset_error') || 'Failed to reset data:'} ${result.error?.message || JSON.stringify(result.error)}`);
                                                     }
                                                 }
                                             }
@@ -456,6 +465,6 @@ export function Settings() {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </div >
     );
 }

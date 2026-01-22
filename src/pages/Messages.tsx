@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase, type Customer } from '../lib/supabase';
 import { Button, Input } from '../components/Modal';
-import { Search, Send, MessageSquare, User, ChevronLeft } from 'lucide-react';
+import { Search, Send, MessageSquare, User, ChevronLeft, Sparkles, Loader } from 'lucide-react';
+import { aiService } from '../lib/aiService';
 
 type Message = {
     id: string;
@@ -22,6 +23,7 @@ export function Messages() {
     const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [newMessage, setNewMessage] = useState('');
+    const [isDrafting, setIsDrafting] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -56,6 +58,26 @@ export function Messages() {
     async function markAsRead(customerId: string) {
         await supabase.from('messages').update({ read: true }).eq('customer_id', customerId).eq('read', false);
         loadData();
+    }
+
+    async function handleDraftWithAI() {
+        if (!selectedCustomer) return;
+
+        setIsDrafting(true);
+        try {
+            const lastMessage = selectedMessages[selectedMessages.length - 1];
+            const intent = aiService.detectIntent(lastMessage?.content || '');
+            const draft = await aiService.draftMessage(
+                selectedCustomer.name,
+                lastMessage?.content || '',
+                intent
+            );
+            setNewMessage(draft);
+        } catch (error) {
+            console.error("Drafting failed", error);
+        } finally {
+            setIsDrafting(false);
+        }
     }
 
     const filteredCustomers = customers.filter((c) =>
@@ -185,6 +207,17 @@ export function Messages() {
                             </div>
 
                             <form onSubmit={sendMessage} className="p-4 border-t border-neutral-200 dark:border-neutral-700">
+                                <div className="flex gap-2 mb-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleDraftWithAI}
+                                        disabled={isDrafting}
+                                        className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50 rounded-full transition-colors"
+                                    >
+                                        {isDrafting ? <Loader className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                                        {isDrafting ? t('drafting') : t('draft_with_ai')}
+                                    </button>
+                                </div>
                                 <div className="flex gap-3">
                                     <input
                                         type="text"

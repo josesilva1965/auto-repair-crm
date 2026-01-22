@@ -3,36 +3,47 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Area, AreaChart, ResponsiveContainer, YAxis } from "recharts";
 import { useMemo } from 'react';
+import * as React from 'react';
+
+import { KPITrendColor } from '@/types/enums';
 
 // Theme configuration for the cards
-const themeMap = {
-  blue: {
-    gradient: "from-blue-500/20 to-blue-500/5",
-    iconBg: "bg-blue-500/20",
-    iconColor: "text-blue-600 dark:text-blue-400",
-    stroke: "#3b82f6", // blue-500
-    fill: "#3b82f6",
-  },
-  green: {
+// Theme configuration for the cards
+const themeMap: Record<KPITrendColor, { gradient: string; iconBg: string; iconColor: string; stroke: string; fill: string }> = {
+  [KPITrendColor.GREEN]: {
     gradient: "from-emerald-500/20 to-emerald-500/5",
     iconBg: "bg-emerald-500/20",
     iconColor: "text-emerald-600 dark:text-emerald-400",
     stroke: "#10b981", // emerald-500
     fill: "#10b981",
   },
-  yellow: {
-    gradient: "from-amber-500/20 to-amber-500/5",
-    iconBg: "bg-amber-500/20",
-    iconColor: "text-amber-600 dark:text-amber-400",
-    stroke: "#f59e0b", // amber-500
-    fill: "#f59e0b",
-  },
-  red: {
+  [KPITrendColor.RED]: {
     gradient: "from-red-500/20 to-red-500/5",
     iconBg: "bg-red-500/20",
     iconColor: "text-red-600 dark:text-red-400",
     stroke: "#ef4444", // red-500
     fill: "#ef4444",
+  },
+  [KPITrendColor.NEUTRAL]: {
+    gradient: "from-gray-500/20 to-gray-500/5",
+    iconBg: "bg-gray-500/20",
+    iconColor: "text-gray-600 dark:text-gray-400",
+    stroke: "#6b7280", // gray-500
+    fill: "#6b7280",
+  },
+  [KPITrendColor.BLUE]: {
+    gradient: "from-blue-500/20 to-blue-500/5",
+    iconBg: "bg-blue-500/20",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    stroke: "#3b82f6", // blue-500
+    fill: "#3b82f6",
+  },
+  [KPITrendColor.YELLOW]: {
+    gradient: "from-amber-500/20 to-amber-500/5",
+    iconBg: "bg-amber-500/20",
+    iconColor: "text-amber-600 dark:text-amber-400",
+    stroke: "#f59e0b", // amber-500
+    fill: "#f59e0b",
   },
 };
 
@@ -41,11 +52,14 @@ interface KPICardProps {
   value: string | number;
   trend?: number;
   icon: LucideIcon;
-  color?: 'blue' | 'green' | 'yellow' | 'red';
+  color?: KPITrendColor;
   chartData?: number[]; // Optional custom data
+  animationDelay?: number; // ms delay for staggered entrance
+  className?: string; // additional classes
+  style?: React.CSSProperties; // custom inline style
 }
 
-export function KPICard({ title, value, trend, icon: Icon, color = 'blue', chartData }: KPICardProps) {
+export function KPICard({ title, value, trend, icon: Icon, color = KPITrendColor.BLUE, chartData, animationDelay = 0, className, style }: KPICardProps) {
   const theme = themeMap[color];
 
   // Generate sparkline data if none provided
@@ -70,10 +84,12 @@ export function KPICard({ title, value, trend, icon: Icon, color = 'blue', chart
 
   return (
     <Card className={cn(
-      "relative overflow-hidden border-none shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+      "relative overflow-hidden border-none shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]",
       "bg-gradient-to-br bg-white dark:bg-card",
-      theme.gradient
-    )}>
+      theme.gradient,
+      "animate-fade-in-up",
+      className
+    )} style={style ? { ...style, animationDelay: `${animationDelay}ms` } : { animationDelay: `${animationDelay}ms` }}>
       {/* Background decorative chart */}
       <div className="absolute inset-x-0 bottom-0 h-24 opacity-20 pointer-events-none">
         <ResponsiveContainer width="100%" height="100%">
@@ -84,7 +100,7 @@ export function KPICard({ title, value, trend, icon: Icon, color = 'blue', chart
                 <stop offset="100%" stopColor={theme.fill} stopOpacity={0} />
               </linearGradient>
             </defs>
-            {/* @ts-ignore */}
+            {/* @ts-expect-error Recharts type compatibility issue */}
             <Area
               type="monotone"
               dataKey="val"

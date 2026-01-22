@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { inspectionService } from '../lib/inspectionService';
 import { Inspection, InspectionItem } from '../lib/supabase';
 import { CheckCircle, AlertTriangle, XCircle, ChevronDown, Check, X, Phone, Share2, Loader, Camera } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function PublicInspection() {
     const { token } = useParams<{ token: string }>();
@@ -45,7 +46,7 @@ export function PublicInspection() {
             setSubmitted(true);
         } catch (err) {
             console.error(err);
-            alert('Error submitting decisions');
+            toast.error('Error submitting decisions');
         }
         setLoading(false);
     }

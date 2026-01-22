@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase, type Customer, type Vehicle, type WorkOrder } from '../lib/supabase';
 import { DataTable } from '../components/DataTable';
+import { EmptyState } from '../components/EmptyState';
 import { Modal, Button, Input, Textarea } from '../components/Modal';
-import { Plus, Search, Phone, Mail, MapPin } from 'lucide-react';
+import { Plus, Search, Phone, Mail, MapPin, Users } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function Customers() {
   const { t } = useTranslation();
@@ -148,6 +150,17 @@ export function Customers() {
                 },
               },
             ]}
+            emptyState={
+              <EmptyState
+                title={t('no_customers_found')}
+                description={t('no_customers_desc')}
+                icon={Users}
+                action={{
+                  label: t('add_customer'),
+                  onClick: () => { resetForm(); setEditingCustomer(null); setIsModalOpen(true); }
+                }}
+              />
+            }
           />
         </div>
 
@@ -167,7 +180,7 @@ export function Customers() {
                   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
                   const url = `${cleanBaseUrl}/portal/${selectedCustomer.portal_token}`;
                   navigator.clipboard.writeText(url);
-                  alert(t('link_copied') || 'Portal link copied to clipboard!');
+                  toast.success(t('link_copied') || 'Portal link copied to clipboard!');
                 }}>
                   {t('copy_portal_link') || 'Copy Portal Link'}
                 </Button>

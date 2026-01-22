@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Button, Select, Input } from './Modal';
 import { inspectionService } from '../lib/inspectionService';
-import { CheckCircle, AlertTriangle, XCircle, Camera, Share2, Loader } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Camera, Share2, Loader, Download, MessageSquare } from 'lucide-react';
+import { toast } from 'sonner';
+import { pdfGenerator } from '../lib/pdfGenerator';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Inspection, InspectionItem } from '../lib/supabase';
 
@@ -57,7 +59,7 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
 
     const updateStatusMutation = useMutation({
         mutationFn: async ({ itemId, status }: { itemId: string; status: 'green' | 'yellow' | 'red' }) => {
-            return await inspectionService.updateItemStatus(itemId, status);
+            return await inspectionService.updateItemStatus(itemId, status as any); // Type assertion to avoid enum conflict
         },
         onMutate: async ({ itemId, status }) => {
             // Cancel outgoing refetches
@@ -79,6 +81,7 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
             return { previousInspection };
         },
         onError: (_err, _newTodo, context) => {
+            toast.error('Failed to update status');
             if (context?.previousInspection) {
                 queryClient.setQueryData(['inspection', workOrderId], context.previousInspection);
             }
@@ -216,9 +219,33 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
                         ) : (
                             <div className="flex gap-2">
                                 <Button variant="secondary" onClick={() => {
+                                    // Mock vehicle info for now since it's not passed directly, or fetch it. 
+                                    // For now simple generic title. 
+                                    pdfGenerator.generateInspection(inspection, 'Vehicle Inspection');
+                                }}>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    PDF
+                                </Button>
+                                <Button variant="secondary" onClick={() => {
+                                    const url = `${window.location.origin}/inspection/${inspection.token}`;
+                                    window.open(`https://wa.me/?text=${encodeURIComponent(`Vehicle Inspection Report: ${url}`)}`, '_blank');
+                                }}>
+                                    <Share2 className="w-4 h-4 mr-2" />
+                                    WhatsApp
+                                </Button>
+                                <Button variant="secondary" onClick={() => {
+                                    const url = `${window.location.origin}/inspection/${inspection.token}`;
+                                    // Mock vehicle info for now or fetch it from context if we had it easily available here
+                                    const message = `Vehicle Inspection Report: ${url}`;
+                                    window.open(`sms:?&body=${encodeURIComponent(message)}`, '_top');
+                                }}>
+                                    <MessageSquare className="w-4 h-4 mr-2" />
+                                    SMS
+                                </Button>
+                                <Button variant="secondary" onClick={() => {
                                     const url = `${window.location.origin}/inspection/${inspection.token}`;
                                     navigator.clipboard.writeText(url);
-                                    alert(t('link_copied') || 'Link copied to clipboard!');
+                                    toast.success(t('link_copied') || 'Link copied to clipboard!');
                                 }}>
                                     <Share2 className="w-4 h-4 mr-2" />
                                     {t('copy_link') || 'Copy Link'}
