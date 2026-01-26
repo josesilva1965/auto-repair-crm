@@ -262,13 +262,29 @@ export class CommunicationService {
                 message += `\n\n📄 Download your ${type}: ${pdfUrl}`;
             }
 
-            // Add Approval Link (for Estimates)
-            if (type === 'estimate' && approvalToken) {
+            // Add Portal Link (Unified for all doc types)
+            // Ensure customer has a portal token
+            let portalToken = customer.portal_token;
+            if (!portalToken) {
+                const { data: fetchedCustomer } = await supabase
+                    .from('customers')
+                    .select('portal_token')
+                    .eq('id', customer.id)
+                    .single();
+                portalToken = fetchedCustomer?.portal_token;
+            }
+
+            if (portalToken) {
                 // Use configured public URL or fallback to current origin
                 const baseUrl = emailSettings?.public_url?.replace(/\/$/, '') || window.location.origin;
-                const approvalLink = `${baseUrl}/estimate-approval/${approvalToken}`;
-                console.log('[DEBUG] Generated Approval Link:', approvalLink, 'BaseURL:', baseUrl, 'PublicURL Setting:', emailSettings?.public_url);
-                message += `\n\n✅ APPROVE OR DECLINE ONLINE:\nClick here to review and respond to this estimate instantly:\n${approvalLink}`;
+                const portalLink = `${baseUrl}/portal/${portalToken}`;
+
+                message += `\n\n✅ CUSTOMER AREA:\nView this document, approve estimates, and track vehicle history in your secure portal:\n${portalLink}`;
+
+                // Add specific instruction for estimates
+                if (type === 'estimate') {
+                    message += `\n(Navigate to the 'Home' tab to approve this estimate)`;
+                }
             }
 
             message += `\n\nThank you for your business!`;

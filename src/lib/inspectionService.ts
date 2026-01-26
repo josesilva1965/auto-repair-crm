@@ -128,16 +128,23 @@ export const inspectionService = {
         if (error) throw error;
     },
 
+    async ensurePublicToken(inspectionId: string) {
+        const { data } = await supabase.from('inspections').select('token').eq('id', inspectionId).single();
+        if (data?.token) return data.token;
+
+        const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const { error } = await supabase.from('inspections').update({ token }).eq('id', inspectionId);
+
+        if (error) throw error;
+        return token;
+    },
+
     async getPublicInspection(token: string) {
-        const { data, error } = await supabase
+        // 1. Get Inspection base
+        const { data: inspection, error } = await supabase
             .from('inspections')
             .select(`
             *,
-            work_orders (
-                *,
-                vehicle:vehicles(*),
-                customer:customers(*)
-            ),
             inspection_items (
                 *,
                 inspection_photos (*)
@@ -147,7 +154,32 @@ export const inspectionService = {
             .single();
 
         if (error) throw error;
-        return data;
+        if (!inspection) return null;
+
+        // 2. Manual fetch of relations to avoid embedding syntax errors
+        const { data: workOrder } = await supabase
+            .from('work_orders')
+            .select('*')
+            .eq('id', inspection.work_order_id)
+            .single();
+
+        let enrichedWorkOrder = workOrder;
+
+        if (workOrder) {
+            const { data: vehicle } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicle_id).single();
+            const { data: customer } = await supabase.from('customers').select('*').eq('id', workOrder.customer_id).single();
+
+            enrichedWorkOrder = {
+                ...workOrder,
+                vehicles: vehicle,
+                customers: customer
+            };
+        }
+
+        return {
+            ...inspection,
+            work_orders: enrichedWorkOrder
+        };
     },
 
     async updateCustomerDecision(itemId: string, decision: 'approved' | 'declined') {

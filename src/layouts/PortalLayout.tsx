@@ -4,6 +4,13 @@ import { supabase } from '../lib/supabase';
 import { Loader2, Home, Car, History, CalendarPlus, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "../components/ui/select";
 
 // Types for Portal Data
 export type PortalData = {
@@ -61,7 +68,7 @@ export function PortalLayout() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const location = useLocation();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const fetchData = async () => {
         if (!token) return;
@@ -124,6 +131,20 @@ export function PortalLayout() {
                 {/* Mobile Header */}
                 <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 sticky top-0 z-10 md:hidden flex items-center justify-center shadow-sm">
                     <h1 className="font-bold text-lg text-slate-900 dark:text-slate-100 font-display tracking-tight">{t('my_garage') || 'My Garage'}</h1>
+                    <div className="absolute right-4">
+                        <Select value={i18n.language} onValueChange={(val) => i18n.changeLanguage(val)}>
+                            <SelectTrigger className="w-[100px] h-8 bg-white/50 border-0 focus:ring-0 px-2 text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="en-GB">English</SelectItem>
+                                <SelectItem value="pt-PT">Português</SelectItem>
+                                <SelectItem value="fr-FR">Français</SelectItem>
+                                <SelectItem value="es-ES">Español</SelectItem>
+                                <SelectItem value="de-DE">Deutsch</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 {/* Using a max-width container for desktop view to simulate mobile app feel centrally, or just full width */}
@@ -199,6 +220,18 @@ export function PortalLayout() {
                         <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-slate-900">
                             {data.customer.name.charAt(0)}
                         </div>
+                        <Select value={i18n.language} onValueChange={(val) => i18n.changeLanguage(val)}>
+                            <SelectTrigger className="w-[130px] h-9 bg-white/80 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="en-GB">English</SelectItem>
+                                <SelectItem value="pt-PT">Português</SelectItem>
+                                <SelectItem value="fr-FR">Français</SelectItem>
+                                <SelectItem value="es-ES">Español</SelectItem>
+                                <SelectItem value="de-DE">Deutsch</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 

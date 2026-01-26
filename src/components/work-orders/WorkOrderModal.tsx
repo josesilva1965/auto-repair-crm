@@ -509,8 +509,14 @@ export function WorkOrderModal({ isOpen, onClose, editingOrder, customers, vehic
                                     <Button
                                         type="button"
                                         size="sm"
-                                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                        onClick={() => setIsInspectionModalOpen(true)}
+                                        className={!editingOrder ? "opacity-50 cursor-not-allowed bg-emerald-600 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+                                        onClick={() => {
+                                            if (!editingOrder) {
+                                                toast.error(t('save_before_inspection') || 'Please save the work order before starting an inspection');
+                                                return;
+                                            }
+                                            setIsInspectionModalOpen(true);
+                                        }}
                                     >
                                         <Check className="w-3 h-3 mr-1" />
                                         {t('inspection')}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Button, Select, Input } from './Modal';
 import { inspectionService } from '../lib/inspectionService';
-import { CheckCircle, AlertTriangle, XCircle, Camera, Share2, Loader, Download, MessageSquare } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Camera, Share2, Loader, Download, MessageSquare, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { pdfGenerator } from '../lib/pdfGenerator';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -44,7 +44,14 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
     const items = inspection?.inspection_items || [];
 
     // Extended type for Inspection with relations
-    type InspectionWithItems = Inspection & { inspection_items: InspectionItem[] };
+    type InspectionWithItems = Inspection & {
+        inspection_items: InspectionItem[];
+        work_orders: {
+            customer: {
+                portal_token: string | null;
+            }
+        }
+    };
 
     // Mutations
     const startInspectionMutation = useMutation({
@@ -151,6 +158,19 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
         }
     };
 
+    const handlePreview = async () => {
+        if (!inspection) return;
+        const win = window.open('about:blank', '_blank');
+        try {
+            const token = await inspectionService.ensurePublicToken(inspection.id);
+            if (win) win.location.href = `/inspection/${token}`;
+        } catch (error) {
+            if (win) win.close();
+            toast.error(t('preview_error') || 'Failed to generate preview link');
+            console.error(error);
+        }
+    };
+
     const groupedItems = items.reduce((acc, item) => {
         const cat = item.category || 'General';
         if (!acc[cat]) acc[cat] = [];
@@ -212,10 +232,16 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
                             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500" /> {items.filter(i => i.status === 'red').length} {t('action_required') || 'Fail'}</div>
                         </div>
                         {inspection.status !== 'completed' ? (
-                            <Button onClick={handleComplete} disabled={completeInspectionMutation.isPending}>
-                                {completeInspectionMutation.isPending ? <Loader className="animate-spin w-4 h-4 mr-2" /> : null}
-                                {t('complete_and_share') || 'Complete & Share'}
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button variant="secondary" onClick={handlePreview}>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    {t('preview') || 'Preview'}
+                                </Button>
+                                <Button onClick={handleComplete} disabled={completeInspectionMutation.isPending}>
+                                    {completeInspectionMutation.isPending ? <Loader className="animate-spin w-4 h-4 mr-2" /> : null}
+                                    {t('complete_and_share') || 'Complete & Share'}
+                                </Button>
+                            </div>
                         ) : (
                             <div className="flex gap-2">
                                 <Button variant="secondary" onClick={() => {
@@ -227,23 +253,45 @@ export function InspectionModal({ isOpen, onClose, workOrderId }: InspectionModa
                                     PDF
                                 </Button>
                                 <Button variant="secondary" onClick={() => {
-                                    const url = `${window.location.origin}/inspection/${inspection.token}`;
-                                    window.open(`https://wa.me/?text=${encodeURIComponent(`Vehicle Inspection Report: ${url}`)}`, '_blank');
+                                    const portalToken = inspection.work_orders?.customer?.portal_token;
+                                    if (!portalToken) {
+                                        toast.error(t('no_portal_access') || 'Customer has no portal access');
+                                        return;
+                                    }
+                                    const url = `${window.location.origin}/portal/${portalToken}`;
+                                    const message = `Vehicle Inspection Report: ${url}`;
+                                    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
                                 }}>
                                     <Share2 className="w-4 h-4 mr-2" />
                                     WhatsApp
                                 </Button>
                                 <Button variant="secondary" onClick={() => {
-                                    const url = `${window.location.origin}/inspection/${inspection.token}`;
-                                    // Mock vehicle info for now or fetch it from context if we had it easily available here
+                                    const portalToken = inspection.work_orders?.customer?.portal_token;
+                                    if (!portalToken) {
+                                        toast.error(t('no_portal_access') || 'Customer has no portal access');
+                                        return;
+                                    }
+                                    const url = `${window.location.origin}/portal/${portalToken}`;
                                     const message = `Vehicle Inspection Report: ${url}`;
-                                    window.open(`sms:?&body=${encodeURIComponent(message)}`, '_top');
+                                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                                    if (isMobile) {
+                                        window.open(`sms:?&body=${encodeURIComponent(message)}`, '_top');
+                                    } else {
+                                        navigator.clipboard.writeText(message);
+                                        toast.success(t('message_copied') || 'Message copied');
+                                    }
                                 }}>
                                     <MessageSquare className="w-4 h-4 mr-2" />
                                     SMS
                                 </Button>
                                 <Button variant="secondary" onClick={() => {
-                                    const url = `${window.location.origin}/inspection/${inspection.token}`;
+                                    const portalToken = inspection.work_orders?.customer?.portal_token;
+                                    if (!portalToken) {
+                                        toast.error(t('no_portal_access') || 'Customer has no portal access');
+                                        return;
+                                    }
+                                    const url = `${window.location.origin}/portal/${portalToken}`;
                                     navigator.clipboard.writeText(url);
                                     toast.success(t('link_copied') || 'Link copied to clipboard!');
                                 }}>
