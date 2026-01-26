@@ -223,6 +223,7 @@ export type InspectionItem = {
   customer_decision: 'approved' | 'declined' | null;
   estimated_cost: number | null;
   created_at: string;
+  inspection_photos?: InspectionPhoto[];
 };
 
 export type InspectionPhoto = {

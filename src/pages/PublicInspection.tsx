@@ -19,7 +19,8 @@ import {
     Calendar,
     Gauge,
     FileText,
-    Car
+    Car,
+    Camera
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
