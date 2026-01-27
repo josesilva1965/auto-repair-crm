@@ -135,14 +135,21 @@ function Navbar() {
 function HeroSection() {
     return (
         <section className="relative h-screen overflow-hidden">
-            {/* Background */}
+            {/* Background with Video */}
             <div className="absolute inset-0 bg-stone-900">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover opacity-60"
+                >
+                    <source src="/videos/hero_loop.mp4" type="video/mp4" />
+                </video>
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-stone-900/70 via-stone-900/50 to-stone-900/90" />
-                {/* Abstract shapes for visual interest */}
-                <div className="absolute top-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px]" />
-                <div className="absolute bottom-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-[80px]" />
             </div>
+
 
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
@@ -225,15 +232,12 @@ function FeaturesSection() {
                 </div>
 
                 {/* Feature Image */}
-                <div className="mb-16 rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-stone-800 to-stone-900 p-8">
-                    <div className="aspect-video bg-stone-800 rounded-2xl flex items-center justify-center">
-                        <div className="text-center">
-                            <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <Wrench className="w-10 h-10 text-white" />
-                            </div>
-                            <p className="text-stone-400 text-lg">Dashboard Preview</p>
-                        </div>
-                    </div>
+                <div className="mb-16 rounded-3xl overflow-hidden shadow-2xl">
+                    <img
+                        src="/imgs/auto-repair.jpg"
+                        alt="Auto Repair Software"
+                        className="w-full h-[400px] object-cover transition-all duration-500"
+                    />
                 </div>
 
                 {/* Feature Grid */}
