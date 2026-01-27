@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useSettings, BusinessHour, EmailSettings } from '../contexts/SettingsContext';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-import { Clock, Loader2, Mail, Globe, ShieldAlert, Save, Download, Trash2, CheckCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import { Clock, Loader2, Mail, Globe, ShieldAlert, Save, Download, Trash2, CheckCircle, AlertTriangle, Wrench, Smartphone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,6 +122,40 @@ export function Settings() {
             </div>
 
             <div className="grid gap-8">
+                {/* Mobile App Download Section */}
+                <Card className="border-blue-200 bg-blue-50/50 shadow-sm">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <Smartphone className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <CardTitle className="text-blue-900">{t('mobile_app') || 'Mobile App'}</CardTitle>
+                        </div>
+                        <CardDescription className="ml-12 text-blue-700">
+                            {t('mobile_app_desc') || 'Download the technician mobile app to manage jobs on the go.'}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-col md:flex-row items-center gap-8 ml-12">
+                            <div className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+                                <QRCodeSVG value="https://expo.dev/artifacts/eas/..." size={120} />
+                            </div>
+                            <div className="space-y-3">
+                                <h4 className="font-semibold text-blue-900 text-lg">Scan to Download</h4>
+                                <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
+                                    <li>Open your phone's camera</li>
+                                    <li>Scan the QR code</li>
+                                    <li>Install the <strong>AutoCRM Tech</strong> app</li>
+                                </ol>
+                                <Button className="mt-2 bg-blue-600 hover:bg-blue-700 text-white" size="sm" onClick={() => window.open('https://expo.dev', '_blank')}>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Download APK
+                                </Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Shop Details Section */}
                 <Card className="border-border/60 shadow-sm hover:shadow-md transition-shadow duration-200">
                     <CardHeader className="pb-4">

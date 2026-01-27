@@ -30,6 +30,7 @@ const PortalHistory = lazy(() => import('./pages/portal/PortalHistory').then(mod
 const PortalBooking = lazy(() => import('./pages/portal/PortalBooking').then(module => ({ default: module.PortalBooking })));
 
 const PublicInspection = lazy(() => import('./pages/PublicInspection').then(module => ({ default: module.PublicInspection })));
+const LandingPage = lazy(() => import('./pages/LandingPage').then(module => ({ default: module.LandingPage })));
 
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/react-query';
@@ -53,6 +54,7 @@ function App() {
               <Routes>
                 <Route path="/estimate-approval/:token" element={<ApproveEstimate />} />
                 <Route path="/inspection/:token" element={<PublicInspection />} />
+                <Route path="/landing" element={<LandingPage />} />
 
                 {/* Customer Portal Routes */}
                 <Route path="/portal/:token" element={<PortalLayout />}>

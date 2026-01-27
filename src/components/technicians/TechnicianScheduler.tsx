@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable, useSensor, useSensors, PointerSensor, DragStartEvent } from '@dnd-kit/core';
 import { Technician, WorkOrder } from '../../lib/supabase';
 import { supabase } from '../../lib/supabase';
-import { format, setHours, setMinutes, parseISO, isSameDay, addDays, startOfDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, User, AlertCircle } from 'lucide-react';
+import { format, startOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 interface TechnicianSchedulerProps {
     technicians: Technician[];
@@ -16,42 +17,21 @@ interface TechnicianSchedulerProps {
     onUpdate: () => void;
 }
 
-const HOURS = Array.from({ length: 11 }, (_, i) => i + 8); // 8 AM to 6 PM
+const DAYS = [0, 1, 2, 3, 4]; // Monday (0 offset from startOfWeek) to Friday (4)
 
 export function TechnicianScheduler({ technicians, workOrders, onUpdate }: TechnicianSchedulerProps) {
     const { t } = useTranslation();
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 })); // Starts on Monday
     const [activeId, setActiveId] = useState<string | null>(null);
+    const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
     );
 
-    // Filter orders for the selected date
-    const dailyOrders = useMemo(() => {
-        return workOrders.filter(o => {
-            if (!o.scheduled_date) return false;
-            return isSameDay(parseISO(o.scheduled_date), selectedDate);
-        });
-    }, [workOrders, selectedDate]);
-
-    // Unscheduled or other date orders (optional sidebar, focusing on main grid for now)
-
-    // Unscheduled orders (or orders scheduled for other days that are active)
-    const unscheduledOrders = useMemo(() => {
-        return workOrders.filter(o => {
-            // Include explicitly unscheduled
-            if (!o.scheduled_date) return true;
-            // Include active jobs scheduled for OTHER days (so we can move them here)
-            // But exclude 'completed' or 'archived' on other days to reduce noise
-            const isOtherDay = !isSameDay(parseISO(o.scheduled_date), selectedDate);
-            const isActive = ['pending', 'in-progress', 'testing', 'waiting_parts'].includes(o.status);
-            return isOtherDay && isActive;
-        });
-    }, [workOrders, selectedDate]);
-
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
+        setSelectedJobId(event.active.id as string);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
@@ -60,234 +40,273 @@ export function TechnicianScheduler({ technicians, workOrders, onUpdate }: Techn
 
         if (!over) return;
 
-        // Check if dropped on grid vs back to unscheduled list
+        // Dropped on "Backlog" / Unscheduled
         if (over.id === 'unscheduled') {
             const { error } = await supabase
                 .from('work_orders')
-                .update({
-                    technician_id: null,
-                    scheduled_date: null
-                })
+                .update({ technician_id: null, scheduled_date: null })
                 .eq('id', active.id);
             if (!error) {
-                toast.success(t('unscheduled') || 'Job unscheduled');
+                toast.success('Job moved to backlog');
                 onUpdate();
             }
             return;
         }
 
-        // active.id is work_order_id
-        // over.id is format: "techId-hour"
-        const [techId, hourStr] = (over.id as string).split('|');
-        const hour = parseInt(hourStr);
+        // Dropped on Grid: format "techId|dayIndex"
+        const [techId, dayIndexStr] = (over.id as string).split('|');
+        const dayIndex = parseInt(dayIndexStr);
 
-        if (!techId || isNaN(hour)) return;
+        if (!techId || isNaN(dayIndex)) return;
 
-        // Create a new date object based on the currently selected day
-        // We use setHours/setMinutes to set the specific slot time
-        const baseDate = new Date(selectedDate);
-        const newDate = setMinutes(setHours(baseDate, hour), 0);
+        // Calculate new date
+        // weekStart is Monday 00:00. Add dayIndex days.
+        const targetDate = addDays(weekStart, dayIndex);
+        // Default to 9 AM for the drop
+        targetDate.setHours(9, 0, 0, 0);
 
-        // Optimistic update could go here, but for safety we await
         const { error } = await supabase
             .from('work_orders')
             .update({
                 technician_id: techId,
-                // Use format to ensure backend receives a clear ISO string, 
-                // typically Supabase handles ISO strings well, but we must ensure
-                // we aren't accidentally sending a UTC time that shifts the day back.
-                scheduled_date: newDate.toISOString()
+                scheduled_date: targetDate.toISOString()
             })
             .eq('id', active.id);
 
         if (error) {
             console.error(error);
-            toast.error(t('failed_reschedule') || 'Failed to reschedule');
+            toast.error('Failed to reschedule');
         } else {
-            toast.success(t('rescheduled') || 'Job rescheduled');
+            toast.success('Job scheduled');
             onUpdate();
         }
     };
 
     const activeOrder = useMemo(() => workOrders.find(o => o.id === activeId), [workOrders, activeId]);
+    const selectedJob = useMemo(() => workOrders.find(o => o.id === selectedJobId), [workOrders, selectedJobId]);
+
+    // Format header dates
+    const weekDates = useMemo(() => DAYS.map(d => addDays(weekStart, d)), [weekStart]);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden flex flex-col h-[calc(100vh-14rem)]">
-            {/* Header / Date Nav */}
-            <div className="p-4 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/50">
+        <div className="flex flex-col h-[calc(100vh-8rem)] bg-slate-50">
+            {/* Top Bar for Scheduler Context */}
+            <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-neutral-200">
                 <div className="flex items-center gap-4">
-                    <h2 className="font-bold text-lg text-neutral-800 flex items-center gap-2">
-                        <CalendarIcon className="w-5 h-5 text-primary" />
-                        {format(selectedDate, 'MMMM d, yyyy')}
-                    </h2>
-                    <div className="flex items-center bg-white rounded-lg border border-neutral-200 p-0.5">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedDate(d => addDays(d, -1))}>
-                            <ChevronLeft className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedDate(new Date())}>
-                            <span className="text-xs font-medium">Any</span> {/* Simplification for "Today" reset */}
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedDate(d => addDays(d, 1))}>
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
+                    <h1 className="text-2xl font-bold text-slate-800">{t('calendar_scheduler')}</h1>
                 </div>
-                <div className="flex gap-2 text-sm text-neutral-500">
-                    <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-blue-100 border border-blue-200"></div> {t('scheduled')}</div>
-                    <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-emerald-100 border border-emerald-200"></div> {t('completed')}</div>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input placeholder="Search" className="pl-9 w-64 bg-slate-50 border-slate-200" />
+                    </div>
+                    <Button variant="outline" className="gap-2">
+                        <CalendarIcon className="w-4 h-4" /> {t('drag_drop')}
+                    </Button>
+                    <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
+                        + Calendar
+                    </Button>
                 </div>
             </div>
 
-            <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                <div className="flex flex-1 overflow-hidden">
-                    {/* Unscheduled Sidebar */}
-                    <UnscheduledColumn orders={unscheduledOrders} />
+            <div className="flex flex-1 overflow-hidden p-6 gap-6">
 
-                    {/* Main Scheduler Grid */}
-                    <div className="flex-1 overflow-auto border-l border-neutral-200">
-                        <div className="min-w-[800px]">
-                            {/* Time Header */}
-                            <div className="flex border-b border-neutral-100 sticky top-0 bg-white z-10">
-                                <div className="w-48 flex-shrink-0 p-3 bg-neutral-50 border-r border-neutral-100 font-medium text-sm text-neutral-500">
-                                    {t('technician')}
-                                </div>
-                                {HOURS.map(hour => (
-                                    <div key={hour} className="flex-1 min-w-[100px] p-2 text-center text-xs font-medium text-neutral-400 border-r border-neutral-50 last:border-0">
-                                        {hour}:00
-                                    </div>
-                                ))}
-                            </div>
+                {/* Main Scheduler Card */}
+                <div className="flex-1 bg-white rounded-2xl shadow-sm border border-neutral-200 flex flex-col overflow-hidden">
 
-                            {/* Grid */}
-                            <div className="divide-y divide-neutral-100">
-                                {technicians.map(tech => (
-                                    <div key={tech.id} className="flex group hover:bg-neutral-50/30 transition-colors">
-                                        {/* Tech Info */}
-                                        <div className="w-48 flex-shrink-0 p-3 border-r border-neutral-100 flex items-center gap-3 bg-white sticky left-0 z-10">
-                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                                                {tech.name.substring(0, 2).toUpperCase()}
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <div className="font-medium text-sm truncate text-neutral-900">{tech.name}</div>
-                                                <div className="text-xs text-neutral-500 truncate">{tech.specialization || 'Mechanic'}</div>
-                                            </div>
+                    {/* Calendar Header Controls */}
+                    <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" onClick={() => setWeekStart(d => addDays(d, -7))}>
+                                <ChevronLeft className="w-5 h-5 text-slate-500" />
+                            </Button>
+                            <span className="font-semibold text-slate-700 w-48 text-center">{format(weekStart, 'MMM d')} - {format(addDays(weekStart, 4), 'MMM d, yyyy')}</span>
+                            <Button variant="ghost" size="icon" onClick={() => setWeekStart(d => addDays(d, 7))}>
+                                <ChevronRight className="w-5 h-5 text-slate-500" />
+                            </Button>
+                        </div>
+                    </div>
+
+                    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                        <div className="flex-1 overflow-auto">
+                            <div className="min-w-[800px] h-full flex flex-col">
+                                {/* Values Header */}
+                                <div className="flex border-b border-neutral-100">
+                                    <div className="w-48 p-4 font-semibold text-slate-700 border-r border-neutral-100">{t('technician')}</div>
+                                    {weekDates.map(date => (
+                                        <div key={date.toString()} className="flex-1 p-4 font-semibold text-slate-700 border-r border-neutral-100 last:border-0">
+                                            {format(date, 'EEE')} <span className="text-slate-400 font-normal ml-1">{format(date, 'd')}</span>
                                         </div>
+                                    ))}
+                                </div>
 
-                                        {/* Hours Cells */}
-                                        {HOURS.map(hour => {
-                                            const slotId = `${tech.id}|${hour}`;
-                                            // Find order starting in this hour (simple logic, assuming 1hr slots for MVP visualization)
-                                            // A real robust one would handle duration overlapping multiple slots
-                                            const slotOrder = dailyOrders.find(o =>
-                                                o.technician_id === tech.id &&
-                                                activeId !== o.id && // Don't show original while dragging
-                                                parseISO(o.scheduled_date!).getHours() === hour
-                                            );
+                                {/* Rows */}
+                                <div className="flex-1">
+                                    {technicians.map(tech => (
+                                        <div key={tech.id} className="flex border-b border-neutral-50 h-32">
+                                            {/* Tech Info */}
+                                            <div className="w-48 p-4 border-r border-neutral-100 flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
+                                                    <span className="font-bold text-slate-600">{tech.name.substring(0, 2).toUpperCase()}</span>
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-slate-900 text-sm">{tech.name}</div>
+                                                    <div className="text-xs text-slate-500">{t('technician')}</div>
+                                                </div>
+                                            </div>
 
-                                            return (
-                                                <TimeSlot
-                                                    key={slotId}
-                                                    id={slotId}
-                                                    order={slotOrder}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                ))}
+                                            {/* Days */}
+                                            {DAYS.map((dayIndex, i) => {
+                                                const currentDate = weekDates[i];
+                                                // Find jobs for this tech on this day
+                                                const dayJobs = workOrders.filter(o =>
+                                                    o.technician_id === tech.id &&
+                                                    o.scheduled_date &&
+                                                    isSameDay(parseISO(o.scheduled_date), currentDate) &&
+                                                    activeId !== o.id
+                                                );
+
+                                                const slotId = `${tech.id}|${dayIndex}`;
+
+                                                return (
+                                                    <DaySlot
+                                                        key={slotId}
+                                                        id={slotId}
+                                                        jobs={dayJobs}
+                                                        onJobClick={setSelectedJobId}
+                                                        selectedJobId={selectedJobId}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
+                        <DragOverlay>
+                            {activeOrder && (
+                                <JobCard order={activeOrder} isDragging />
+                            )}
+                        </DragOverlay>
+                    </DndContext>
                 </div>
 
-                <DragOverlay>
-                    {activeOrder ? (
-                        <div className="w-[100px] h-12 bg-blue-600 text-white rounded-lg shadow-xl p-2 text-xs flex flex-col justify-center opacity-90 rotate-2 cursor-grabbing">
-                            <div className="font-bold truncate">REQ-{activeOrder.id.substring(0, 4)}</div>
-                            <div className="truncate opacity-80">{activeOrder.description || "Job"}</div>
+                {/* Right Sidebar - Job Details */}
+                <div className="w-80 bg-white rounded-2xl shadow-sm border border-neutral-200 flex flex-col overflow-hidden">
+                    <div className="p-4 border-b border-neutral-100 font-bold text-slate-800">
+                        {t('active_job_details')}
+                    </div>
+                    {selectedJob ? (
+                        <div className="p-6 flex-1 overflow-y-auto">
+                            <div className="mb-6">
+                                <div className="text-sm text-slate-400 font-medium mb-1">{t('repair')}</div>
+                                {/* Fallback to Description or generic title since 'title' doesn't exist */}
+                                <div className="text-xl font-bold text-slate-900 mb-1">{selectedJob.description ? selectedJob.description.substring(0, 20) : t('service_job')}</div>
+                                <div className="text-sm text-slate-600 mb-4">REQ-{selectedJob.id.substring(0, 4)} - {format(new Date(selectedJob.scheduled_date || new Date()), 'h:mm a')}</div>
+
+                                <div className="text-sm text-slate-400 font-medium mb-1">{t('content')}</div>
+                                <div className="text-sm text-slate-600">{selectedJob.description || t('no_description_provided')}</div>
+                            </div>
+
+                            <div className="space-y-4 pt-6 border-t border-neutral-100">
+                                <div className="text-sm text-slate-400 font-medium mb-2">{t('job_details')}</div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-600">{t('status')}</span>
+                                    <span className="font-semibold text-slate-900 capitalize">{selectedJob.status}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-600">{t('priority')}</span>
+                                    <span className="font-semibold text-slate-900 capitalize">{selectedJob.priority}</span>
+                                </div>
+                                <div className="flex justify-between text-sm pt-2">
+                                    <span className="text-slate-600">{t('estimated_cost')}</span>
+                                    <span className="font-bold text-slate-900">${selectedJob.estimated_cost?.toFixed(2) || '0.00'}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between text-sm pt-4 mt-4 border-t border-neutral-100 font-bold">
+                                <span className="text-slate-800">{t('total')}</span>
+                                <span className="text-slate-900">${selectedJob.actual_cost?.toFixed(2) || selectedJob.estimated_cost?.toFixed(2) || '0.00'}</span>
+                            </div>
                         </div>
-                    ) : null}
-                </DragOverlay>
-            </DndContext>
-        </div>
-    );
-}
+                    ) : (
+                        <div className="p-8 text-center text-slate-400 text-sm flex-1 flex items-center justify-center">
+                            {t('select_job_details')}
+                        </div>
+                    )}
+                </div>
 
-function UnscheduledColumn({ orders }: { orders: WorkOrder[] }) {
-    const { setNodeRef, isOver } = useDroppable({ id: 'unscheduled' });
-    const { t } = useTranslation();
-
-    return (
-        <div
-            ref={setNodeRef}
-            className={cn(
-                "w-56 bg-neutral-50 flex flex-col h-full border-r border-neutral-200 transition-colors",
-                isOver ? "bg-red-50" : ""
-            )}
-        >
-            <div className="p-3 border-b border-neutral-200 font-medium text-sm text-neutral-600 flex justify-between items-center">
-                {t('backlog') || 'Backlog'}
-                <span className="bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded text-xs">{orders.length}</span>
-            </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                {orders.length === 0 ? (
-                    <div className="text-center text-xs text-neutral-400 py-4 italic">{t('no_backlog') || 'No unscheduled jobs'}</div>
-                ) : (
-                    orders.map(order => (
-                        <DraggableJob key={order.id} order={order} inSidebar />
-                    ))
-                )}
             </div>
         </div>
     );
 }
 
-function TimeSlot({ id, order }: { id: string, order?: WorkOrder }) {
+function DaySlot({ id, jobs, onJobClick, selectedJobId }: { id: string, jobs: WorkOrder[], onJobClick: (id: string) => void, selectedJobId: string | null }) {
     const { setNodeRef, isOver } = useDroppable({ id });
 
     return (
-        <div
-            ref={setNodeRef}
-            className={cn(
-                "flex-1 min-w-[100px] border-r border-neutral-50 last:border-0 min-h-[60px] p-1 relative transition-colors",
-                isOver ? "bg-blue-50/50" : ""
-            )}
-        >
-            {order && (
-                <DraggableJob order={order} />
-            )}
+        <div ref={setNodeRef} className={cn(
+            "flex-1 border-r border-neutral-100 last:border-0 p-2 space-y-2 transition-colors overflow-y-auto",
+            isOver ? "bg-blue-50/60 ring-inset ring-2 ring-blue-200" : ""
+        )}>
+            {jobs.map(job => (
+                <JobCard
+                    key={job.id}
+                    order={job}
+                    onClick={() => onJobClick(job.id)}
+                    isSelected={selectedJobId === job.id}
+                />
+            ))}
         </div>
     );
 }
 
-function DraggableJob({ order, inSidebar }: { order: WorkOrder, inSidebar?: boolean }) {
-    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: order.id });
+function JobCard({ order, isDragging, onClick, isSelected }: { order: WorkOrder, isDragging?: boolean, onClick?: () => void, isSelected?: boolean }) {
     const { t } = useTranslation();
+    const { attributes, listeners, setNodeRef } = useDraggable({ id: order.id });
 
-    // Status colors
-    const isCompleted = order.status === 'completed';
-    const baseColor = isCompleted ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-white text-neutral-700 border-neutral-200";
+    // Determine color based on status or random for demo visual variety matching the screenshot
+    // Maps: 'scheduled' -> Blue, 'in-progress' -> Orange, 'completed' -> Green
+    let colorClass = "bg-blue-500 text-white border-blue-600"; // Default to Blue (Scheduled)
 
-    if (isDragging) {
-        return <div ref={setNodeRef} className={cn("rounded-md border-2 border-dashed border-neutral-300 bg-neutral-50/50", inSidebar ? "h-16" : "h-full w-full")} />
+    if (['pending', 'scheduled', 'confirmed'].includes(order.status)) {
+        colorClass = "bg-blue-500 text-white border-blue-600";
     }
+    if (['in-progress', 'diagnosing', 'testing', 'repairing', 'waiting_parts'].includes(order.status)) {
+        colorClass = "bg-orange-400 text-white border-orange-500";
+    }
+    if (['completed', 'billed', 'closed', 'archived'].includes(order.status)) {
+        colorClass = "bg-emerald-500 text-white border-emerald-600";
+    }
+
+    if (order.priority === 'urgent') colorClass = "bg-red-500 text-white border-red-600";
 
     return (
         <div
             ref={setNodeRef}
             {...listeners}
             {...attributes}
+            onClick={onClick}
             className={cn(
-                "rounded-md border text-xs p-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-all shadow-sm flex flex-col justify-center",
-                baseColor,
-                inSidebar ? "mb-2 h-auto" : "h-full w-full"
+                "rounded-lg p-3 text-sm cursor-pointer shadow-sm border transition-all hover:shadow-md relative group",
+                colorClass,
+                isDragging ? "rotate-2 scale-105 opacity-90 shadow-xl z-50 cursor-grabbing" : "",
+                isSelected ? "ring-2 ring-offset-2 ring-neutral-900" : ""
             )}
+            style={{ minHeight: '80px' }}
         >
-            <div className="font-bold flex justify-between items-center">
-                <span>REQ-{order.id.substring(0, 4)}</span>
-                {order.priority === 'urgent' && <AlertCircle className="w-3 h-3 text-red-500" />}
+            <div className="font-medium text-xs opacity-90 mb-0.5">
+                {order.status === 'pending' ? t('scheduled') :
+                    order.status === 'in-progress' ? t('in_progress') :
+                        order.status === 'completed' ? t('completed') : t('scheduled')}
             </div>
-            <div className="truncate text-neutral-500 mt-0.5">{order.description || t('no_description')}</div>
+            <div className="font-bold text-sm leading-tight mb-1">
+                {order.description ? order.description.substring(0, 30) : `Job #${order.id.substring(0, 4)}`}
+            </div>
+            <div className="text-xs opacity-80 font-medium">
+                {order.scheduled_date ? format(parseISO(order.scheduled_date), 'h:mm a') : '9:00 AM'}
+            </div>
         </div>
     );
 }
