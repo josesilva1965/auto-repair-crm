@@ -151,16 +151,16 @@ export function Technicians() {
                     <p className="text-muted-foreground">{t('technician_management')}</p>
                 </div>
                 <div className="flex gap-3">
-                    <div className="bg-neutral-100 p-1 rounded-lg flex gap-1">
+                    <div className="bg-neutral-100 dark:bg-neutral-700 p-1 rounded-lg flex gap-1">
                         <button
-                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-white shadow text-primary' : 'text-neutral-500 hover:text-neutral-700'}`}
+                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-white dark:bg-neutral-600 shadow text-primary' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'}`}
                             onClick={() => setView('list')}
                             title={t('list_view')}
                         >
                             <LayoutList className="w-5 h-5" />
                         </button>
                         <button
-                            className={`p-2 rounded-md transition-all ${view === 'scheduler' ? 'bg-white shadow text-primary' : 'text-neutral-500 hover:text-neutral-700'}`}
+                            className={`p-2 rounded-md transition-all ${view === 'scheduler' ? 'bg-white dark:bg-neutral-600 shadow text-primary' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'}`}
                             onClick={() => setView('scheduler')}
                             title={t('scheduler_view')}
                         >

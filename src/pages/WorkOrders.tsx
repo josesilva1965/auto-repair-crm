@@ -168,7 +168,7 @@ export function WorkOrders() {
   });
 
   return (
-    <div className="bg-neutral-50 min-h-screen flex flex-col">
+    <div className="bg-neutral-50 dark:bg-neutral-900 min-h-screen flex flex-col">
       {/* Top Bar / Header */}
       <div className="mb-6">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
@@ -179,7 +179,7 @@ export function WorkOrders() {
               placeholder={t('search_service_id_vin') || "Search service ID or VIN"}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-neutral-200 bg-white shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-foreground"
             />
           </div>
 
@@ -192,10 +192,10 @@ export function WorkOrders() {
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-2 rounded-xl border border-neutral-200 shadow-sm">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-neutral-800 p-2 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm">
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <select
-              className="bg-neutral-100 border-none text-sm font-medium rounded-lg px-4 py-2 cursor-pointer outline-none hover:bg-neutral-200 transition-colors"
+              className="bg-neutral-100 dark:bg-neutral-700 border-none text-sm font-medium rounded-lg px-4 py-2 cursor-pointer outline-none hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors text-foreground"
               value={techFilter}
               onChange={(e) => setTechFilter(e.target.value)}
             >
@@ -209,7 +209,7 @@ export function WorkOrders() {
               onClick={() => setUrgentOnly(!urgentOnly)}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border",
-                urgentOnly ? "bg-red-50 text-red-600 border-red-200" : "bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50"
+                urgentOnly ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800" : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
               )}
             >
               <AlertCircle className="w-4 h-4" />
@@ -220,7 +220,7 @@ export function WorkOrders() {
               onClick={() => setTodayOnly(!todayOnly)}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border",
-                todayOnly ? "bg-primary-50 text-primary border-primary-100" : "bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50"
+                todayOnly ? "bg-primary-50 dark:bg-primary-900/30 text-primary border-primary-100 dark:border-primary-800" : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
               )}
             >
               <Calendar className="w-4 h-4" />
@@ -232,16 +232,16 @@ export function WorkOrders() {
             <span className="text-sm text-neutral-500 font-medium">
               {filteredOrders.length} {t('active_requests') || 'Active Requests'}
             </span>
-            <div className="flex bg-neutral-100 p-1 rounded-lg">
+            <div className="flex bg-neutral-100 dark:bg-neutral-700 p-1 rounded-lg">
               <button
                 onClick={() => setViewMode('kanban')}
-                className={cn("p-1.5 rounded-md transition-all", viewMode === 'kanban' ? "bg-white shadow text-primary" : "text-neutral-500 hover:text-neutral-700")}
+                className={cn("p-1.5 rounded-md transition-all", viewMode === 'kanban' ? "bg-white dark:bg-neutral-600 shadow text-primary" : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200")}
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={cn("p-1.5 rounded-md transition-all", viewMode === 'list' ? "bg-white shadow text-primary" : "text-neutral-500 hover:text-neutral-700")}
+                className={cn("p-1.5 rounded-md transition-all", viewMode === 'list' ? "bg-white dark:bg-neutral-600 shadow text-primary" : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200")}
               >
                 <List className="w-4 h-4" />
               </button>

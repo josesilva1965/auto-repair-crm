@@ -138,17 +138,17 @@ export function Settings() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex flex-col md:flex-row items-center gap-8 ml-12">
-                            <div className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+                            <div className="bg-white dark:bg-neutral-800 p-4 rounded-xl border border-blue-100 dark:border-blue-900 shadow-sm">
                                 <QRCodeSVG value={mobileAppUrl} size={120} />
                             </div>
                             <div className="space-y-3 w-full max-w-sm">
-                                <h4 className="font-semibold text-blue-900 text-lg">Scan to Download</h4>
+                                <h4 className="font-semibold text-blue-900 dark:text-blue-100 text-lg">Scan to Download</h4>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-medium text-blue-800 uppercase tracking-wide">App Download Link</label>
+                                    <label className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wide">App Download Link</label>
                                     <Input
                                         value={mobileAppUrl}
                                         onChange={(e) => setMobileAppUrl(e.target.value)}
-                                        className="bg-white border-blue-200 text-blue-900 h-9"
+                                        className="bg-white dark:bg-neutral-800 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100 h-9"
                                         placeholder="https://expo.dev/artifacts/..."
                                     />
                                     <p className="text-[10px] text-blue-600/80">
@@ -191,7 +191,7 @@ export function Settings() {
                                 <label className="text-sm font-medium leading-none">Shop Logo</label>
                                 <div className="flex items-center gap-4">
                                     {localEmail.logo_url && (
-                                        <div className="h-12 w-12 rounded-lg border border-border p-1 bg-white">
+                                        <div className="h-12 w-12 rounded-lg border border-border p-1 bg-white dark:bg-neutral-800">
                                             <img src={localEmail.logo_url} alt="Shop Logo" className="h-full w-full object-contain" />
                                         </div>
                                     )}

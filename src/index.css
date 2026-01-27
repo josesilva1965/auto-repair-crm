@@ -156,3 +156,28 @@
 .hover-lift {
   @apply transition-transform duration-200 hover:-translate-y-1;
 }
+
+/* Drag and Drop: Mobile touch support */
+.draggable-item {
+  touch-action: none !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+}
+
+/* Ensure scrollable containers allow scrolling but draggables still work */
+.overflow-x-auto,
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Override for actual draggable items - highest specificity */
+[data-dnd-kit-draggable],
+.draggable-item {
+  touch-action: none !important;
+}

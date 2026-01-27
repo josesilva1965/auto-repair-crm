@@ -84,9 +84,9 @@ export function PublicInspection() {
         toast.success(t('all_approved_feedback') || 'All recommended repairs approved');
     };
 
-    if (loading) return <div className="flex h-screen items-center justify-center bg-gray-50"><Loader className="w-10 h-10 animate-spin text-primary" /></div>;
+    if (loading) return <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-neutral-900"><Loader className="w-10 h-10 animate-spin text-primary" /></div>;
 
-    if (!inspection) return <div className="p-8 text-center bg-gray-50 h-screen flex flex-col items-center justify-center text-gray-500">
+    if (!inspection) return <div className="p-8 text-center bg-gray-50 dark:bg-neutral-900 h-screen flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
         <AlertTriangle className="w-16 h-16 mb-4 text-gray-400" />
         <h3 className="text-xl font-semibold mb-2">{t('inspection_link_error') || 'Inspection Link Invalid or Expired'}</h3>
     </div>;
@@ -114,9 +114,9 @@ export function PublicInspection() {
     const total = subtotal + tax;
 
     return (
-        <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900 pb-20 md:pb-8">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 font-sans text-neutral-900 dark:text-neutral-100 pb-20 md:pb-8">
             {/* Top Navigation Bar */}
-            <header className="bg-white border-b border-neutral-200 sticky top-0 z-30 shadow-sm">
+            <header className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 sticky top-0 z-30 shadow-sm">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="bg-primary/10 p-2 rounded-lg">
@@ -257,7 +257,7 @@ export function PublicInspection() {
                                 const catRed = categoryItems.some(i => i.status === 'red');
 
                                 return (
-                                    <div key={category} className="bg-white rounded-xl border border-neutral-200 overflow-hidden shadow-sm">
+                                    <div key={category} className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden shadow-sm">
                                         <div className="bg-neutral-50/50 px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
                                             <h3 className="font-bold text-lg text-neutral-900 uppercase tracking-wide flex items-center gap-2">
                                                 <span className={cn("w-1.5 h-6 rounded-full mr-2", catRed ? "bg-red-500" : "bg-primary")}></span>
@@ -286,7 +286,7 @@ export function PublicInspection() {
                                                                     "text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-md",
                                                                     item.status === 'green' ? "bg-emerald-50 text-emerald-700" :
                                                                         item.status === 'yellow' ? "bg-amber-50 text-amber-700" :
-                                                                            item.status === 'red' ? "bg-red-50 text-red-700" : "bg-gray-100 text-gray-500"
+                                                                            item.status === 'red' ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300" : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
                                                                 )}>
                                                                     {item.status === 'green' ? t('passed') : item.status === 'yellow' ? t('monitor') : item.status === 'red' ? t('urgent') : t('not_inspected')}
                                                                 </span>
@@ -395,7 +395,7 @@ export function PublicInspection() {
                                                         className={cn("text-xs font-bold px-3 py-1 rounded-full border transition-colors",
                                                             decisions[item.id] === 'approved'
                                                                 ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-200"
-                                                                : "bg-white text-neutral-500 border-neutral-200 hover:bg-neutral-50"
+                                                                : "bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
                                                         )}
                                                     >
                                                         {decisions[item.id] === 'approved' ? 'APPROVED' : 'DECLINE / PENDING'}

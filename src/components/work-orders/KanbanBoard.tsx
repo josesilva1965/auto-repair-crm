@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../contexts/SettingsContext';
 import { supabase, type WorkOrder, type Estimate, type Customer, type Vehicle, type Technician } from '../../lib/supabase';
 import { Button } from '../ui/button';
-import { Check, Clock, AlertCircle, DollarSign, Trash2, MoreHorizontal, MessageSquare, User, Calendar, Wrench } from 'lucide-react';
-import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, useDraggable, useDroppable, useSensor, useSensors, PointerSensor, defaultDropAnimationSideEffects, DropAnimation } from '@dnd-kit/core';
+import { Check, Clock, AlertCircle, DollarSign, Trash2, MoreHorizontal, MessageSquare, User, Calendar, Wrench, GripVertical } from 'lucide-react';
+import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, useDraggable, useDroppable, useSensor, useSensors, MouseSensor, TouchSensor, defaultDropAnimationSideEffects, DropAnimation } from '@dnd-kit/core';
 import { useNavigate } from 'react-router-dom';
 import { PricingEngine } from '../../lib/pricingEngine';
 import { useState } from 'react';
@@ -46,7 +46,8 @@ export function KanbanBoard({ orders, customers, vehicles, technicians, onEdit, 
     const [activeBorderColor, setActiveBorderColor] = useState<string>('');
 
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+        useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 10 } })
     );
 
     function handleDragStart(event: DragStartEvent) {
@@ -75,7 +76,7 @@ export function KanbanBoard({ orders, customers, vehicles, technicians, onEdit, 
 
     return (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className="flex gap-3 overflow-x-auto pb-4 h-[calc(100vh-12rem)] px-4">
+            <div className="flex gap-3 overflow-x-auto pb-4 h-[calc(100vh-12rem)] px-4" style={{ touchAction: 'pan-x' }}>
                 {columns.map((col) => (
                     <KanbanColumn
                         key={col.status}
@@ -140,7 +141,7 @@ function KanbanColumn({ status, title, dotColor, count, countBadgeClass, childre
                     <MoreHorizontal className="w-4 h-4" />
                 </button>
             </div>
-            <div className="flex-1 overflow-y-auto pr-1 pb-1 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto pr-1 pb-1 scrollbar-hide" style={{ touchAction: 'pan-y' }}>
                 {children}
             </div>
         </div>
@@ -155,7 +156,9 @@ function DraggableCard({ order, customer, vehicle, technician, onEdit, estimate,
 
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: order.id });
 
-    const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+    const style = transform
+        ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, touchAction: 'none' as const }
+        : { touchAction: 'none' as const };
 
     if (isDragging && !isOverlay) {
         return <div ref={setNodeRef} className="opacity-0 h-28 bg-neutral-100 rounded-xl border border-dashed border-neutral-300" />;
@@ -172,16 +175,25 @@ function DraggableCard({ order, customer, vehicle, technician, onEdit, estimate,
         <div
             ref={isOverlay ? undefined : setNodeRef}
             style={isOverlay ? undefined : style}
-            {...(isOverlay ? {} : listeners)}
-            {...(isOverlay ? {} : attributes)}
             onClick={() => onEdit(order)}
             className={cn(
-                "bg-white p-3 rounded-xl border-y border-r border-neutral-100 shadow-sm transition-all group border-l-[4px]", // reduced border width
+                "bg-white p-3 rounded-xl border-y border-r border-neutral-100 shadow-sm transition-all group border-l-[4px] relative",
                 borderColor,
-                !isOverlay ? "hover:shadow-md cursor-grab active:cursor-grabbing hover:translate-y-[-2px]" : "cursor-grabbing shadow-xl ring-2 ring-primary ring-offset-2 rotate-2 scale-105"
+                !isOverlay ? "hover:shadow-md hover:translate-y-[-2px]" : "cursor-grabbing shadow-xl ring-2 ring-primary ring-offset-2 rotate-2 scale-105"
             )}
         >
-            <div className="flex items-center justify-between mb-2 text-[10px]">
+            {/* Drag Handle - visible on touch devices, appears on hover for desktop */}
+            {!isOverlay && (
+                <div
+                    {...listeners}
+                    {...attributes}
+                    className="absolute left-0 top-0 bottom-0 w-6 flex items-center justify-center cursor-grab active:cursor-grabbing touch-none bg-gradient-to-r from-neutral-100/80 to-transparent rounded-l-xl opacity-60 hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <GripVertical className="w-3 h-3 text-neutral-400" />
+                </div>
+            )}
+            <div className="flex items-center justify-between mb-2 text-[10px] pl-4">
                 <span className="text-neutral-400 font-medium tracking-wide">REQ-{order.id.substring(0, 4)}</span>
                 {isUrgent && (
                     <span className="bg-red-50 text-red-600 font-bold px-1.5 py-0.5 rounded text-[9px] tracking-wider uppercase">

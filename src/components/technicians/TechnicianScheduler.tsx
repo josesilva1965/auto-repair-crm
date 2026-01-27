@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable, useSensor, useSensors, PointerSensor, DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, useDraggable, useDroppable, useSensor, useSensors, MouseSensor, TouchSensor, DragStartEvent } from '@dnd-kit/core';
 import { Technician, WorkOrder } from '../../lib/supabase';
 import { supabase } from '../../lib/supabase';
 import { format, startOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Search, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -26,7 +26,8 @@ export function TechnicianScheduler({ technicians, workOrders, onUpdate }: Techn
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+        useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 10 } })
     );
 
     const handleDragStart = (event: DragStartEvent) => {
@@ -285,17 +286,24 @@ function JobCard({ order, isDragging, onClick, isSelected }: { order: WorkOrder,
     return (
         <div
             ref={setNodeRef}
-            {...listeners}
-            {...attributes}
             onClick={onClick}
             className={cn(
-                "rounded-lg p-3 text-sm cursor-pointer shadow-sm border transition-all hover:shadow-md relative group",
+                "rounded-lg p-3 text-sm cursor-pointer shadow-sm border transition-all hover:shadow-md relative group pl-6",
                 colorClass,
                 isDragging ? "rotate-2 scale-105 opacity-90 shadow-xl z-50 cursor-grabbing" : "",
                 isSelected ? "ring-2 ring-offset-2 ring-neutral-900" : ""
             )}
             style={{ minHeight: '80px' }}
         >
+            {/* Drag Handle */}
+            <div
+                {...listeners}
+                {...attributes}
+                className="absolute left-0 top-0 bottom-0 w-5 flex items-center justify-center cursor-grab active:cursor-grabbing touch-none bg-white/20 rounded-l-lg"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <GripVertical className="w-3 h-3 opacity-60" />
+            </div>
             <div className="font-medium text-xs opacity-90 mb-0.5">
                 {order.status === 'pending' ? t('scheduled') :
                     order.status === 'in-progress' ? t('in_progress') :

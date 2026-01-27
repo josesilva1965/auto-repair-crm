@@ -260,11 +260,11 @@ export function Vehicles() {
             </div>
 
             {getPrediction(selectedVehicle) && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4 flex items-start gap-3">
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg mb-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-800">{t('maintenance_prediction')}</p>
-                  <p className="text-sm text-amber-700">{getPrediction(selectedVehicle)?.type} {t('recommended_soon')}</p>
+                  <p className="font-medium text-amber-800 dark:text-amber-200">{t('maintenance_prediction')}</p>
+                  <p className="text-sm text-amber-700 dark:text-amber-300">{getPrediction(selectedVehicle)?.type} {t('recommended_soon')}</p>
                 </div>
               </div>
             )}
@@ -314,7 +314,7 @@ export function Vehicles() {
 
             {/* Make Dropdown */}
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t('make') || 'Make'}</label>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t('make') || 'Make'}</label>
               {!useCustomMake ? (
                 <select
                   value={form.make}
@@ -327,7 +327,7 @@ export function Vehicles() {
                       setUseCustomModel(false);
                     }
                   }}
-                  className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white"
+                  className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white dark:bg-neutral-800 text-foreground"
                 >
                   <option value="">Select make...</option>
                   {carMakes.map((make) => (
@@ -351,7 +351,7 @@ export function Vehicles() {
                       setUseCustomMake(false);
                       setForm({ ...form, make: '', model: '' });
                     }}
-                    className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg"
+                    className="px-3 py-2 text-sm bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded-lg"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -361,7 +361,7 @@ export function Vehicles() {
 
             {/* Model Dropdown */}
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t('model') || 'Model'}</label>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">{t('model') || 'Model'}</label>
               {!useCustomModel && form.make && !useCustomMake && getModelsForMake(form.make).length > 0 ? (
                 <select
                   value={form.model}
@@ -373,7 +373,7 @@ export function Vehicles() {
                       setForm({ ...form, model: e.target.value });
                     }
                   }}
-                  className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white"
+                  className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all bg-white dark:bg-neutral-800 text-foreground"
                 >
                   <option value="">Select model...</option>
                   {getModelsForMake(form.make).map((model) => (
@@ -399,7 +399,7 @@ export function Vehicles() {
                         setUseCustomModel(false);
                         setForm({ ...form, model: '' });
                       }}
-                      className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg"
+                      className="px-3 py-2 text-sm bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded-lg"
                     >
                       <X className="w-4 h-4" />
                     </button>

@@ -99,7 +99,7 @@ export function ApproveEstimate() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex items-center justify-center p-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         );
@@ -107,11 +107,11 @@ export function ApproveEstimate() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+            <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-8 max-w-md w-full text-center">
                     <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
-                    <p className="text-gray-600">{error}</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Error</h2>
+                    <p className="text-gray-600 dark:text-gray-300">{error}</p>
                 </div>
             </div>
         );
@@ -121,12 +121,12 @@ export function ApproveEstimate() {
 
     if (actionStatus === 'success') {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+            <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-8 max-w-md w-full text-center">
                     <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Check className="h-8 w-8 text-green-600" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('thank_you')}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('thank_you')}</h2>
                     <p className="text-gray-600">
                         {t('approval_message', { vehicle: estimate.vehicle_info, status: estimate.status === 'approved' ? t('approved') : t('rejected') })}
                     </p>
@@ -139,23 +139,23 @@ export function ApproveEstimate() {
     const isSent = estimate.status === 'sent';
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="text-center">
-                    <h1 className="text-3xl font-extrabold text-gray-900">{t('approval_page_title')}</h1>
+                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">{t('approval_page_title')}</h1>
                     <p className="mt-2 text-lg text-gray-600">
                         {t('approval_subtitle')}
                     </p>
                 </div>
 
                 {/* Estimate Card */}
-                <div className="bg-white shadow rounded-lg overflow-hidden">
+                <div className="bg-white dark:bg-neutral-800 shadow rounded-lg overflow-hidden">
                     {/* Status Banner (if not 'sent') */}
                     {!isSent && (
                         <div className={`px-6 py-3 border-b ${estimate.status === 'approved' ? 'bg-green-50 border-green-200' :
                             estimate.status === 'rejected' ? 'bg-red-50 border-red-200' :
-                                'bg-gray-50 border-gray-200'
+                                'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                             }`}>
                             <div className="flex items-center">
                                 {estimate.status === 'approved' ? <Check className="h-5 w-5 text-green-500 mr-2" /> :
@@ -171,7 +171,7 @@ export function ApproveEstimate() {
                         </div>
                     )}
 
-                    <div className="px-6 py-6 border-b border-gray-200 bg-gray-50">
+                    <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-neutral-700/50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500">{t('customer')}</h3>
@@ -193,7 +193,7 @@ export function ApproveEstimate() {
                     </div>
 
                     {/* Items Table */}
-                    <div className="border-t border-gray-200">
+                    <div className="border-t border-gray-200 dark:border-gray-700">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
@@ -248,7 +248,7 @@ export function ApproveEstimate() {
 
                     {/* Actions */}
                     {isSent && (
-                        <div className="px-6 py-6 bg-gray-50 border-t border-gray-200">
+                        <div className="px-6 py-6 bg-gray-50 dark:bg-neutral-700/50 border-t border-gray-200 dark:border-gray-700">
                             <h3 className="text-lg font-medium text-gray-900 mb-4">{t('your_decision')}</h3>
 
                             {!showRejectInput ? (
@@ -282,7 +282,7 @@ export function ApproveEstimate() {
                                     <textarea
                                         id="reason"
                                         rows={3}
-                                        className="shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                        className="shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-neutral-700 text-foreground"
                                         value={rejectReason}
                                         onChange={(e) => setRejectReason(e.target.value)}
                                         placeholder={t('decline_placeholder')}
@@ -297,7 +297,7 @@ export function ApproveEstimate() {
                                         </button>
                                         <button
                                             onClick={() => setShowRejectInput(false)}
-                                            className="flex-1 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            className="flex-1 inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                         >
                                             {t('cancel')}
                                         </button>
