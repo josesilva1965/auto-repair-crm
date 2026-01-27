@@ -112,9 +112,17 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: SidebarProps) {
                 {/* Header */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-border">
                     <div className={cn("flex items-center gap-3 overflow-hidden", !isOpen && "justify-center w-full")}>
-                        <div className="min-w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-lg shadow-primary/20">
-                            <Wrench className="w-4 h-4" />
-                        </div>
+                        {emailSettings.logo_url ? (
+                            <img
+                                src={emailSettings.logo_url}
+                                alt="Logo"
+                                className="w-8 h-8 rounded-lg object-contain bg-white"
+                            />
+                        ) : (
+                            <div className="min-w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-lg shadow-primary/20">
+                                <Wrench className="w-4 h-4" />
+                            </div>
+                        )}
                         <div className={cn("flex flex-col transition-opacity duration-200", !isOpen && "hidden opacity-0")}>
                             <span className="font-bold text-sm tracking-tight truncate max-w-[140px]">
                                 {emailSettings.shop_name || t('default_shop_name')}

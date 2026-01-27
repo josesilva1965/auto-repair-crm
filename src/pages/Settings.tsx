@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings, BusinessHour, EmailSettings } from '../contexts/SettingsContext';
+import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { Clock, Loader2, Mail, Globe, ShieldAlert, Save, Download, Trash2, CheckCircle, AlertTriangle, Wrench } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -71,6 +72,37 @@ export function Settings() {
         setTimeout(() => setEmailSaveMessage(''), 3000);
     };
 
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        const file = e.target.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        try {
+            setSavingEmail(true); // Reuse saving state to show activity
+            const { error: uploadError } = await supabase.storage
+                .from('logos')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('logos')
+                .getPublicUrl(filePath);
+
+            handleEmailChange('logo_url', publicUrl);
+            toast.success('Logo uploaded successfully');
+        } catch (error) {
+            console.error('Error uploading logo:', error);
+            toast.error('Failed to upload logo');
+        } finally {
+            setSavingEmail(false);
+        }
+    };
+
+
     const dayNames = [
         t('sunday'),
         t('monday'),
@@ -110,6 +142,42 @@ export function Settings() {
                                     onChange={(e) => handleEmailChange('shop_name', e.target.value)}
                                     placeholder="AutoShop CRM"
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none">Shop Logo</label>
+                                <div className="flex items-center gap-4">
+                                    {localEmail.logo_url && (
+                                        <div className="h-12 w-12 rounded-lg border border-border p-1 bg-white">
+                                            <img src={localEmail.logo_url} alt="Shop Logo" className="h-full w-full object-contain" />
+                                        </div>
+                                    )}
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleLogoUpload}
+                                        className="cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none">Brand Color</label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        type="color"
+                                        value={localEmail.primary_color || '#3b82f6'}
+                                        onChange={(e) => handleEmailChange('primary_color', e.target.value)}
+                                        className="w-12 h-10 p-1 cursor-pointer"
+                                    />
+                                    <Input
+                                        type="text"
+                                        value={localEmail.primary_color || ''}
+                                        onChange={(e) => handleEmailChange('primary_color', e.target.value)}
+                                        placeholder="#3b82f6"
+                                        className="flex-1 font-mono"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </CardContent>

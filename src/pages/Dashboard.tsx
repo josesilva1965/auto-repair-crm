@@ -8,6 +8,7 @@ import { DollarSign, ClipboardList, Users, AlertTriangle, Wrench } from 'lucide-
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../contexts/SettingsContext';
+import { Skeleton } from '../components/ui/skeleton';
 
 export function Dashboard() {
   const { t } = useTranslation();
@@ -64,36 +65,51 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <KPICard
-          title={t('todays_revenue')}
-          value={`${currency}${todayRevenue.toLocaleString()}`}
-          trend={12}
-          icon={DollarSign}
-          color={KPITrendColor.GREEN}
-          animationDelay={0}
-        />
-        <KPICard
-          title={t('active_jobs')}
-          value={activeJobs.length}
-          trend={-5}
-          icon={ClipboardList}
-          color={KPITrendColor.BLUE}
-          animationDelay={100}
-        />
-        <KPICard
-          title={t('tech_utilization')}
-          value={`${utilization}%`}
-          icon={Users}
-          color={KPITrendColor.YELLOW}
-          animationDelay={200}
-        />
-        <KPICard
-          title={t('low_stock_alerts')}
-          value={lowStockItems.length}
-          icon={AlertTriangle}
-          color={lowStockItems.length > 0 ? KPITrendColor.RED : KPITrendColor.GREEN}
-          animationDelay={300}
-        />
+        {loading ? (
+          Array(4).fill(0).map((_, i) => (
+            <div key={i} className="bg-card rounded-xl p-6 border border-border shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-8 rounded-lg" />
+              </div>
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          ))
+        ) : (
+          <>
+            <KPICard
+              title={t('todays_revenue')}
+              value={`${currency}${todayRevenue.toLocaleString()}`}
+              trend={12}
+              icon={DollarSign}
+              color={KPITrendColor.GREEN}
+              animationDelay={0}
+            />
+            <KPICard
+              title={t('active_jobs')}
+              value={activeJobs.length}
+              trend={-5}
+              icon={ClipboardList}
+              color={KPITrendColor.BLUE}
+              animationDelay={100}
+            />
+            <KPICard
+              title={t('tech_utilization')}
+              value={`${utilization}%`}
+              icon={Users}
+              color={KPITrendColor.YELLOW}
+              animationDelay={200}
+            />
+            <KPICard
+              title={t('low_stock_alerts')}
+              value={lowStockItems.length}
+              icon={AlertTriangle}
+              color={lowStockItems.length > 0 ? KPITrendColor.RED : KPITrendColor.GREEN}
+              animationDelay={300}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

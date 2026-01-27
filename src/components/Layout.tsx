@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { NotificationBell } from './NotificationBell';
 import { Sidebar } from './Sidebar';
-import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Menu, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react';
 import { Button } from './ui/button';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useSettings } from '../contexts/SettingsContext';
+import { CommandPalette } from './CommandPalette';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -38,6 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         setIsOpen={setSidebarOpen}
         isMobile={isMobile}
       />
+      <CommandPalette />
 
       <main
         className={cn(
@@ -73,6 +75,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center text-sm text-muted-foreground mr-4 bg-muted/50 px-3 py-1.5 rounded-md border border-border/50 cursor-pointer hover:bg-muted transition-colors" onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
+              <Search className="w-4 h-4 mr-2" />
+              <span>Search...</span>
+              <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </div>
             <NotificationBell />
           </div>
         </header>

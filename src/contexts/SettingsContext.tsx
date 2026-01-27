@@ -25,6 +25,8 @@ export interface EmailSettings {
     emailjs_public_key: string;
     shop_name?: string;
     public_url?: string;
+    logo_url?: string;
+    primary_color?: string;
 }
 
 const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
@@ -42,6 +44,8 @@ const DEFAULT_EMAIL_SETTINGS: EmailSettings = {
     emailjs_public_key: '',
     shop_name: 'AutoShop CRM',
     public_url: '',
+    logo_url: '',
+    primary_color: '#3b82f6', // Default blue-500
 };
 
 interface SettingsContextType {
@@ -172,6 +176,8 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
                     emailjs_public_key: settings.emailjs_public_key,
                     shop_name: settings.shop_name,
                     public_url: settings.public_url,
+                    logo_url: settings.logo_url,
+                    primary_color: settings.primary_color,
                     updated_at: new Date().toISOString()
                 });
 
@@ -233,6 +239,46 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         loadEmailSettings,
         saveEmailSettings,
     };
+
+    // Helper to convert Hex to HSL for Tailwind
+    const hexToHsl = (hex: string) => {
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (!result) return null;
+        let r = parseInt(result[1], 16);
+        let g = parseInt(result[2], 16);
+        let b = parseInt(result[3], 16);
+        r /= 255; g /= 255; b /= 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+        if (max === min) {
+            h = s = 0;
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            if (h) h /= 6;
+        }
+        if (h) h = Math.round(h * 360);
+        s = Math.round(s * 100);
+        l = Math.round(l * 100);
+        return `${h} ${s}% ${l}%`;
+    };
+
+    // Apply Brand Color
+    useEffect(() => {
+        if (emailSettings.primary_color) {
+            const hsl = hexToHsl(emailSettings.primary_color);
+            if (hsl) {
+                document.documentElement.style.setProperty('--primary', hsl);
+                // Also update ring/border slightly if needed, but primary is most important
+                document.documentElement.style.setProperty('--ring', hsl);
+            }
+        }
+    }, [emailSettings.primary_color]);
 
     return (
         <SettingsContext.Provider value={value}>
