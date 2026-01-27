@@ -1,224 +1,193 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Wrench, Sparkles, ChevronRight, Star, BarChart3, Users, Calendar, ShieldCheck, Zap } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import {
+    ArrowRight,
+    Wrench,
+    Calendar,
+    FileText,
+    Package,
+    Users,
+    Car,
+    CreditCard,
+    Clock,
+    UserCheck,
+    Star,
+    ChevronLeft,
+    ChevronRight,
+    CircleCheck,
+    Menu,
+    X,
+    Play
+} from 'lucide-react';
+
+// Hook for scroll-triggered animations
+function useScrollAnimation() {
+    const ref = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) setIsVisible(true);
+            },
+            { threshold: 0.1 }
+        );
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, []);
+
+    return { ref, isVisible };
+}
 
 export function LandingPage() {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-900">
-            {/* Background Pattern */}
-            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-                <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]" />
-                <div className="absolute top-[20%] left-[-10%] w-[30%] h-[30%] bg-cyan-500/5 rounded-full blur-[100px]" />
-            </div>
-
+        <div className="min-h-screen bg-stone-50">
             <Navbar />
-
-            <main className="relative z-10 overflow-hidden">
-                <HeroSection />
-                <ProductShowcase />
-                <ComparisonSection />
-                <FutureProductSection />
-                <SocialProof />
-            </main>
-
+            <HeroSection />
+            <FeaturesSection />
+            <HowItWorksSection />
+            <TestimonialsSection />
+            <CTASection />
             <Footer />
         </div>
     );
 }
 
 function Navbar() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <motion.nav
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
-        >
-            <div className="max-w-7xl mx-auto">
-                <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-full px-6 py-3 flex items-center justify-between shadow-sm ring-1 ring-black/5">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
+            <div className="max-w-7xl mx-auto px-6 py-4">
+                <div className="flex items-center justify-between">
+                    {/* Logo */}
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
-                            <Wrench className="w-5 h-5" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                            <Wrench className="w-5 h-5 text-white" />
                         </div>
-                        <span className="font-bold text-lg tracking-tight text-slate-900">
+                        <span className={`text-2xl font-bold ${scrolled ? 'text-stone-900' : 'text-white'}`}>
                             AutoCRM
                         </span>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-                        <Link to="#" className="hover:text-blue-600 transition-colors">Features</Link>
-                        <Link to="#" className="hover:text-blue-600 transition-colors">Pricing</Link>
-                        <Link to="#" className="hover:text-blue-600 transition-colors">Enterprise</Link>
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-8">
+                        <a href="#features" className={`font-medium transition-colors ${scrolled ? 'text-stone-600 hover:text-amber-600' : 'text-white/80 hover:text-white'}`}>
+                            Features
+                        </a>
+                        <a href="#how-it-works" className={`font-medium transition-colors ${scrolled ? 'text-stone-600 hover:text-amber-600' : 'text-white/80 hover:text-white'}`}>
+                            How It Works
+                        </a>
+                        <a href="#testimonials" className={`font-medium transition-colors ${scrolled ? 'text-stone-600 hover:text-amber-600' : 'text-white/80 hover:text-white'}`}>
+                            Testimonials
+                        </a>
+                        <a href="#cta" className={`font-medium transition-colors ${scrolled ? 'text-stone-600 hover:text-amber-600' : 'text-white/80 hover:text-white'}`}>
+                            Pricing
+                        </a>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <Link to="/login" className="hidden sm:block text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-                            Login
+                    {/* Desktop CTA */}
+                    <div className="hidden md:flex items-center gap-4">
+                        <Link to="/login" className={`font-medium transition-colors ${scrolled ? 'text-stone-700 hover:text-amber-600' : 'text-white/90 hover:text-white'}`}>
+                            Sign In
                         </Link>
-                        <Link
-                            to="/"
-                            className="px-5 py-2 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg shadow-slate-900/10"
-                        >
-                            Get Started
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <Link to="/" className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg hover:shadow-amber-500/30 transition-all">
+                            Start Free Trial
                         </Link>
                     </div>
+
+                    {/* Mobile Menu Button */}
+                    <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+                        {isOpen ? (
+                            <X className={scrolled ? 'text-stone-900' : 'text-white'} size={24} />
+                        ) : (
+                            <Menu className={scrolled ? 'text-stone-900' : 'text-white'} size={24} />
+                        )}
+                    </button>
                 </div>
+
+                {/* Mobile Menu */}
+                {isOpen && (
+                    <div className="md:hidden mt-4 pb-4 border-t border-white/20">
+                        <div className="flex flex-col gap-4 pt-4">
+                            <a href="#features" className="text-stone-700 font-medium">Features</a>
+                            <a href="#how-it-works" className="text-stone-700 font-medium">How It Works</a>
+                            <a href="#testimonials" className="text-stone-700 font-medium">Testimonials</a>
+                            <a href="#cta" className="text-stone-700 font-medium">Pricing</a>
+                            <Link to="/" className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-2.5 rounded-full font-semibold mt-2 text-center">
+                                Start Free Trial
+                            </Link>
+                        </div>
+                    </div>
+                )}
             </div>
-        </motion.nav>
+        </nav>
     );
 }
 
 function HeroSection() {
     return (
-        <section className="pt-40 pb-20 px-6">
-            <div className="max-w-7xl mx-auto text-center">
-                {/* Badge */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold mb-8 uppercase tracking-wider"
-                >
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                    </span>
-                    New Release v2.0
-                </motion.div>
-
-                {/* Headline */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.1 }}
-                    className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1] text-slate-900"
-                >
-                    Run your auto shop like a <br />
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-                        tech startup.
-                    </span>
-                </motion.h1>
-
-                {/* Subtext */}
-                <motion.p
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed"
-                >
-                    Stop wrestling with paper and legacy software. AutoCRM gives you a
-                    drag-and-drop scheduler, instant customer portals, and 1-click invoicing.
-                </motion.p>
-
-                {/* CTAs */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
-                >
-                    <Link
-                        to="/"
-                        className="px-8 py-4 bg-blue-600 text-white rounded-full font-bold text-lg hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 transition-all flex items-center gap-2 group active:scale-[0.98]"
-                    >
-                        Launch Dashboard
-                        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                    <button className="px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-full font-bold text-lg hover:bg-slate-50 hover:border-slate-300 transition-all">
-                        View Demo
-                    </button>
-                </motion.div>
-
-                {/* Visual Dashboard Mockup */}
-                <motion.div
-                    initial={{ opacity: 0, y: 60, rotateX: 20 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ duration: 1, delay: 0.4, type: "spring" }}
-                    className="relative max-w-5xl mx-auto perspective-1000 group"
-                >
-                    <div className="relative bg-slate-900/5 p-2 rounded-[1.5rem] lg:rounded-[2rem] ring-1 ring-slate-900/10 shadow-2xl shadow-blue-500/10 rotate-x-12 transform-gpu group-hover:rotate-x-0 transition-all duration-700 ease-out">
-                        <img
-                            src="/assets/dashboard-hero.png"
-                            alt="AutoCRM Dashboard Interface"
-                            className="rounded-xl lg:rounded-2xl w-full h-auto shadow-inner border border-slate-200/50"
-                        />
-                        {/* Floating Interaction Element */}
-                        <motion.div
-                            animate={{ y: [0, -10, 0] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -right-4 lg:-right-12 top-20 bg-white p-4 rounded-xl shadow-xl border border-slate-100 z-20 flex items-center gap-3"
-                        >
-                            <div className="bg-green-100 p-2 rounded-full">
-                                <CheckCircle className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 font-semibold">Job Completed</div>
-                                <div className="text-sm font-bold text-slate-900">+$850.00</div>
-                            </div>
-                        </motion.div>
-                    </div>
-                </motion.div>
+        <section className="relative h-screen overflow-hidden">
+            {/* Background */}
+            <div className="absolute inset-0 bg-stone-900">
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-stone-900/70 via-stone-900/50 to-stone-900/90" />
+                {/* Abstract shapes for visual interest */}
+                <div className="absolute top-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px]" />
+                <div className="absolute bottom-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-[80px]" />
             </div>
-        </section>
-    );
-}
 
-function ProductShowcase() {
-    return (
-        <section className="py-24 bg-slate-50 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="grid lg:grid-cols-2 gap-20 items-center mb-32">
-                    <div className="order-2 lg:order-1">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-full blur-[100px]" />
-                            <img
-                                src="/assets/analytics.png"
-                                alt="Financial Analytics"
-                                className="relative z-10 rounded-2xl shadow-2xl border border-slate-200 w-full"
-                            />
-                        </div>
+            {/* Content */}
+            <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
+                <div className="max-w-5xl mx-auto">
+                    {/* Industry Badge */}
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 px-4 py-2 rounded-full text-sm font-medium">
+                            <Wrench size={16} className="text-amber-400" />
+                            Auto Repair CRM
+                        </span>
                     </div>
-                    <div className="order-1 lg:order-2">
-                        <h3 className="text-orange-500 font-bold tracking-wider uppercase mb-4 text-sm">Real-time Intelligence</h3>
-                        <h2 className="text-4xl font-bold text-slate-900 mb-6">Know your numbers.<br />Grow your profits.</h2>
-                        <p className="text-slate-600 text-lg leading-relaxed mb-8">
-                            Stop guessing. Our analytics engine tracks every penny, technician efficiency, and parts margin in real-time. See exactly where your money is coming from.
-                        </p>
-                        <ul className="space-y-4">
-                            <li className="flex items-center gap-3 text-slate-700 font-medium">
-                                <CheckCircle className="w-5 h-5 text-green-500" /> Technician Efficiency Tracking
-                            </li>
-                            <li className="flex items-center gap-3 text-slate-700 font-medium">
-                                <CheckCircle className="w-5 h-5 text-green-500" /> 1-Click Profit & Loss
-                            </li>
-                            <li className="flex items-center gap-3 text-slate-700 font-medium">
-                                <CheckCircle className="w-5 h-5 text-green-500" /> Customer Retention Heatmaps
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div className="grid lg:grid-cols-2 gap-20 items-center">
-                    <div>
-                        <h3 className="text-blue-500 font-bold tracking-wider uppercase mb-4 text-sm">Customer Experience</h3>
-                        <h2 className="text-4xl font-bold text-slate-900 mb-6">Approvals in their pocket.<br />Trust on demand.</h2>
-                        <p className="text-slate-600 text-lg leading-relaxed mb-8">
-                            Send digital inspections (DVI) with photos directly to your customer's phone. They see what you see, and approve work with a single tap.
-                        </p>
-                        <button className="text-blue-600 font-bold hover:text-blue-700 flex items-center gap-2 group">
-                            Explore Customer Portal <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    {/* Headline */}
+                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight">
+                        One Platform.
+                        <br />
+                        <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                            Total Control.
+                        </span>
+                        <br />
+                        Unlimited Growth.
+                    </h1>
+
+                    {/* Subtext */}
+                    <p className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto mb-10">
+                        Streamline operations, boost revenue, and delight customers with the all-in-one business management solution built for auto repair shops.
+                    </p>
+
+                    {/* CTAs */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Link to="/" className="group bg-gradient-to-r from-amber-500 to-orange-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-amber-500/40 transition-all flex items-center gap-2">
+                            Start Your Free Trial
+                            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                        <button className="group flex items-center gap-2 text-white/90 hover:text-white px-8 py-4 rounded-full font-semibold text-lg border border-white/30 hover:border-white/50 transition-all">
+                            <Play size={20} className="text-amber-400" />
+                            Watch Demo
                         </button>
                     </div>
-                    <div className="relative mx-auto max-w-[300px] lg:max-w-none">
-                        <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-[100px]" />
-                        <img
-                            src="/assets/mobile-app.png"
-                            alt="Mobile Customer Portal"
-                            className="relative z-10 rounded-[2.5rem] shadow-2xl border-[8px] border-slate-900 mx-auto"
-                        />
+                </div>
+
+                {/* Scroll Indicator */}
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+                    <div className="w-8 h-12 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
+                        <div className="w-1.5 h-3 bg-white/60 rounded-full animate-pulse" />
                     </div>
                 </div>
             </div>
@@ -226,197 +195,274 @@ function ProductShowcase() {
     );
 }
 
-function ComparisonSection() {
+function FeaturesSection() {
+    const { ref, isVisible } = useScrollAnimation();
+
+    const features = [
+        { icon: Calendar, title: 'Smart Scheduling', desc: 'AI-powered appointment booking with automated reminders and optimal bay allocation' },
+        { icon: FileText, title: 'Work Orders', desc: 'Digital work orders with technician assignment, time tracking, and photo documentation' },
+        { icon: Package, title: 'Parts Inventory', desc: 'Real-time inventory tracking, automatic reorder alerts, and supplier management' },
+        { icon: CreditCard, title: 'Invoicing & Payments', desc: 'Professional estimates, invoices, and integrated payment processing' },
+        { icon: Users, title: 'Customer Database', desc: 'Complete customer profiles with contact info, preferences, and communication history' },
+        { icon: Car, title: 'Vehicle History', desc: 'Full service history for every vehicle including repairs, maintenance, and recalls' }
+    ];
+
     return (
-        <section className="py-20 bg-white border-y border-slate-200" id="pricing">
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <section id="features" className="py-24 bg-stone-50">
+            <div
+                ref={ref}
+                className={`max-w-7xl mx-auto px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            >
+                {/* Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                        Whatever your needs, we have a solution that fits.
+                    <span className="text-amber-600 font-semibold text-sm uppercase tracking-wider">Features</span>
+                    <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mt-3 mb-6">
+                        Everything You Need to Run Your Shop
                     </h2>
-                    <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-                        From basic estimating to full-scale shop management, choose the power you need.
+                    <p className="text-xl text-stone-600 max-w-3xl mx-auto">
+                        Powerful tools designed specifically for auto repair shops, all in one intuitive platform.
                     </p>
                 </div>
 
-                {/* Comparison Table */}
-                <div className="grid md:grid-cols-4 gap-0 border border-slate-200 rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/50 bg-white divide-y md:divide-y-0 md:divide-x divide-slate-200">
-
-                    {/* Feature Labels Column (Hidden on mobile, visible on desktop) */}
-                    <div className="hidden md:flex flex-col bg-slate-50">
-                        <div className="h-48 p-6 flex items-end pb-4 font-bold text-slate-400 uppercase tracking-wider text-sm">
-                            Core Features
+                {/* Feature Image */}
+                <div className="mb-16 rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-stone-800 to-stone-900 p-8">
+                    <div className="aspect-video bg-stone-800 rounded-2xl flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <Wrench className="w-10 h-10 text-white" />
+                            </div>
+                            <p className="text-stone-400 text-lg">Dashboard Preview</p>
                         </div>
-                        {/* Feature Rows */}
-                        <FeatureLabelRow label="Estimates & Quotes" />
-                        <FeatureLabelRow label="Customer & Vehicle Data" />
-                        <FeatureLabelRow label="Parts & Labor Lookup" />
-                        <FeatureLabelRow label="Repair Orders & Invoices" />
-                        <FeatureLabelRow label="Parts Ordering (AutoZone)" />
-                        <FeatureLabelRow label="Digital Inspections (DVI)" />
-                        <FeatureLabelRow label="2-Way Texting" />
-                        <FeatureLabelRow label="Technician Time Tracking" />
-                        <FeatureLabelRow label="Inventory Management" />
-                    </div>
-
-                    {/* Tier 1: Estimator */}
-                    <div className="flex flex-col">
-                        <div className="h-48 p-8 flex flex-col items-center justify-center border-b border-slate-100 bg-white">
-                            <h3 className="font-bold text-slate-900 text-lg mb-2">ESTIMATOR</h3>
-                            <div className="text-3xl font-bold text-slate-900 mb-1">$0<span className="text-sm text-slate-500 font-normal">/mo</span></div>
-                            <button className="mt-4 px-6 py-2 border border-blue-200 text-blue-600 rounded-full text-sm font-bold hover:bg-blue-50 transition-colors">
-                                Try Free
-                            </button>
-                        </div>
-                        <FeatureCheckRow active={true} mobileLabel="Estimates & Quotes" />
-                        <FeatureCheckRow active={true} mobileLabel="Customer & Vehicle Data" />
-                        <FeatureCheckRow active={true} mobileLabel="Parts & Labor Lookup" />
-                        <FeatureCheckRow active={false} mobileLabel="Repair Orders & Invoices" />
-                        <FeatureCheckRow active={false} mobileLabel="Parts Ordering (AutoZone)" />
-                        <FeatureCheckRow active={false} mobileLabel="Digital Inspections (DVI)" />
-                        <FeatureCheckRow active={false} mobileLabel="2-Way Texting" />
-                        <FeatureCheckRow active={false} mobileLabel="Technician Time Tracking" />
-                        <FeatureCheckRow active={false} mobileLabel="Inventory Management" />
-                    </div>
-
-                    {/* Tier 2: Shop Manager */}
-                    <div className="flex flex-col relative">
-                        <div className="absolute top-0 inset-x-0 h-1 bg-blue-500"></div>
-                        <div className="h-48 p-8 flex flex-col items-center justify-center border-b border-blue-50 bg-blue-50/10">
-                            <h3 className="font-bold text-blue-700 text-lg mb-2">SHOP MANAGER</h3>
-                            <div className="text-3xl font-bold text-slate-900 mb-1">$99<span className="text-sm text-slate-500 font-normal">/mo</span></div>
-                            <button className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
-                                Get Started
-                            </button>
-                        </div>
-                        <FeatureCheckRow active={true} mobileLabel="Estimates & Quotes" highlight />
-                        <FeatureCheckRow active={true} mobileLabel="Customer & Vehicle Data" highlight />
-                        <FeatureCheckRow active={true} mobileLabel="Parts & Labor Lookup" highlight />
-                        <FeatureCheckRow active={true} mobileLabel="Repair Orders & Invoices" highlight />
-                        <FeatureCheckRow active={true} mobileLabel="Parts Ordering (AutoZone)" highlight />
-                        <FeatureCheckRow active={false} mobileLabel="Digital Inspections (DVI)" highlight />
-                        <FeatureCheckRow active={false} mobileLabel="2-Way Texting" highlight />
-                        <FeatureCheckRow active={false} mobileLabel="Technician Time Tracking" highlight />
-                        <FeatureCheckRow active={false} mobileLabel="Inventory Management" highlight />
-                    </div>
-
-                    {/* Tier 3: Shop Manager PRO */}
-                    <div className="flex flex-col relative overflow-hidden">
-                        <div className="absolute top-4 -right-12 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-12 py-1 rotate-45 shadow-sm">
-                            POPULAR
-                        </div>
-                        <div className="h-48 p-8 flex flex-col items-center justify-center border-b border-slate-100 bg-slate-900 text-white">
-                            <h3 className="font-bold text-white text-lg mb-2">MANAGER PRO</h3>
-                            <div className="text-3xl font-bold text-white mb-1">$259<span className="text-sm text-slate-400 font-normal">/mo</span></div>
-                            <button className="mt-4 px-6 py-2 bg-white text-slate-900 rounded-full text-sm font-bold hover:bg-slate-100 transition-colors">
-                                Go Pro
-                            </button>
-                        </div>
-                        <FeatureCheckRow active={true} mobileLabel="Estimates & Quotes" />
-                        <FeatureCheckRow active={true} mobileLabel="Customer & Vehicle Data" />
-                        <FeatureCheckRow active={true} mobileLabel="Parts & Labor Lookup" />
-                        <FeatureCheckRow active={true} mobileLabel="Repair Orders & Invoices" />
-                        <FeatureCheckRow active={true} mobileLabel="Parts Ordering (AutoZone)" />
-                        <FeatureCheckRow active={true} mobileLabel="Digital Inspections (DVI)" />
-                        <FeatureCheckRow active={true} mobileLabel="2-Way Texting" />
-                        <FeatureCheckRow active={true} mobileLabel="Technician Time Tracking" />
-                        <FeatureCheckRow active={true} mobileLabel="Inventory Management" />
                     </div>
                 </div>
 
-                <div className="mt-12 text-center">
-                    <p className="text-slate-500 text-sm">
-                        * All plans include 24/7 Support and Cloud Backups. Prices subject to change.
-                    </p>
+                {/* Feature Grid */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {features.map((feature, index) => (
+                        <div
+                            key={index}
+                            className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100"
+                        >
+                            <div className="w-14 h-14 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <feature.icon size={28} className="text-amber-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-stone-900 mb-3">{feature.title}</h3>
+                            <p className="text-stone-600 leading-relaxed">{feature.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>
     );
 }
 
-function FeatureLabelRow({ label }: { label: string }) {
-    return (
-        <div className="h-14 px-6 flex items-center text-sm font-medium text-slate-600 border-b border-slate-100 last:border-0">
-            {label}
-        </div>
-    );
-}
+function HowItWorksSection() {
+    const { ref, isVisible } = useScrollAnimation();
 
-function FeatureCheckRow({ active, mobileLabel, highlight = false }: { active: boolean, mobileLabel: string, highlight?: boolean }) {
-    return (
-        <div className={`h-14 px-6 flex items-center justify-between md:justify-center border-b border-slate-100 last:border-0 ${highlight ? 'bg-blue-50/30' : ''}`}>
-            <span className="md:hidden text-sm text-slate-500 font-medium">{mobileLabel}</span>
-            {active ? (
-                <CheckCircle className="w-5 h-5 text-green-500 fill-green-50" />
-            ) : (
-                <div className="w-5 h-5 rounded-full bg-slate-100/50"></div>
-            )}
-        </div>
-    );
-}
+    const steps = [
+        { number: '01', title: 'Sign Up & Setup', desc: 'Create your account in minutes. Import existing data or start fresh with our guided setup wizard.' },
+        { number: '02', title: 'Customize Your Workflow', desc: 'Configure settings for your specific business needs. Add team members, services, and pricing.' },
+        { number: '03', title: 'Go Live & Grow', desc: 'Start accepting bookings, processing orders, and watching your business thrive with real-time insights.' }
+    ];
 
-function FutureProductSection() {
     return (
-        <section className="py-24 px-6 bg-slate-900 text-white relative overflow-hidden">
-            <div className="absolute inset-0 z-0">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px]" />
+        <section id="how-it-works" className="py-24 bg-stone-900">
+            <div
+                ref={ref}
+                className={`max-w-7xl mx-auto px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            >
+                {/* Header */}
+                <div className="text-center mb-16">
+                    <span className="text-amber-500 font-semibold text-sm uppercase tracking-wider">How It Works</span>
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mt-3 mb-6">
+                        Up and Running in Minutes
+                    </h2>
+                    <p className="text-xl text-stone-400 max-w-3xl mx-auto">
+                        Getting started with AutoCRM is simple. No complex setup, no technical expertise required.
+                    </p>
+                </div>
+
+                {/* Steps */}
+                <div className="grid md:grid-cols-3 gap-8">
+                    {steps.map((step, index) => (
+                        <div key={index} className="relative">
+                            {/* Connector Line */}
+                            {index < steps.length - 1 && (
+                                <div className="hidden md:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-amber-500/50 to-transparent z-0" />
+                            )}
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-600/20 flex items-center justify-center border border-amber-500/30">
+                                    <span className="text-5xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                                        {step.number}
+                                    </span>
+                                </div>
+                                <h3 className="text-2xl font-bold text-white mb-4">{step.title}</h3>
+                                <p className="text-stone-400 leading-relaxed">{step.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
+        </section>
+    );
+}
 
-            <div className="max-w-7xl mx-auto relative z-10 grid md:grid-cols-2 gap-16 items-center">
-                <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold mb-6 uppercase tracking-wider">
-                        Coming Q4 2026
+function TestimonialsSection() {
+    const [current, setCurrent] = useState(0);
+    const { ref, isVisible } = useScrollAnimation();
+
+    const testimonials = [
+        {
+            name: 'Marcus Johnson',
+            role: 'Owner, Johnson Auto Care',
+            image: '/assets/testimonial-1.jpg',
+            industry: 'Auto Repair',
+            quote: 'AutoCRM transformed how we run our shop. Work orders that used to take 15 minutes now take 2. Our customers love the digital updates, and we\'ve seen a 40% increase in repeat business.',
+            rating: 5
+        },
+        {
+            name: 'Sarah Williams',
+            role: 'Manager, Elite Auto Service',
+            image: '/assets/testimonial-2.jpg',
+            industry: 'Auto Repair',
+            quote: 'The scheduling system alone has paid for itself. We serve 30% more customers per week, and our technicians are happier because everything is organized. Best decision we\'ve made.',
+            rating: 5
+        }
+    ];
+
+    const next = () => setCurrent((c) => (c + 1) % testimonials.length);
+    const prev = () => setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length);
+
+    return (
+        <section id="testimonials" className="py-24 bg-stone-50">
+            <div
+                ref={ref}
+                className={`max-w-7xl mx-auto px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            >
+                {/* Header */}
+                <div className="text-center mb-16">
+                    <span className="text-amber-600 font-semibold text-sm uppercase tracking-wider">Testimonials</span>
+                    <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mt-3 mb-6">
+                        Trusted by Shop Owners
+                    </h2>
+                    <p className="text-xl text-stone-600 max-w-3xl mx-auto">
+                        See what industry leaders are saying about AutoCRM.
+                    </p>
+                </div>
+
+                {/* Testimonial Card */}
+                <div className="relative max-w-4xl mx-auto">
+                    <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl">
+                        <div className="flex flex-col md:flex-row gap-8 items-center">
+                            {/* Avatar Placeholder */}
+                            <div className="flex-shrink-0">
+                                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center shadow-lg">
+                                    <Users size={48} className="text-amber-600" />
+                                </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 text-center md:text-left">
+                                {/* Stars */}
+                                <div className="flex items-center justify-center md:justify-start gap-1 mb-4">
+                                    {[...Array(testimonials[current].rating)].map((_, i) => (
+                                        <Star key={i} size={20} className="fill-amber-400 text-amber-400" />
+                                    ))}
+                                </div>
+
+                                {/* Quote */}
+                                <p className="text-xl md:text-2xl text-stone-700 leading-relaxed mb-6 italic">
+                                    "{testimonials[current].quote}"
+                                </p>
+
+                                {/* Author */}
+                                <div>
+                                    <p className="font-bold text-stone-900 text-lg">{testimonials[current].name}</p>
+                                    <p className="text-stone-500">{testimonials[current].role}</p>
+                                    <span className="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
+                                        {testimonials[current].industry}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h2 className="text-4xl font-bold mb-6">Project Nebula: <br />The Future of Prediction.</h2>
-                    <p className="text-indigo-200 text-lg mb-8 leading-relaxed">
-                        Imagine if your CRM knew a car needed service before the customer did.
-                        We're building AI-driven predictive maintenance that automatically fills your schedule.
+
+                    {/* Navigation */}
+                    <div className="flex justify-center gap-4 mt-8">
+                        <button
+                            onClick={prev}
+                            className="p-3 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-stone-600 hover:text-amber-600"
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+
+                        {/* Dots */}
+                        <div className="flex items-center gap-2">
+                            {testimonials.map((_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setCurrent(index)}
+                                    className={`h-3 rounded-full transition-all ${index === current ? 'bg-amber-500 w-8' : 'bg-stone-300 w-3'}`}
+                                />
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={next}
+                            className="p-3 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-stone-600 hover:text-amber-600"
+                        >
+                            <ChevronRight size={24} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function CTASection() {
+    const { ref, isVisible } = useScrollAnimation();
+
+    return (
+        <section id="cta" className="py-24 bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900">
+            <div
+                ref={ref}
+                className={`max-w-5xl mx-auto px-6 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            >
+                <div className="bg-gradient-to-br from-amber-500/10 to-orange-600/10 rounded-3xl p-12 md:p-16 border border-amber-500/20">
+                    <span className="inline-flex items-center gap-2 text-amber-400 font-semibold text-sm uppercase tracking-wider mb-4">
+                        <CircleCheck size={16} />
+                        14-Day Free Trial
+                    </span>
+
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                        Ready to Transform Your Shop?
+                    </h2>
+
+                    <p className="text-xl text-stone-400 max-w-2xl mx-auto mb-10">
+                        Join thousands of auto shops that trust AutoCRM to streamline operations and boost growth. No credit card required.
                     </p>
 
-                    <form className="flex gap-2 max-w-sm">
+                    {/* Email Form */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                         <input
                             type="email"
                             placeholder="Enter your email"
-                            className="flex-1 bg-white/10 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder:text-indigo-300/50"
+                            className="w-full sm:w-96 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors"
                         />
-                        <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 transition-colors whitespace-nowrap">
-                            Join Waitlist
-                        </button>
-                    </form>
-                </div>
-
-                <div className="relative">
-                    <div className="aspect-square rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-xl p-8 flex items-center justify-center relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                        <Sparkles className="w-24 h-24 text-indigo-300 opacity-50" />
-
-                        {/* Abstract Floating Elements */}
-                        <motion.div
-                            animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute top-10 right-10 w-20 h-20 bg-purple-500/30 rounded-2xl blur-xl"
-                        />
+                        <Link
+                            to="/"
+                            className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2"
+                        >
+                            Get Started Free
+                            <ArrowRight size={20} />
+                        </Link>
                     </div>
-                </div>
-            </div>
-        </section>
-    );
-}
 
-function SocialProof() {
-    return (
-        <section className="py-16 bg-white border-t border-slate-100">
-            <div className="max-w-7xl mx-auto px-6 text-center">
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-10">
-                    Powering top shops across the country
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-60">
-                    {/* Dark Logos for Light Mode */}
-                    <div className="flex items-center gap-2 text-xl font-bold text-slate-700"><Star className="fill-slate-700" /> ShopMaster</div>
-                    <div className="flex items-center gap-2 text-xl font-bold text-slate-700"><Wrench className="fill-slate-700" /> AutoFix</div>
-                    <div className="flex items-center gap-2 text-xl font-bold text-slate-700"><ShieldCheck className="fill-slate-700" /> SafeDrive</div>
-                    <div className="flex items-center gap-2 text-xl font-bold text-slate-700"><BarChart3 className="fill-slate-700" /> GrowthMech</div>
+                    <p className="text-stone-500 text-sm">
+                        Free 14-day trial. No credit card required. Cancel anytime.
+                    </p>
                 </div>
             </div>
         </section>
@@ -424,24 +470,78 @@ function SocialProof() {
 }
 
 function Footer() {
+    const links = {
+        Product: ['Features', 'Pricing', 'Integrations', 'API', 'Updates'],
+        Company: ['About', 'Blog', 'Careers', 'Press', 'Partners'],
+        Resources: ['Documentation', 'Help Center', 'Community', 'Webinars', 'Templates'],
+        Legal: ['Privacy', 'Terms', 'Security', 'Cookie Policy']
+    };
+
     return (
-        <footer className="bg-slate-50 border-t border-slate-200 py-12 px-6">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Wrench className="w-4 h-4 text-blue-600" />
+        <footer className="bg-stone-900 border-t border-stone-800">
+            <div className="max-w-7xl mx-auto px-6 py-16">
+                {/* Top Section */}
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+                    {/* Logo & Description */}
+                    <div className="col-span-2">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                                <Wrench className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-2xl font-bold text-white">AutoCRM</span>
+                        </div>
+                        <p className="text-stone-400 mb-6 max-w-xs">
+                            The all-in-one business management platform for auto repair shops.
+                        </p>
+
+                        {/* Social Links */}
+                        <div className="flex gap-4">
+                            <a href="#" className="w-10 h-10 bg-stone-800 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                                </svg>
+                            </a>
+                            <a href="#" className="w-10 h-10 bg-stone-800 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+                                </svg>
+                            </a>
+                            <a href="#" className="w-10 h-10 bg-stone-800 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
-                    <span className="font-bold text-slate-700">AutoCRM</span>
+
+                    {/* Link Columns */}
+                    {Object.entries(links).map(([category, items]) => (
+                        <div key={category}>
+                            <h4 className="font-semibold text-white mb-4">{category}</h4>
+                            <ul className="space-y-3">
+                                {items.map((item) => (
+                                    <li key={item}>
+                                        <a href="#" className="text-stone-400 hover:text-white transition-colors text-sm">
+                                            {item}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
                 </div>
 
-                <div className="text-sm text-slate-500">
-                    &copy; {new Date().getFullYear()} AutoCRM System. All rights reserved.
-                </div>
-
-                <div className="flex items-center gap-6 text-sm text-slate-500">
-                    <Link to="#" className="hover:text-blue-600 transition-colors">Privacy</Link>
-                    <Link to="#" className="hover:text-blue-600 transition-colors">Terms</Link>
-                    <Link to="#" className="hover:text-blue-600 transition-colors">Twitter</Link>
+                {/* Bottom Section */}
+                <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p className="text-stone-500 text-sm">
+                        © {new Date().getFullYear()} AutoCRM. All rights reserved.
+                    </p>
+                    <div className="flex items-center gap-6">
+                        <span className="flex items-center gap-2 text-stone-400 text-sm">
+                            <Wrench size={16} className="text-amber-500" />
+                            Auto Repair Solutions
+                        </span>
+                    </div>
                 </div>
             </div>
         </footer>
