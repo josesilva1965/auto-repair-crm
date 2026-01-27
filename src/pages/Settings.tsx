@@ -26,6 +26,7 @@ export function Settings() {
 
     const [localHours, setLocalHours] = useState<BusinessHour[]>([]);
     const [localEmail, setLocalEmail] = useState<EmailSettings>(emailSettings);
+    const [mobileAppUrl, setMobileAppUrl] = useState('https://auto-repair-crm-three.vercel.app/');
     const [saving, setSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState('');
     const [savingEmail, setSavingEmail] = useState(false);
@@ -138,18 +139,25 @@ export function Settings() {
                     <CardContent>
                         <div className="flex flex-col md:flex-row items-center gap-8 ml-12">
                             <div className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
-                                <QRCodeSVG value="https://expo.dev/artifacts/eas/..." size={120} />
+                                <QRCodeSVG value={mobileAppUrl} size={120} />
                             </div>
-                            <div className="space-y-3">
+                            <div className="space-y-3 w-full max-w-sm">
                                 <h4 className="font-semibold text-blue-900 text-lg">Scan to Download</h4>
-                                <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
-                                    <li>Open your phone's camera</li>
-                                    <li>Scan the QR code</li>
-                                    <li>Install the <strong>AutoCRM Tech</strong> app</li>
-                                </ol>
-                                <Button className="mt-2 bg-blue-600 hover:bg-blue-700 text-white" size="sm" onClick={() => window.open('https://expo.dev', '_blank')}>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium text-blue-800 uppercase tracking-wide">App Download Link</label>
+                                    <Input
+                                        value={mobileAppUrl}
+                                        onChange={(e) => setMobileAppUrl(e.target.value)}
+                                        className="bg-white border-blue-200 text-blue-900 h-9"
+                                        placeholder="https://expo.dev/artifacts/..."
+                                    />
+                                    <p className="text-[10px] text-blue-600/80">
+                                        Paste the URL of your APK or Install Page here. The QR code will update automatically.
+                                    </p>
+                                </div>
+                                <Button className="mt-1 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto" size="sm" onClick={() => window.open(mobileAppUrl, '_blank')}>
                                     <Download className="w-4 h-4 mr-2" />
-                                    Download APK
+                                    Download App
                                 </Button>
                             </div>
                         </div>
