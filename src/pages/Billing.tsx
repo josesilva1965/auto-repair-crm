@@ -262,7 +262,7 @@ export function Billing() {
   const availableOrders = workOrders.filter(o => !invoices.some(i => i.work_order_id === o.id));
 
   return (
-    <div className="min-h-screen bg-neutral-50/50 p-6 space-y-8">
+    <div className="min-h-screen bg-neutral-50/50 dark:bg-neutral-900 p-6 space-y-8">
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -272,13 +272,13 @@ export function Billing() {
             <span>›</span>
             <span>Finance</span>
             <span>›</span>
-            <span className="text-neutral-900 font-medium">Invoices & Billing</span>
+            <span className="text-neutral-900 dark:text-white font-medium">Invoices & Billing</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900">{t('invoices_billing_overview') || 'Invoice & Billing Overview'}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white">{t('invoices_billing_overview') || 'Invoice & Billing Overview'}</h1>
           <p className="text-neutral-500 mt-1">{t('manage_billing_desc') || 'Manage customer payments, track revenue, and create new invoices.'}</p>
         </div>
         <div className="flex gap-3">
-          <UiButton variant="outline" className="gap-2 bg-white">
+          <UiButton variant="outline" className="gap-2 bg-white dark:bg-neutral-800">
             <Download className="w-4 h-4" />
             {t('download_csv') || 'Download CSV'}
           </UiButton>
@@ -294,7 +294,7 @@ export function Billing() {
       </div>
 
       {activeTab === 'purchasing' ? (
-        <div className="bg-white rounded-xl border border-neutral-200">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
           <Purchasing />
         </div>
       ) : (
@@ -305,10 +305,10 @@ export function Billing() {
               <CardContent className="p-6 flex justify-between items-start">
                 <div>
                   <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('total_unpaid') || 'TOTAL UNPAID'}</p>
-                  <h3 className="text-4xl font-extrabold text-neutral-900">{currency}{totalUnpaid.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                  <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white">{currency}{totalUnpaid.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                   <p className="text-sm font-medium text-red-600 mt-1">{overdueCount} {t('overdue_invoices') || 'Overdue Invoices'}</p>
                 </div>
-                <div className="p-3 bg-red-50 rounded-full">
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-full">
                   <FileText className="w-6 h-6 text-red-500" />
                 </div>
               </CardContent>
@@ -318,10 +318,10 @@ export function Billing() {
               <CardContent className="p-6 flex justify-between items-start">
                 <div>
                   <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('revenue_this_month') || 'REVENUE (THIS MONTH)'}</p>
-                  <h3 className="text-4xl font-extrabold text-neutral-900">{currency}{revenueThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                  <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white">{currency}{revenueThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                   <p className="text-sm font-medium text-emerald-600 mt-1">{t('vs_last_month') || '+12.4% vs last month'}</p>
                 </div>
-                <div className="p-3 bg-emerald-50 rounded-full">
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-full">
                   <DollarSign className="w-6 h-6 text-emerald-500" />
                 </div>
               </CardContent>
@@ -331,10 +331,10 @@ export function Billing() {
               <CardContent className="p-6 flex justify-between items-start">
                 <div>
                   <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('average_invoice_value') || 'AVERAGE INVOICE VALUE'}</p>
-                  <h3 className="text-4xl font-extrabold text-neutral-900">{currency}{avgInvoiceValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                  <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white">{currency}{avgInvoiceValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                   <p className="text-sm font-medium text-blue-600 mt-1">{t('across_invoices', { count: activeCount }) || `Across ${activeCount} invoices`}</p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-full">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-full">
                   <Clock className="w-6 h-6 text-blue-500" />
                 </div>
               </CardContent>
@@ -344,10 +344,10 @@ export function Billing() {
           <div className="flex flex-col lg:flex-row gap-6 items-start">
 
             {/* Sidebar Filters */}
-            <div className="w-full lg:w-64 flex-shrink-0 bg-white rounded-xl border border-neutral-200 shadow-sm p-5 sticky top-6">
+            <div className="w-full lg:w-64 flex-shrink-0 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm p-5 sticky top-6">
               <div className="flex items-center gap-2 mb-4">
                 <Filter className="w-5 h-5 text-primary" />
-                <h3 className="font-bold text-neutral-900 text-lg">{t('filters') || 'Filters'}</h3>
+                <h3 className="font-bold text-neutral-900 dark:text-white text-lg">{t('filters') || 'Filters'}</h3>
               </div>
 
               <div className="space-y-6">
@@ -365,8 +365,8 @@ export function Billing() {
                           />
                         </div>
                         <div className="flex-1 flex justify-between items-center">
-                          <span className="text-sm text-neutral-700 group-hover:text-neutral-900 capitalize">{t(status) || status}</span>
-                          <span className="text-xs text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full">
+                          <span className="text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-white capitalize">{t(status) || status}</span>
+                          <span className="text-xs text-neutral-400 dark:text-neutral-500 bg-neutral-100 dark:bg-neutral-700 px-2 py-0.5 rounded-full">
                             {(activeTab === 'invoices' ? invoices : estimates).filter(i => i.status === status).length}
                           </span>
                         </div>
@@ -392,11 +392,11 @@ export function Billing() {
                 <div>
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3 block">{t('quick_reports') || 'QUICK REPORTS'}</label>
                   <div className="space-y-1">
-                    <button className="flex items-center gap-2 text-sm text-neutral-600 hover:text-primary transition-colors w-full py-1">
+                    <button className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-primary transition-colors w-full py-1">
                       <FileText className="w-4 h-4" />
                       {t('monthly_tax_summary') || 'Monthly Tax Summary'}
                     </button>
-                    <button className="flex items-center gap-2 text-sm text-neutral-600 hover:text-primary transition-colors w-full py-1">
+                    <button className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 hover:text-primary transition-colors w-full py-1">
                       <Clock className="w-4 h-4" />
                       {t('outstanding_receivables') || 'Outstanding Receivables'}
                     </button>
@@ -406,10 +406,10 @@ export function Billing() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 min-w-0 bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden flex flex-col">
+            <div className="flex-1 min-w-0 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-hidden flex flex-col">
 
               {/* Tabs / Toolbar */}
-              <div className="border-b border-neutral-200">
+              <div className="border-b border-neutral-200 dark:border-neutral-700">
                 <div className="flex overflow-x-auto">
                   {['invoices', 'estimates', 'purchasing'].map((tab) => (
                     <button
@@ -419,7 +419,7 @@ export function Billing() {
                         "px-6 py-4 font-bold text-sm border-b-2 transition-colors whitespace-nowrap",
                         activeTab === tab
                           ? "border-primary text-primary"
-                          : "border-transparent text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50"
+                          : "border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
                       )}
                     >
                       {t(tab)}
@@ -429,22 +429,22 @@ export function Billing() {
               </div>
 
               {/* Search Toolbar */}
-              <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row gap-4 items-center justify-between bg-neutral-50/30">
+              <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex flex-col sm:flex-row gap-4 items-center justify-between bg-neutral-50/30 dark:bg-neutral-900/30">
                 <div className="relative w-full sm:w-96">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                   <input
                     type="text"
-                    className="w-full h-10 pl-10 pr-4 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm"
+                    className="w-full h-10 pl-10 pr-4 rounded-lg border border-neutral-200 dark:border-neutral-700 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm bg-white dark:bg-neutral-800 text-foreground"
                     placeholder={t('search_invoices') || "Search by Invoice #, Customer..."}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
                 <div className="flex gap-2">
-                  <UiButton variant="outline" size="sm" className="bg-white gap-2">
+                  <UiButton variant="outline" size="sm" className="bg-white dark:bg-neutral-800 gap-2">
                     <Filter className="w-3.5 h-3.5" /> Filter
                   </UiButton>
-                  <UiButton variant="outline" size="sm" className="bg-white gap-2">
+                  <UiButton variant="outline" size="sm" className="bg-white dark:bg-neutral-800 gap-2">
                     <ArrowUpDown className="w-3.5 h-3.5" /> Sort
                   </UiButton>
                 </div>
@@ -453,7 +453,7 @@ export function Billing() {
               {/* Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-neutral-600">
-                  <thead className="bg-neutral-50 border-b border-neutral-200 text-xs uppercase font-semibold text-neutral-500 tracking-wider">
+                  <thead className="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 text-xs uppercase font-semibold text-neutral-500 dark:text-neutral-400 tracking-wider">
                     <tr>
                       <th className="px-6 py-4 text-left">{activeTab === 'invoices' ? t('invoice_details') || 'INVOICE DETAILS' : t('estimate_details')}</th>
                       <th className="px-6 py-4 text-left">{t('customer') || 'CUSTOMER'}</th>
@@ -463,7 +463,7 @@ export function Billing() {
                       <th className="px-6 py-4 text-right">{t('actions') || 'ACTIONS'}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100">
+                  <tbody className="divide-y divide-neutral-100 dark:divide-neutral-700">
                     {loading ? (
                       <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">Loading...</td></tr>
                     ) : paginatedData.length === 0 ? (
@@ -472,16 +472,16 @@ export function Billing() {
                       paginatedData.map((item: any) => (
                         <tr
                           key={item.id}
-                          className="hover:bg-neutral-50/50 transition-colors group cursor-pointer"
+                          className="hover:bg-neutral-50/50 dark:hover:bg-neutral-700/50 transition-colors group cursor-pointer"
                           onClick={() => activeTab === 'invoices' ? setSelectedInvoice(item) : setSelectedEstimate(item)}
                         >
                           <td className="px-6 py-4">
-                            <div className="font-bold text-neutral-900 text-base">{item.invoice_number || item.estimate_number}</div>
+                            <div className="font-bold text-neutral-900 dark:text-white text-base">{item.invoice_number || item.estimate_number}</div>
                             <div className="text-xs text-neutral-500 mt-1">{getCustomerName(item.customer_id)}</div>
                           </td>
                           <td className="px-6 py-4 font-medium">{getCustomerName(item.customer_id)} <span className='text-neutral-400 font-normal ml-1'>• {getWorkOrderNumber(item.work_order_id)}</span></td>
                           <td className="px-6 py-4 text-center text-neutral-500">{new Date(item.created_at).toLocaleDateString()}</td>
-                          <td className="px-6 py-4 text-right font-bold text-neutral-900">{currency}{item.total?.toFixed(2)}</td>
+                          <td className="px-6 py-4 text-right font-bold text-neutral-900 dark:text-white">{currency}{item.total?.toFixed(2)}</td>
                           <td className="px-6 py-4 text-center">
                             <StatusBadge status={item.status} />
                           </td>
@@ -503,15 +503,15 @@ export function Billing() {
               </div>
 
               {/* Footer / Pagination */}
-              <div className="p-4 border-t border-neutral-200 bg-neutral-50/30 flex items-center justify-between text-sm text-neutral-500">
+              <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50/30 dark:bg-neutral-900/30 flex items-center justify-between text-sm text-neutral-500 dark:text-neutral-400">
                 <div>
-                  Showing <span className="font-medium text-neutral-900">{Math.min(totalItems, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(totalItems, currentPage * itemsPerPage)}</span> of <span className="font-medium text-neutral-900">{totalItems}</span> records
+                  Showing <span className="font-medium text-neutral-900 dark:text-white">{Math.min(totalItems, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(totalItems, currentPage * itemsPerPage)}</span> of <span className="font-medium text-neutral-900 dark:text-white">{totalItems}</span> records
                 </div>
                 <div className="flex gap-2">
                   <UiButton
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 bg-white"
+                    className="h-8 w-8 bg-white dark:bg-neutral-800"
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   >
@@ -520,7 +520,7 @@ export function Billing() {
                   <UiButton
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 bg-white"
+                    className="h-8 w-8 bg-white dark:bg-neutral-800"
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   >
@@ -579,16 +579,16 @@ export function Billing() {
           />
 
           {previewItems.length > 0 && (
-            <div className="bg-neutral-50 p-4 rounded-lg mt-4 border border-neutral-100">
-              <h4 className="font-semibold text-sm mb-2 text-neutral-900">{t('invoice_preview') || 'Preview'}</h4>
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg mt-4 border border-neutral-100 dark:border-neutral-700">
+              <h4 className="font-semibold text-sm mb-2 text-neutral-900 dark:text-white">{t('invoice_preview') || 'Preview'}</h4>
               <div className="space-y-2 text-sm">
                 {previewItems.map((item, i) => (
-                  <div key={i} className="flex justify-between text-neutral-600">
+                  <div key={i} className="flex justify-between text-neutral-600 dark:text-neutral-300">
                     <span>{item.description} (x{item.quantity})</span>
                     <span>{currency}{(item.quantity * item.unit_price).toFixed(2)}</span>
                   </div>
                 ))}
-                <div className="font-bold border-t pt-2 flex justify-between mt-2 text-neutral-900">
+                <div className="font-bold border-t dark:border-neutral-700 pt-2 flex justify-between mt-2 text-neutral-900 dark:text-white">
                   <span>Subtotal</span>
                   <span>{currency}{previewItems.reduce((acc, curr) => acc + (curr.quantity * curr.unit_price), 0).toFixed(2)}</span>
                 </div>
@@ -624,15 +624,15 @@ export function Billing() {
                 <p className="font-bold text-lg">{currency}{selectedInvoice.total?.toFixed(2)}</p>
               </div>
             </div>
-            <div className="bg-neutral-50 rounded-lg p-4">
-              <h4 className="font-semibold mb-3 text-sm text-neutral-900 border-b pb-2">{t('itemized_breakdown')}</h4>
+            <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4">
+              <h4 className="font-semibold mb-3 text-sm text-neutral-900 dark:text-white border-b dark:border-neutral-700 pb-2">{t('itemized_breakdown')}</h4>
               {invoiceItems.map((item, i) => (
                 <div key={i} className="flex text-sm justify-between py-1">
                   <span>{item.quantity}x {item.description}</span>
                   <span>{currency}{(item.quantity * item.unit_price).toFixed(2)}</span>
                 </div>
               ))}
-              <div className="border-t mt-2 pt-2 flex justify-between font-bold">
+              <div className="border-t dark:border-neutral-700 mt-2 pt-2 flex justify-between font-bold">
                 <span>Total</span>
                 <span>{currency}{selectedInvoice.total?.toFixed(2)}</span>
               </div>
@@ -654,7 +654,7 @@ export function Billing() {
           <div className="space-y-4">
             <h3 className="text-xl font-bold">{selectedEstimate.estimate_number}</h3>
             <p>Status: <StatusBadge status={selectedEstimate.status} /></p>
-            <div className="bg-neutral-50 p-4 rounded">
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded">
               <h4>Items</h4>
               {invoiceItems.map((item, i) => (
                 <div key={i}>{item.description} - {currency}{item.unit_price}</div>

@@ -139,7 +139,7 @@ export function Inventory() {
   const totalItemsCount = inventory.length;
 
   return (
-    <div className="min-h-screen bg-neutral-50/50 p-6 space-y-8">
+    <div className="min-h-screen bg-neutral-50/50 dark:bg-neutral-900 p-6 space-y-8">
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -155,7 +155,7 @@ export function Inventory() {
           <p className="text-muted-foreground mt-1">Manage stock levels, pricing, and reordering.</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2 bg-white">
+          <Button variant="outline" className="gap-2 bg-white dark:bg-neutral-800">
             <Download className="w-4 h-4" />
             {t('export_report') || 'Export Report'}
           </Button>
@@ -175,10 +175,10 @@ export function Inventory() {
           <CardContent className="p-6 flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('low_stock_alerts') || 'LOW STOCK ALERTS'}</p>
-              <h3 className="text-4xl font-extrabold text-neutral-900">{lowStockCount}</h3>
+              <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white">{lowStockCount}</h3>
               <p className="text-sm font-medium text-red-600 mt-1">{t('items_below_reorder') || 'Items below reorder point'}</p>
             </div>
-            <div className="p-3 bg-red-50 rounded-full">
+            <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-full">
               <Bell className="w-6 h-6 text-red-500" />
             </div>
           </CardContent>
@@ -188,10 +188,10 @@ export function Inventory() {
           <CardContent className="p-6 flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('total_inventory_value') || 'TOTAL INVENTORY VALUE'}</p>
-              <h3 className="text-4xl font-extrabold text-neutral-900">{currency}{totalValue.toLocaleString()}</h3>
+              <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white">{currency}{totalValue.toLocaleString()}</h3>
               <p className="text-sm font-medium text-emerald-600 mt-1">{t('value_increase') || '+8.5% from last month'}</p>
             </div>
-            <div className="p-3 bg-emerald-50 rounded-full">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-full">
               <span className="w-6 h-6 flex items-center justify-center text-xl font-bold text-emerald-600">{currency}</span>
             </div>
           </CardContent>
@@ -201,10 +201,10 @@ export function Inventory() {
           <CardContent className="p-6 flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('total_items') || 'TOTAL ITEMS'}</p>
-              <h3 className="text-4xl font-extrabold text-neutral-900">{totalItemsCount}</h3>
+              <h3 className="text-4xl font-extrabold text-neutral-900 dark:text-white">{totalItemsCount}</h3>
               <p className="text-sm font-medium text-blue-600 mt-1">{t('active_parts') || 'Active parts in system'}</p>
             </div>
-            <div className="p-3 bg-blue-50 rounded-full">
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-full">
               <Package className="w-6 h-6 text-blue-500" />
             </div>
           </CardContent>
@@ -215,10 +215,10 @@ export function Inventory() {
       <div className="flex flex-col lg:flex-row gap-6 items-start">
 
         {/* Sidebar Categories */}
-        <div className="w-full lg:w-64 flex-shrink-0 bg-white rounded-xl border border-neutral-200 shadow-sm p-4 sticky top-6">
+        <div className="w-full lg:w-64 flex-shrink-0 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm p-4 sticky top-6">
           <div className="flex items-center gap-2 mb-4 px-2">
             <Filter className="w-4 h-4 text-primary" />
-            <h3 className="font-bold text-neutral-900">{t('categories') || 'Categories'}</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white">{t('categories') || 'Categories'}</h3>
           </div>
           <div className="space-y-1">
             {CATEGORIES.map(cat => {
@@ -232,7 +232,7 @@ export function Inventory() {
                     "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                     isActive
                       ? "bg-primary/10 text-primary"
-                      : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                      : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white"
                   )}
                 >
                   <span>{t(cat.label) || cat.label}</span>
@@ -244,25 +244,25 @@ export function Inventory() {
         </div>
 
         {/* Inventory List */}
-        <div className="flex-1 min-w-0 bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-hidden flex flex-col">
 
           {/* Toolbar */}
-          <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row gap-4 items-center justify-between bg-neutral-50/30">
+          <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex flex-col sm:flex-row gap-4 items-center justify-between bg-neutral-50/30 dark:bg-neutral-900/30">
             <div className="relative w-full sm:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                className="w-full h-10 pl-10 pr-4 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm"
+                className="w-full h-10 pl-10 pr-4 rounded-lg border border-neutral-200 dark:border-neutral-700 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm bg-white dark:bg-neutral-800 text-foreground"
                 placeholder={t('search_part_oem') || "Search by Part Name or OEM #..."}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="outline" size="sm" className="bg-white gap-2 flex-1 sm:flex-none">
+              <Button variant="outline" size="sm" className="bg-white dark:bg-neutral-800 gap-2 flex-1 sm:flex-none">
                 <Filter className="w-3.5 h-3.5" /> Filter
               </Button>
-              <Button variant="outline" size="sm" className="bg-white gap-2 flex-1 sm:flex-none">
+              <Button variant="outline" size="sm" className="bg-white dark:bg-neutral-800 gap-2 flex-1 sm:flex-none">
                 <ArrowUpDown className="w-3.5 h-3.5" /> Sort
               </Button>
             </div>
@@ -271,7 +271,7 @@ export function Inventory() {
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-neutral-600">
-              <thead className="bg-neutral-50 border-b border-neutral-200 text-xs uppercase font-semibold text-neutral-500 tracking-wider">
+              <thead className="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 text-xs uppercase font-semibold text-neutral-500 dark:text-neutral-400 tracking-wider">
                 <tr>
                   <th className="px-6 py-4 text-left">{t('part_details') || 'PART DETAILS'}</th>
                   <th className="px-6 py-4 text-left">{t('category') || 'CATEGORY'}</th>
@@ -282,23 +282,23 @@ export function Inventory() {
                   <th className="px-6 py-4 text-right">{t('actions') || 'ACTIONS'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
+              <tbody className="divide-y divide-neutral-100 dark:divide-neutral-700">
                 {loading ? (
                   <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Loading inventory...</td></tr>
                 ) : paginatedItems.length === 0 ? (
                   <tr><td colSpan={7} className="p-12 text-center text-muted-foreground">No parts found matching your criteria.</td></tr>
                 ) : (
                   paginatedItems.map((part) => (
-                    <tr key={part.id} className="hover:bg-neutral-50/50 transition-colors group cursor-pointer" onClick={() => openEdit(part)}>
+                    <tr key={part.id} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-700/50 transition-colors group cursor-pointer" onClick={() => openEdit(part)}>
                       <td className="px-6 py-4">
-                        <div className="font-bold text-neutral-900 text-base">{part.name}</div>
+                        <div className="font-bold text-neutral-900 dark:text-white text-base">{part.name}</div>
                         <div className="text-xs font-mono text-neutral-400 mt-1">OEM: {part.part_number || 'N/A'}</div>
                       </td>
                       <td className="px-6 py-4 font-medium">{part.category || '-'}</td>
                       <td className="px-6 py-4 text-center">
                         <span className={cn(
                           "font-bold text-base",
-                          part.quantity <= part.min_stock ? "text-red-600" : "text-neutral-900"
+                          part.quantity <= part.min_stock ? "text-red-600 dark:text-red-400" : "text-neutral-900 dark:text-white"
                         )}>
                           {part.quantity}
                         </span>
@@ -310,9 +310,9 @@ export function Inventory() {
                       <td className="px-6 py-4 text-center">
                         <span className={cn(
                           "px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide",
-                          part.quantity === 0 ? "bg-red-100 text-red-700" :
-                            part.quantity <= part.min_stock ? "bg-amber-100 text-amber-700" :
-                              "bg-emerald-100 text-emerald-700"
+                          part.quantity === 0 ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
+                            part.quantity <= part.min_stock ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" :
+                              "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
                         )}>
                           {part.quantity === 0 ? t('out_of_stock') || 'Out Stock' :
                             part.quantity <= part.min_stock ? t('reorder_soon') || 'Reorder' :
@@ -337,9 +337,9 @@ export function Inventory() {
           </div>
 
           {/* Footer / Pagination */}
-          <div className="p-4 border-t border-neutral-200 bg-neutral-50/30 flex items-center justify-between text-sm text-neutral-500">
+          <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50/30 dark:bg-neutral-900/30 flex items-center justify-between text-sm text-neutral-500 dark:text-neutral-400">
             <div>
-              Showing <span className="font-medium text-neutral-900">{Math.min(totalItems, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(totalItems, currentPage * itemsPerPage)}</span> of <span className="font-medium text-neutral-900">{totalItems}</span> parts
+              Showing <span className="font-medium text-neutral-900 dark:text-white">{Math.min(totalItems, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(totalItems, currentPage * itemsPerPage)}</span> of <span className="font-medium text-neutral-900 dark:text-white">{totalItems}</span> parts
             </div>
             <div className="flex gap-2">
               <Button
