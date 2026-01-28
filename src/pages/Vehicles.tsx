@@ -5,9 +5,10 @@ import { supabase, type Vehicle, type Customer, type ServiceHistory } from '../l
 import { DataTable } from '../components/DataTable';
 import { EmptyState } from '../components/EmptyState';
 import { Modal, Button, Input, Select, Textarea } from '../components/Modal';
-import { Plus, Search, History, AlertCircle, X, Car } from 'lucide-react';
+import { Plus, Search, History, AlertCircle, X, Car, ExternalLink } from 'lucide-react';
 import { carMakes, getCarLogoUrl, getModelsForMake } from '../data/carMakes';
 import { toast } from 'sonner';
+import { VehicleHistoryModal } from '../components/vehicles/VehicleHistoryModal';
 
 export function Vehicles() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export function Vehicles() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [search, setSearch] = useState('');
 
   const [form, setForm] = useState({
@@ -270,15 +272,26 @@ export function Vehicles() {
             )}
 
             <div>
-              <h3 className="font-medium text-foreground mb-3 flex items-center gap-2">
-                <History className="w-4 h-4" />
-                {t('service_history')}
-              </h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-foreground flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  {t('service_history')}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setHistoryModalOpen(true)}
+                  className="text-xs gap-1"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  {t('view_full_history') || 'View Full History'}
+                </Button>
+              </div>
               {vehicleHistory.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{t('no_service_history')}</p>
               ) : (
                 <div className="space-y-3">
-                  {vehicleHistory.slice(0, 5).map((s) => (
+                  {vehicleHistory.slice(0, 3).map((s) => (
                     <div key={s.id} className="p-3 bg-muted/50 rounded-lg">
                       <div className="flex justify-between">
                         <p className="font-medium text-sm text-foreground">{s.service_type}</p>
@@ -288,6 +301,14 @@ export function Vehicles() {
                       {s.mileage_at_service && <p className="text-xs text-muted-foreground mt-1">{s.mileage_at_service.toLocaleString()} mi</p>}
                     </div>
                   ))}
+                  {vehicleHistory.length > 3 && (
+                    <button
+                      onClick={() => setHistoryModalOpen(true)}
+                      className="text-sm text-primary hover:underline w-full text-center py-2"
+                    >
+                      {t('and_more', { count: vehicleHistory.length - 3 }) || `+${vehicleHistory.length - 3} more`}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -421,6 +442,16 @@ export function Vehicles() {
           </div>
         </form>
       </Modal>
+
+      {/* Vehicle History Modal */}
+      {selectedVehicle && (
+        <VehicleHistoryModal
+          isOpen={historyModalOpen}
+          onClose={() => setHistoryModalOpen(false)}
+          vehicle={selectedVehicle}
+          customerName={getCustomerName(selectedVehicle.customer_id)}
+        />
+      )}
     </div>
   );
 }

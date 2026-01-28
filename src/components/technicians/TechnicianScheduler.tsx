@@ -25,6 +25,15 @@ export function TechnicianScheduler({ technicians, workOrders, onUpdate }: Techn
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
+    // Translated weekday names (Monday to Friday for the scheduler)
+    const dayNames = [
+        t('monday'),
+        t('tuesday'),
+        t('wednesday'),
+        t('thursday'),
+        t('friday')
+    ];
+
     const sensors = useSensors(
         useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
         useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 10 } })
@@ -134,9 +143,9 @@ export function TechnicianScheduler({ technicians, workOrders, onUpdate }: Techn
                                 {/* Values Header */}
                                 <div className="flex border-b border-neutral-100">
                                     <div className="w-48 p-4 font-semibold text-slate-700 border-r border-neutral-100">{t('technician')}</div>
-                                    {weekDates.map(date => (
+                                    {weekDates.map((date, i) => (
                                         <div key={date.toString()} className="flex-1 p-4 font-semibold text-slate-700 border-r border-neutral-100 last:border-0">
-                                            {format(date, 'EEE')} <span className="text-slate-400 font-normal ml-1">{format(date, 'd')}</span>
+                                            {dayNames[i]} <span className="text-slate-400 font-normal ml-1">{format(date, 'd')}</span>
                                         </div>
                                     ))}
                                 </div>

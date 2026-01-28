@@ -1,43 +1,65 @@
-# Task Plan: Code Quality & visual Polish Improvements
+# Task Plan: Refactor i18n to Centralized Structure
 
 ## Goal
-Implement approved "Priority 1" suggestions to improve code quality, stability, and maintainability.
+Refactor the 2300+ line i18n.ts file into a modular, maintainable structure using separate JSON files per language with namespace-based organization.
 
-## Phase 1: Internationalization (i18n)
-- [x] Scan `Settings.tsx` for missing translation keys <!-- id: 0 -->
-- [x] Update `i18n.ts` with new keys (en-GB & pt-PT) <!-- id: 1 -->
-- [ ] Update `i18n.ts` with new keys (fr-FR, es-ES, de-DE) <!-- id: 9 -->
-- [x] Refactor `Settings.tsx` to use `t()` for all text <!-- id: 2 -->
+## Current Phase
+Phase 1
 
-## Phase 2: Standardization (Enums)
-- [x] Create `src/types/enums.ts` <!-- id: 3 -->
-    - [x] Define `WorkOrderStatus`
-    - [x] Define `InspectionStatus`
-    - [x] Define `KPITrendColor` (for KPICard)
-- [x] Refactor usages to use Enums (where applicable/easy) <!-- id: 4 -->
+## Phases
 
-## Phase 3: Type Safety
-- [x] Refactor `KPICard.tsx` <!-- id: 5 -->
-    - [x] Remove `@ts-ignore` (partially, fixed types)
-    - [x] Fix Chart data types
-- [x] Refactor `inspectionService.ts` <!-- id: 6 -->
-    - [x] Remove `any` types in `updateItemRecommendation`
-    - [x] Remove `any` in `createEstimateFromInspection`
-    - [x] Define strict interfaces for parameters
+### Phase 1: Requirements & Discovery
+- [x] Understand current i18n.ts structure
+- [x] Identify all languages supported (en-GB, pt-PT, fr-FR, es-ES, de-DE)
+- [x] Count and categorize translation keys
+- [x] Document findings in findings.md
+- **Status:** in_progress
 
-## Phase 4: Verification
-- [x] Run `tsc` to verify no type errors <!-- id: 7 -->
-- [x] Verify Settings page translations in browser <!-- id: 8 -->
+### Phase 2: Planning & Structure
+- [ ] Design new folder structure for locales
+- [ ] Define namespace categories (common, vehicles, billing, etc.)
+- [ ] Plan migration strategy (minimize breaking changes)
+- [ ] Document decisions with rationale
+- **Status:** pending
 
-## Phase 5: Empty States
-- [x] Create `src/components/EmptyState.tsx` <!-- id: 10 -->
-- [x] Implement EmptyState in `WorkOrders.tsx` (Kanban & List) <!-- id: 11 -->
-- [x] Implement EmptyState in `Dashboard.tsx` (Active Jobs & Techs) <!-- id: 12 -->
-- [x] Update `DataTable.tsx` to support custom Empty State <!-- id: 13 -->
+### Phase 3: Implementation
+- [ ] Create src/locales/ folder structure
+- [ ] Extract translations to JSON files per language/namespace
+- [ ] Update i18n.ts to load from new structure
+- [ ] Ensure backwards compatibility in components
+- **Status:** pending
 
-## Phase 4: Empty States Expansion (Inventory, Customers, Vehicles)
-- [ ] Implement EmptyState in `Inventory.tsx` <!-- id: 14 -->
-- [ ] Implement EmptyState in `Customers.tsx` <!-- id: 15 -->
-- [ ] Implement EmptyState in `Vehicles.tsx` <!-- id: 16 -->
-- [ ] Implement EmptyState in `Technicians.tsx` <!-- id: 17 -->
-- [ ] Add necessary i18n keys for new empty states <!-- id: 18 -->
+### Phase 4: Testing & Verification
+- [ ] Run TypeScript compilation
+- [ ] Test app loads without errors
+- [ ] Verify translations display correctly
+- [ ] Test language switching works
+- **Status:** pending
+
+### Phase 5: Delivery
+- [ ] Review all output files
+- [ ] Update walkthrough with changes
+- [ ] Deliver to user
+- **Status:** pending
+
+## Key Questions
+1. How many unique translation keys exist? (~400-500 per language)
+2. What namespace categories make sense? (navigation, vehicles, billing, settings, work_orders, inspection, portal)
+3. Should we keep fallback behavior? (Yes - i18next handles this automatically)
+
+## Decisions Made
+| Decision | Rationale |
+|----------|-----------|
+| Use JSON files | Standard i18next format, easier to manage, enables tooling |
+| Namespace by feature | Groups related translations, easier to find/edit |
+| Keep 5 language folders | Matches current languages (en-GB, pt-PT, fr-FR, es-ES, de-DE) |
+
+## Errors Encountered
+| Error | Attempt | Resolution |
+|-------|---------|------------|
+|       | 1       |            |
+
+## Notes
+- Current i18n.ts is 2304 lines, ~109KB
+- All translations are inline in a single file
+- i18next already supports JSON backends via i18next-http-backend
