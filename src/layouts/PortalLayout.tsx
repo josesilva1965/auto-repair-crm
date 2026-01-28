@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Outlet, useParams, useLocation, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Loader2, Home, Car, History, CalendarPlus, LogOut } from 'lucide-react';
+import { InstallAppBanner } from '../components/InstallAppBanner';
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 import {
@@ -238,6 +239,8 @@ export function PortalLayout() {
                 {/* Spacer for desktop header */}
                 <div className="hidden md:block h-16"></div>
 
+                {/* PWA Install Banner */}
+                <InstallAppBanner />
             </div>
         </PortalContext.Provider>
     );

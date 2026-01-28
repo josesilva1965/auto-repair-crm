@@ -318,5 +318,13 @@
   "total_visits": "Visitas Totales",
   "vat_rate": "Tasa de IVA",
   "default_discount": "Descuento Predeterminado",
-  "copy_portal_link": "Copiar Enlace del Portal"
+  "copy_portal_link": "Copiar Enlace del Portal",
+  "install_app": "Instalar App",
+  "install_app_desc": "Añade a tu pantalla de inicio para acceso rápido",
+  "install": "Instalar",
+  "install_on_ios": "Instalar en iPhone",
+  "ios_step_1": "Toca el botón Compartir en la parte inferior de Safari",
+  "ios_step_2": "Desplázate hacia abajo y toca 'Añadir a pantalla de inicio'",
+  "ios_step_3": "Toca 'Añadir' en la esquina superior derecha",
+  "got_it": "¡Entendido!"
 }

@@ -374,5 +374,13 @@
   "total_visits": "Visites Totales",
   "vat_rate": "Taux de TVA",
   "default_discount": "Remise par Défaut",
-  "copy_portal_link": "Copier le Lien du Portail"
+  "copy_portal_link": "Copier le Lien du Portail",
+  "install_app": "Installer l'App",
+  "install_app_desc": "Ajoutez à votre écran d'accueil pour un accès rapide",
+  "install": "Installer",
+  "install_on_ios": "Installer sur iPhone",
+  "ios_step_1": "Appuyez sur le bouton Partager en bas de Safari",
+  "ios_step_2": "Faites défiler et appuyez sur 'Sur l'écran d'accueil'",
+  "ios_step_3": "Appuyez sur 'Ajouter' en haut à droite",
+  "got_it": "Compris!"
 }

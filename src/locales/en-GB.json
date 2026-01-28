@@ -543,5 +543,13 @@
   "total_visits": "Total Visits",
   "vat_rate": "VAT Rate",
   "default_discount": "Default Discount",
-  "copy_portal_link": "Copy Portal Link"
+  "copy_portal_link": "Copy Portal Link",
+  "install_app": "Install App",
+  "install_app_desc": "Add to your home screen for quick access",
+  "install": "Install",
+  "install_on_ios": "Install on iPhone",
+  "ios_step_1": "Tap the Share button at the bottom of Safari",
+  "ios_step_2": "Scroll down and tap 'Add to Home Screen'",
+  "ios_step_3": "Tap 'Add' in the top right corner",
+  "got_it": "Got it!"
 }

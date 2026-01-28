@@ -253,5 +253,13 @@
   "total_visits": "Besuche Gesamt",
   "vat_rate": "MwSt.-Satz",
   "default_discount": "Standardrabatt",
-  "copy_portal_link": "Portal-Link kopieren"
+  "copy_portal_link": "Portal-Link kopieren",
+  "install_app": "App installieren",
+  "install_app_desc": "Zum Startbildschirm hinzufügen für schnellen Zugriff",
+  "install": "Installieren",
+  "install_on_ios": "Auf iPhone installieren",
+  "ios_step_1": "Tippen Sie auf die Teilen-Schaltfläche unten in Safari",
+  "ios_step_2": "Scrollen Sie nach unten und tippen Sie auf 'Zum Home-Bildschirm'",
+  "ios_step_3": "Tippen Sie oben rechts auf 'Hinzufügen'",
+  "got_it": "Verstanden!"
 }
