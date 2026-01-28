@@ -34,6 +34,13 @@ Welcome to the Auto Repair CRM! This application is designed to help auto repair
 - **Vehicles**: Link vehicles to customers. Track VIN, license plate, color, and mileage.
 - **History**: View the full service history for any vehicle.
 
+#### Vehicle Service History (NEW)
+- **Timeline View**: See a chronological timeline of all work orders for a vehicle.
+- **Expandable Details**: Click any service entry to view parts used, labor performed, and costs.
+- **Summary Stats**: View total services, completed jobs, and total spent at a glance.
+- **Inspection Records**: See when Digital Vehicle Inspections were performed.
+- **Cost Breakdown**: View subtotal, tax, discount, and total for each service.
+
 #### Inventory & Parts
 - **Manage**: Track parts, unit costs, and selling prices.
 - **Low Stock**: The system automatically flags items that are below the minimum stock level.
@@ -120,6 +127,13 @@ Bem-vindo ao CRM de Reparação Automóvel! Esta aplicação foi desenhada para 
 - **Clientes**: Base de dados dos seus clientes com detalhes de contacto.
 - **Veículos**: Associe veículos a clientes. Registe VIN, matrícula, cor e quilometragem.
 - **Histórico**: Veja o histórico completo de serviço de qualquer veículo.
+
+#### Histórico de Serviço do Veículo (NOVO)
+- **Vista Cronológica**: Veja uma cronologia de todas as ordens de serviço do veículo.
+- **Detalhes Expansíveis**: Clique em qualquer entrada para ver peças, mão de obra e custos.
+- **Estatísticas Resumo**: Veja total de serviços, trabalhos concluídos e valor gasto.
+- **Registos de Inspeção**: Veja quando foram realizadas Inspeções Digitais.
+- **Discriminação de Custos**: Veja subtotal, impostos, desconto e total de cada serviço.
 
 #### Inventário e Peças
 - **Gerir**: Acompanhe peças, custos unitários e preços de venda.
@@ -208,6 +222,13 @@ Bienvenue dans le CRM de Réparation Automobile ! Cette application est conçue 
 - **Véhicules**: Liez les véhicules aux clients. Suivez VIN, plaque, couleur et kilométrage.
 - **Historique**: Consultez l'historique complet de service de tout véhicule.
 
+#### Historique de Service du Véhicule (NOUVEAU)
+- **Vue Chronologique**: Visualisez une chronologie de tous les ordres de travail du véhicule.
+- **Détails Expansibles**: Cliquez sur une entrée pour voir pièces, main d'œuvre et coûts.
+- **Statistiques Résumé**: Consultez le total des services, travaux terminés et dépenses.
+- **Registres d'Inspection**: Voyez quand les Inspections Digitales ont été effectuées.
+- **Détail des Coûts**: Consultez sous-total, taxes, remise et total de chaque service.
+
 #### Inventaire et Pièces
 - **Gérer**: Suivez les pièces, coûts unitaires et prix de vente.
 - **Stock Bas**: Le système signale automatiquement les articles sous le niveau minimum.
@@ -295,6 +316,13 @@ Bienvenue dans le CRM de Réparation Automobile ! Cette application est conçue 
 - **Vehículos**: Vincule vehículos a clientes. Registre VIN, matrícula, color y kilometraje.
 - **Historial**: Vea el historial completo de servicio de cualquier vehículo.
 
+#### Historial de Servicio del Vehículo (NUEVO)
+- **Vista Cronológica**: Vea una cronología de todas las órdenes de trabajo del vehículo.
+- **Detalles Expandibles**: Haga clic en una entrada para ver repuestos, mano de obra y costos.
+- **Estadísticas Resumen**: Vea total de servicios, trabajos completados y gasto total.
+- **Registros de Inspección**: Vea cuándo se realizaron Inspecciones Digitales.
+- **Desglose de Costos**: Consulte subtotal, impuestos, descuento y total de cada servicio.
+
 #### Inventario y Repuestos
 - **Gestionar**: Controle repuestos, costos unitarios y precios de venta.
 - **Stock Bajo**: El sistema señala automáticamente artículos bajo el nivel mínimo.
@@ -381,6 +409,13 @@ Willkommen beim Auto-Reparatur-CRM! Diese Anwendung wurde entwickelt, um Autower
 - **Kunden**: Genaue Datenbank mit Kontaktdaten.
 - **Fahrzeuge**: Verknüpfen Sie Fahrzeuge mit Kunden. Erfassen Sie VIN, Kennzeichen, Farbe und Kilometerstand.
 - **Historie**: Sehen Sie die komplette Servicehistorie jedes Fahrzeugs.
+
+#### Fahrzeug-Servicehistorie (NEU)
+- **Zeitleistenansicht**: Sehen Sie eine chronologische Übersicht aller Arbeitsaufträge des Fahrzeugs.
+- **Erweiterbare Details**: Klicken Sie auf einen Eintrag, um Teile, Arbeit und Kosten zu sehen.
+- **Zusammenfassungsstatistik**: Sehen Sie Gesamtzahl der Services, abgeschlossene Aufträge und Gesamtausgaben.
+- **Inspektionsaufzeichnungen**: Sehen Sie, wann digitale Fahrzeuginspektionen durchgeführt wurden.
+- **Kostenaufstellung**: Sehen Sie Zwischensumme, Steuern, Rabatt und Gesamtbetrag jedes Services.
 
 #### Inventar & Teile
 - **Verwalten**: Verfolgen Sie Teile, Stückkosten und Verkaufspreise.
