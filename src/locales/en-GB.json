@@ -538,5 +538,10 @@
   "new_service_request": "New Service Request",
   "active_requests": "Active Requests",
   "diagnostic": "Diagnostic",
-  "finished": "Finished"
+  "finished": "Finished",
+  "customer_since": "Customer since",
+  "total_visits": "Total Visits",
+  "vat_rate": "VAT Rate",
+  "default_discount": "Default Discount",
+  "copy_portal_link": "Copy Portal Link"
 }

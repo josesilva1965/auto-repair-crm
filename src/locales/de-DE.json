@@ -248,5 +248,10 @@
   "general": "Allgemein",
   "dark_mode": "Dunkelmodus",
   "light_mode": "Hellmodus",
-  "keyboard_shortcuts": "Tastenkombinationen"
+  "keyboard_shortcuts": "Tastenkombinationen",
+  "customer_since": "Kunde seit",
+  "total_visits": "Besuche Gesamt",
+  "vat_rate": "MwSt.-Satz",
+  "default_discount": "Standardrabatt",
+  "copy_portal_link": "Portal-Link kopieren"
 }

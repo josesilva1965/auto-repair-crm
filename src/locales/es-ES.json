@@ -313,5 +313,10 @@
   "general": "General",
   "dark_mode": "Modo Oscuro",
   "light_mode": "Modo Claro",
-  "keyboard_shortcuts": "Atajos de Teclado"
+  "keyboard_shortcuts": "Atajos de Teclado",
+  "customer_since": "Cliente desde",
+  "total_visits": "Visitas Totales",
+  "vat_rate": "Tasa de IVA",
+  "default_discount": "Descuento Predeterminado",
+  "copy_portal_link": "Copiar Enlace del Portal"
 }

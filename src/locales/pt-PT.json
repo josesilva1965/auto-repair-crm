@@ -504,5 +504,10 @@
   "request_received_desc": "Recebemos o seu pedido de agendamento. Entraremos em contacto brevemente para confirmar.",
   "book_another": "Agendar Outro",
   "no_history": "Histórico de serviço não encontrado.",
-  "view_invoice": "Ver Fatura"
+  "view_invoice": "Ver Fatura",
+  "customer_since": "Cliente desde",
+  "total_visits": "Total de Visitas",
+  "vat_rate": "Taxa IVA",
+  "default_discount": "Desconto Padrão",
+  "copy_portal_link": "Copiar Link do Portal"
 }

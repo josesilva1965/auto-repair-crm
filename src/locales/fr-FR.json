@@ -369,5 +369,10 @@
   "general": "Général",
   "dark_mode": "Mode Sombre",
   "light_mode": "Mode Clair",
-  "keyboard_shortcuts": "Raccourcis Clavier"
+  "keyboard_shortcuts": "Raccourcis Clavier",
+  "customer_since": "Client depuis",
+  "total_visits": "Visites Totales",
+  "vat_rate": "Taux de TVA",
+  "default_discount": "Remise par Défaut",
+  "copy_portal_link": "Copier le Lien du Portail"
 }

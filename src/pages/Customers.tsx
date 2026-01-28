@@ -169,7 +169,7 @@ export function Customers() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">{selectedCustomer.name}</h2>
-                <p className="text-sm text-muted-foreground">Customer since {new Date(selectedCustomer.created_at).toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">{t('customer_since')} {new Date(selectedCustomer.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="secondary" size="sm" onClick={() => openEdit(selectedCustomer)}>{t('edit')}</Button>
@@ -211,11 +211,11 @@ export function Customers() {
 
             <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
               <div>
-                <p className="text-sm text-muted-foreground">Total Spent</p>
+                <p className="text-sm text-muted-foreground">{t('total_spent')}</p>
                 <p className="text-xl font-bold text-foreground">{currency}{totalSpent.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Total Visits</p>
+                <p className="text-sm text-muted-foreground">{t('total_visits')}</p>
                 <p className="text-xl font-bold text-foreground">{customerOrders.length}</p>
               </div>
             </div>
@@ -260,7 +260,7 @@ export function Customers() {
           <Input label={t('address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">VAT Rate (%)</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">{t('vat_rate')} (%)</label>
               <input
                 type="number"
                 min="0"
@@ -273,7 +273,7 @@ export function Customers() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Default Discount (%)</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">{t('default_discount')} (%)</label>
               <input
                 type="number"
                 min="0"
@@ -293,6 +293,6 @@ export function Customers() {
           </div>
         </form>
       </Modal>
-    </div>
+    </div >
   );
 }
